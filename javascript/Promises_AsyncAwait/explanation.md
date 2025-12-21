@@ -298,6 +298,19 @@ console.log(gen.next()); // { value: 3, done: false }
 console.log(gen.next()); // { value: undefined, done: true }
 ```
 
+You can also pass a value into the generator with `next(value)`. That value becomes the result of the last paused `yield` expression.
+
+```javascript
+function* greeter() {
+  const name = yield 'What is your name?';
+  yield 'Hello ' + name + '!';
+}
+
+const g = greeter();
+console.log(g.next().value);        // "What is your name?"
+console.log(g.next('Luis').value);  // "Hello Luis!"
+```
+
 ### Generators and Promises
 
 Promises are not directly based on generators; they are separate ES6 features introduced to handle asynchronous operations. However, generators can be combined with promises for advanced async patterns, such as yielding promises within a generator.
@@ -350,6 +363,68 @@ getUser(userId, (userError, user) => {
 
 This illustrates the "pyramid of doom" where callbacks are deeply nested, making code hard to read and maintain.
 
+Real-life style helpers that fetch each resource without promises (XHR):
+
+```javascript
+function requestJson(url, cb) {
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', url, true);
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState !== 4) return;
+    if (xhr.status >= 200 && xhr.status < 300) {
+      try {
+        cb(null, JSON.parse(xhr.responseText));
+      } catch (e) {
+        cb(e);
+      }
+    } else {
+      cb(new Error('Request failed: ' + xhr.status));
+    }
+  };
+  xhr.send();
+}
+
+function getUser(userId, cb) {
+  requestJson('/api/users/' + userId, cb);
+}
+
+function getPosts(userId, cb) {
+  requestJson('/api/users/' + userId + '/posts', cb);
+}
+
+function getComments(postId, cb) {
+  requestJson('/api/posts/' + postId + '/comments', cb);
+}
+```
+
+Example call:
+
+```javascript
+const userId = 42;
+
+function handleUser(userError, user) {
+  if (userError) {
+    console.error(userError);
+    return;
+  }
+  getPosts(user.id, (postsError, posts) => {
+    if (postsError) {
+      console.error(postsError);
+      return;
+    }
+    getComments(posts[0].id, (commentsError, comments) => {
+      if (commentsError) {
+        console.error(commentsError);
+        return;
+      }
+      console.log('User:', user, 'Posts:', posts, 'Comments:', comments);
+    });
+  });
+}
+
+getUser(userId, handleUser);
+```
+
 ### Promises
 
 ```javascript
@@ -364,6 +439,53 @@ fetchData()
   .catch(error => console.error(error));
 ```
 
+Promise version of the nested callback flow:
+
+```javascript
+function getUser(userId) {
+  return fetch('/api/users/' + userId)
+    .then(r => r.json())
+    .catch(error => {
+      console.error('getUser failed:', error);
+      throw error;
+    });
+}
+
+function getPosts(userId) {
+  return fetch('/api/users/' + userId + '/posts')
+    .then(r => r.json())
+    .catch(error => {
+      console.error('getPosts failed:', error);
+      throw error;
+    });
+}
+
+function getComments(postId) {
+  return fetch('/api/posts/' + postId + '/comments')
+    .then(r => r.json())
+    .catch(error => {
+      console.error('getComments failed:', error);
+      throw error;
+    });
+}
+
+const userId = 42;
+
+getUser(userId)
+  .then(user => {
+    return getPosts(user.id).then(posts => ({ user, posts }));
+  })
+  .then(({ user, posts }) => {
+    return getComments(posts[0].id).then(comments => ({ user, posts, comments }));
+  })
+  .then(({ user, posts, comments }) => {
+    console.log('User:', user, 'Posts:', posts, 'Comments:', comments);
+  })
+  .catch(error => console.error('Error:', error));
+```
+
+Each `.then` callback receives the resolved value from the previous step. The first `.then` receives `user` from `getUser`. It returns a new promise that resolves to an object containing both `user` and `posts`, so the next `.then` destructures that `{ user, posts }`. That second step returns a promise that resolves to `{ user, posts, comments }`, so the final `.then` can access all three values.
+
 **Note:** While `reject` is not explicitly called here (as the operation always succeeds), it's a required parameter in the executor. In real scenarios, call `reject(error)` for failures to properly handle errors.
 
 Better: Chainable, standardized error handling.
@@ -377,6 +499,23 @@ async function fetchData() {
   );
   console.log(data);
 }
+```
+
+Async/await version of the same flow (using the promise helpers above):
+
+```javascript
+async function loadUserPostsComments(userId) {
+  try {
+    const user = await getUser(userId);
+    const posts = await getPosts(user.id);
+    const comments = await getComments(posts[0].id);
+    console.log('User:', user, 'Posts:', posts, 'Comments:', comments);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+loadUserPostsComments(42);
 ```
 
 Best: Looks synchronous, easy to read and debug.
