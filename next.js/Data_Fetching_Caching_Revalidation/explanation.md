@@ -15,6 +15,8 @@ export default async function Page() {
 }
 ```
 
+Caching is per request and respects `next` options. If you read cookies or headers, the route often becomes dynamic.
+
 ## Revalidation
 
 ```javascript
@@ -22,6 +24,8 @@ await fetch('https://api.example.com/users', {
   next: { revalidate: 60 }
 });
 ```
+
+Revalidation is per-request; different fetches in the same page can use different strategies.
 
 ## No Store (Always Dynamic)
 
@@ -40,6 +44,10 @@ await fetch('https://api.example.com/users', {
 ```
 
 Call `revalidateTag('users')` in a server action or route handler to refresh.
+
+## Streaming and Suspense
+
+You can use `Suspense` in server components to stream parts of the UI while data loads.
 
 ## Dynamic Rendering Controls
 

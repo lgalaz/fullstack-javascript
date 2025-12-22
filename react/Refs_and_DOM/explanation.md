@@ -42,6 +42,22 @@ const TextInput = React.forwardRef(function TextInput(props, ref) {
 });
 ```
 
+## useImperativeHandle
+
+Expose a controlled imperative API from a child component.
+
+```javascript
+const FancyInput = React.forwardRef(function FancyInput(_props, ref) {
+  const inputRef = React.useRef(null);
+
+  React.useImperativeHandle(ref, () => ({
+    focus: () => inputRef.current?.focus(),
+  }));
+
+  return <input ref={inputRef} />;
+});
+```
+
 ## Interview Questions and Answers
 
 ### 1. When should you use refs?

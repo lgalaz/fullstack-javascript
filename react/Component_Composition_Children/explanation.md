@@ -40,6 +40,23 @@ function Panel({ title, children }) {
 </Panel>
 ```
 
+## Render props
+
+Children can be a function to pass data down without additional components.
+
+```javascript
+function Mouse({ children }) {
+  const [pos, setPos] = React.useState({ x: 0, y: 0 });
+  return (
+    <div onMouseMove={e => setPos({ x: e.clientX, y: e.clientY })}>
+      {children(pos)}
+    </div>
+  );
+}
+
+<Mouse>{pos => <span>{pos.x}, {pos.y}</span>}</Mouse>;
+```
+
 ## Multiple Slots
 
 You can pass multiple regions via props.
@@ -52,6 +69,32 @@ function Layout({ header, sidebar, content }) {
       <aside>{sidebar}</aside>
       <main>{content}</main>
     </div>
+  );
+}
+```
+
+## Compound components
+
+Compound components share state implicitly via context.
+
+```javascript
+const TabsContext = React.createContext(null);
+
+function Tabs({ children }) {
+  const [active, setActive] = React.useState(0);
+  return (
+    <TabsContext.Provider value={{ active, setActive }}>
+      {children}
+    </TabsContext.Provider>
+  );
+}
+
+function Tab({ index, children }) {
+  const ctx = React.useContext(TabsContext);
+  return (
+    <button onClick={() => ctx.setActive(index)}>
+      {children}
+    </button>
   );
 }
 ```

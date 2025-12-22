@@ -15,7 +15,12 @@ enum Status {
 }
 ```
 
-Numeric enums generate a runtime object with reverse mappings.
+Numeric enums generate a runtime object with reverse mappings, so you can look up a name by value (`Status[1] === "Loading"`) in addition to a value by name (`Status.Loading === 1`).
+
+```typescript
+console.log(Status.Loading); // 1
+console.log(Status[1]); // "Loading"
+```
 
 ## String Enums
 
@@ -26,7 +31,24 @@ enum Role {
 }
 ```
 
-String enums are more stable and easier to debug because their values are readable.
+String enums are more stable and easier to debug because their values are readable and do not change if you reorder or insert members (numeric enums auto-increment and can shift values).
+
+## const enums
+
+`const enum` values are inlined at compile time (no runtime object).
+
+```typescript
+const enum HttpStatus {
+  Ok = 200,
+  NotFound = 404,
+}
+
+const code = HttpStatus.Ok; // inlined as 200
+```
+
+Be careful when publishing libraries: inlining can cause mismatches if consumers compile with different settings.
+
+Note: because `const enum` values are inlined, consumers who compile your `.ts` or `.d.ts` with `preserveConstEnums` or different compiler options can end up with emitted code that does not match the actual runtime values (or no runtime enum at all), leading to subtle versioning issues.
 
 ## When to Avoid Enums
 
@@ -36,7 +58,7 @@ Union of string literals is often simpler and tree-shake friendly.
 type Role = 'admin' | 'user';
 ```
 
-Prefer unions when you do not need a runtime enum object.
+Prefer unions when you do not need a runtime enum object. Unions are erased at compile time, tree-shake well, and avoid the extra JS output that enums produce. They also make it easier to interop with JSON or API payloads that already use string literals.
 
 ## Interview Questions and Answers
 

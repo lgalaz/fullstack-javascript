@@ -17,6 +17,18 @@ export default function UserPage({ params }) {
 }
 ```
 
+In client components, use `useParams` from `next/navigation`.
+
+```javascript
+'use client';
+import { useParams } from 'next/navigation';
+
+export default function UserPage() {
+  const params = useParams();
+  return <div>User: {params.id}</div>;
+}
+```
+
 ## Catch-All and Optional Segments
 
 - `app/blog/[...slug]/page.js` matches `/blog/a/b/c`.
@@ -37,6 +49,8 @@ export async function generateStaticParams() {
   return [{ id: '1' }, { id: '2' }];
 }
 ```
+
+Pair `generateStaticParams` with `revalidate` or caching to keep content fresh.
 
 ## Interview Questions and Answers
 

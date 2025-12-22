@@ -40,10 +40,35 @@ function User() {
 ## Nested Routes
 
 ```javascript
-<Route path="/settings" element={<Settings />}
-  >
+<Route path="/settings" element={<Settings />}>
   <Route path="profile" element={<Profile />} />
 </Route>
+```
+
+Render children with `Outlet` in the parent route.
+
+```javascript
+import { Outlet } from 'react-router-dom';
+
+function Settings() {
+  return (
+    <div>
+      <h1>Settings</h1>
+      <Outlet />
+    </div>
+  );
+}
+```
+
+## Navigation
+
+```javascript
+import { useNavigate } from 'react-router-dom';
+
+function SaveButton() {
+  const navigate = useNavigate();
+  return <button onClick={() => navigate('/settings')}>Save</button>;
+}
 ```
 
 ## Interview Questions and Answers

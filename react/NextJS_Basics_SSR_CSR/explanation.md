@@ -18,6 +18,8 @@ The server renders HTML per request.
 Pros: better SEO, faster first contentful paint.
 Cons: more server load, slower TTFB if data is slow.
 
+SSR still hydrates on the client. The server sends HTML, and the client attaches event handlers during hydration.
+
 ## SSG (Static Site Generation)
 
 Pages are generated at build time.
@@ -28,6 +30,8 @@ Cons: content is fixed until rebuild.
 ## ISR (Incremental Static Regeneration)
 
 Pages are generated at build time but can be updated on a schedule.
+
+ISR combines static delivery with background revalidation so you avoid full rebuilds.
 
 ## Choosing a Strategy
 

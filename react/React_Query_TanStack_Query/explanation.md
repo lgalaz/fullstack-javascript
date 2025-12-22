@@ -11,6 +11,8 @@ TanStack Query (React Query) manages server state: fetching, caching, background
 - Mutations update data and can invalidate queries
 - Stale time controls refetching behavior
 
+`staleTime` controls when data becomes "stale" (eligible for refetch). `cacheTime` controls how long unused data stays in memory.
+
 ## Basic Query Example
 
 ```javascript
@@ -56,6 +58,37 @@ function AddUser() {
     </button>
   );
 }
+```
+
+## Query key structure
+
+Use array keys for parameterized data so cache entries remain distinct.
+
+```javascript
+useQuery({
+  queryKey: ['user', userId],
+  queryFn: () => fetch(`/api/users/${userId}`).then(r => r.json())
+});
+```
+
+## Optimistic updates
+
+```javascript
+const mutation = useMutation({
+  mutationFn: updateUser,
+  onMutate: async updated => {
+    await qc.cancelQueries({ queryKey: ['user', updated.id] });
+    const prev = qc.getQueryData(['user', updated.id]);
+    qc.setQueryData(['user', updated.id], updated);
+    return { prev };
+  },
+  onError: (_err, updated, ctx) => {
+    qc.setQueryData(['user', updated.id], ctx.prev);
+  },
+  onSettled: (_data, _err, updated) => {
+    qc.invalidateQueries({ queryKey: ['user', updated.id] });
+  }
+});
 ```
 
 ## Interview Questions and Answers

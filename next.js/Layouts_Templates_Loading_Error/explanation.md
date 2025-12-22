@@ -20,9 +20,13 @@ export default function DashboardLayout({ children }) {
 }
 ```
 
+Nested layouts compose, so parent layout UI persists while child layouts render below.
+
 ## Templates
 
 Templates are like layouts but reset state on navigation.
+
+Templates are useful when you need to re-run client component state on each navigation within a segment.
 
 ```javascript
 // app/dashboard/template.js
@@ -42,6 +46,8 @@ export default function Loading() {
 }
 ```
 
+Loading UI boundaries work with Suspense. Each segment can have its own `loading.js` for fine-grained loading states.
+
 ## Error and Not Found
 
 ```javascript
@@ -57,6 +63,8 @@ export default function Error({ error, reset }) {
   );
 }
 ```
+
+Error boundaries reset only their segment. Place them to isolate failures.
 
 ```javascript
 // app/not-found.js

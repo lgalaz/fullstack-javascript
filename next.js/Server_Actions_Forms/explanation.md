@@ -34,9 +34,25 @@ export default function UsersPage() {
 
 Client components can call server actions, but must pass them down as props or import them directly.
 
+```javascript
+'use client';
+import { createUser } from '../actions';
+
+export default function CreateUser() {
+  return (
+    <form action={createUser}>
+      <input name="name" />
+      <button type="submit">Create</button>
+    </form>
+  );
+}
+```
+
 ## Security and Validation
 
 Always validate input on the server. Server actions run with server privileges.
+
+Use `useFormState` and `useFormStatus` for optimistic UI and validation feedback.
 
 ## Interview Questions and Answers
 

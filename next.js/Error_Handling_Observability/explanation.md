@@ -16,9 +16,15 @@ Log on the server for critical failures, and use client logging for UI errors.
 console.error('Failed to load user');
 ```
 
+Prefer structured logs with request IDs to correlate errors across services.
+
 ## Instrumentation
 
 Next.js supports `instrumentation.ts` for advanced tracing and OpenTelemetry setups.
+
+## Error boundaries
+
+Pair `error.js` with client-side error boundaries for interactive segments, and log errors in `componentDidCatch` or error boundary `useEffect`.
 
 ## Interview Questions and Answers
 

@@ -45,6 +45,25 @@ function Search() {
 }
 ```
 
+You can also use `useTransition` to track pending state.
+
+```javascript
+const [isPending, startTransition] = useTransition();
+```
+
+## useDeferredValue
+
+Defer non-urgent derived values to keep typing responsive.
+
+```javascript
+const deferredQuery = useDeferredValue(query);
+const results = expensiveFilter(deferredQuery);
+```
+
+## Notes
+
+Concurrent rendering means React can interrupt renders and resume later. It does not mean multi-threaded rendering in JavaScript.
+
 ## Interview Questions and Answers
 
 ### 1. What problem does Suspense solve?

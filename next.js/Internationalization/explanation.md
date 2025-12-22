@@ -13,6 +13,15 @@ export default function Home({ params }) {
 }
 ```
 
+Load translations per locale and pass them to client components.
+
+```javascript
+export default async function Home({ params }) {
+  const messages = await import(`../../messages/${params.locale}.json`);
+  return <div>{messages.default.title}</div>;
+}
+```
+
 ## Config-Based i18n (Pages Router)
 
 ```javascript

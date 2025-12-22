@@ -20,9 +20,13 @@ export const revalidate = 60; // seconds
 
 Rendered on each request. Use dynamic data sources or `cache: 'no-store'`.
 
+Use `export const dynamic = 'force-dynamic'` when you must opt out of static optimization.
+
 ## CSR (Client-Side Rendering)
 
 Rendered in the browser. Use client components and fetch on the client.
+
+CSR still benefits from server-rendered shells when combined with App Router layouts.
 
 ## Streaming
 

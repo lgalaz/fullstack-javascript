@@ -48,6 +48,24 @@ function Alert({ type }) {
 }
 ```
 
+## Mapping status to components
+
+For complex UIs, map statuses to components instead of large switch blocks.
+
+```javascript
+const views = {
+  loading: <Spinner />,
+  error: <ErrorBanner />,
+  ready: <Dashboard />,
+};
+
+function Screen({ state }) {
+  return views[state] ?? null;
+}
+```
+
+Rendering `null` removes the element from the tree without errors.
+
 ## Interview Questions and Answers
 
 ### 1. What is the safest way to conditionally render a component?

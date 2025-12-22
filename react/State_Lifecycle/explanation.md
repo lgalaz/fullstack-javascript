@@ -4,6 +4,8 @@
 
 State represents data that changes over time within a component. In class components, lifecycle methods manage setup and teardown. In function components, hooks like `useEffect` cover lifecycle behavior.
 
+State is a snapshot tied to a render. Updating state schedules a re-render, it does not mutate state in place.
+
 ## State with Function Components
 
 Use `useState` to create local state.
@@ -29,6 +31,8 @@ Multiple state updates in an event handler are batched for performance. Use the 
 ```javascript
 setCount(prev => prev + 1);
 ```
+
+React batches state updates within the same event and may batch across async boundaries in React 18+.
 
 ## Class Component Lifecycle (Overview)
 
@@ -76,6 +80,42 @@ function Timer() {
   }, []);
 
   return <div>{seconds}</div>;
+}
+```
+
+`useEffect` runs after paint. For DOM measurement or synchronous layout updates, use `useLayoutEffect`.
+
+```javascript
+import { useLayoutEffect, useRef, useState } from 'react';
+
+function Measure() {
+  const ref = useRef(null);
+  const [width, setWidth] = useState(0);
+
+  useLayoutEffect(() => {
+    setWidth(ref.current.getBoundingClientRect().width);
+  }, []);
+
+  return <div ref={ref}>Width: {width}</div>;
+}
+```
+
+## Avoiding stale closures
+
+Effects capture values from the render in which they were created. Use deps or refs when you need the latest value.
+
+```javascript
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setCount(c => c + 1);
+    }, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  return <div>{count}</div>;
 }
 ```
 

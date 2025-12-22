@@ -40,6 +40,24 @@ function parse(input: string | number) {
 
 Only the overload signatures are visible to callers. The implementation signature must be compatible with all overloads.
 
+Overloads are useful when behavior truly differs per input type. If behavior is the same, prefer a union type to reduce complexity.
+
+```typescript
+function toArray(input: string | string[]) {
+  return Array.isArray(input) ? input : [input];
+}
+```
+
+## `this` parameters
+
+You can explicitly type `this` in function signatures to ensure correct usage.
+
+```typescript
+function setName(this: { name: string }, name: string) {
+  this.name = name;
+}
+```
+
 ## Rest Parameters
 
 ```typescript
@@ -49,6 +67,21 @@ function sum(...nums: number[]) {
 ```
 
 Rest parameters are typed as arrays, so `...nums: number[]` means any number of numbers.
+
+## Variadic tuple types
+
+```typescript
+function concat<T extends unknown[], U extends unknown[]>(
+  a: [...T],
+  b: [...U]
+): [...T, ...U] {
+  return [...a, ...b];
+}
+
+const result = concat([1, 'a'], [true]); // [number, string, boolean]
+```
+
+These are called "variadic" because the tuple types can be any length, and "tuple" because the arrays preserve element positions and types (not just `any[]`). The spread syntax (`...T`, `...U`) lets TypeScript carry the exact element types through concatenation.
 
 ## Interview Questions and Answers
 

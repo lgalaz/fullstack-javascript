@@ -48,6 +48,25 @@ Error boundaries do not catch:
 - Errors in async code
 - Errors in the error boundary itself
 
+## Resetting a boundary
+
+Use a `key` or state to reset after an error.
+
+```javascript
+function App() {
+  const [resetKey, setResetKey] = React.useState(0);
+  return (
+    <ErrorBoundary key={resetKey}>
+      <Profile onRetry={() => setResetKey(k => k + 1)} />
+    </ErrorBoundary>
+  );
+}
+```
+
+## Placement
+
+Place boundaries around independent UI regions so a failure does not blank the whole page.
+
 ## Interview Questions and Answers
 
 ### 1. What do error boundaries catch?

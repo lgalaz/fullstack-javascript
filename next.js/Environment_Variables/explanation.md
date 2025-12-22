@@ -22,6 +22,8 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 Environment variables are inlined at build time for client bundles, so changes require rebuilds.
 
+On the server, variables are read at runtime. Keep secrets server-only and never expose them via `NEXT_PUBLIC_`.
+
 ## Interview Questions and Answers
 
 ### 1. How do you expose an env var to the client?

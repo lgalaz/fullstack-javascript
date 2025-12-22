@@ -27,11 +27,28 @@ export async function generateMetadata({ params }) {
 }
 ```
 
+Dynamic metadata runs on the server and can fetch data. Use caching or revalidation to avoid repeated fetches.
+
 ## Robots
 
 ```javascript
 export const metadata = {
   robots: { index: true, follow: true }
+};
+```
+
+## Open Graph and Twitter
+
+```javascript
+export const metadata = {
+  openGraph: {
+    title: 'Docs',
+    description: 'API docs',
+    images: [{ url: '/og.png', width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+  },
 };
 ```
 

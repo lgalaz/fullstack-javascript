@@ -18,6 +18,8 @@ export default async function Users() {
 }
 ```
 
+Server Components can stream HTML and are cached by default unless you opt out.
+
 ## Client Components
 
 Add `'use client'` at the top to enable hooks and browser APIs.
@@ -37,6 +39,26 @@ export default function Counter() {
 
 - Server components for data fetching and static UI
 - Client components for interactivity and state
+
+## Data boundary example
+
+Keep the data on the server, pass only what the client needs.
+
+```javascript
+// app/users/page.js
+import UserList from './UserList';
+
+export default async function UsersPage() {
+  const users = await getUsers();
+  return <UserList users={users} />;
+}
+
+// app/users/UserList.js
+'use client';
+export default function UserList({ users }) {
+  return users.map(u => <div key={u.id}>{u.name}</div>);
+}
+```
 
 ## Interview Questions and Answers
 

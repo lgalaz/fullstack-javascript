@@ -52,6 +52,36 @@ function NameForm() {
 
 Pros: fewer re-renders, simpler for large forms with rare reads.
 
+## Avoid switching modes
+
+React warns if an input switches between controlled and uncontrolled. Keep `value` defined (even empty string) for controlled inputs, and use `defaultValue` for uncontrolled.
+
+```javascript
+<input value={value ?? ''} onChange={...} />
+```
+
+## Hybrid patterns
+
+You can keep inputs uncontrolled for typing performance, then sync on submit or blur.
+
+```javascript
+function Search() {
+  const inputRef = useRef(null);
+  const [query, setQuery] = useState('');
+
+  function onSubmit(e) {
+    e.preventDefault();
+    setQuery(inputRef.current.value);
+  }
+
+  return (
+    <form onSubmit={onSubmit}>
+      <input ref={inputRef} defaultValue={query} />
+    </form>
+  );
+}
+```
+
 ## When to Use Each
 
 - Controlled: validation, dynamic UI, dependent fields.

@@ -38,6 +38,26 @@ function Settings() {
 - Custom hooks can call other hooks.
 - Keep them focused and reusable.
 
+## Example: useEventListener
+
+```javascript
+function useEventListener(target, type, handler) {
+  const handlerRef = useRef(handler);
+  useEffect(() => {
+    handlerRef.current = handler;
+  }, [handler]);
+
+  useEffect(() => {
+    if (!target) return;
+    const listener = event => handlerRef.current(event);
+    target.addEventListener(type, listener);
+    return () => target.removeEventListener(type, listener);
+  }, [target, type]);
+}
+```
+
+Custom hooks encapsulate lifecycle and cleanup logic so components stay small.
+
 ## Interview Questions and Answers
 
 ### 1. What is a custom hook?

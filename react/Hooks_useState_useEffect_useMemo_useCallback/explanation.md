@@ -48,6 +48,8 @@ function User({ id }) {
 
 Dependency arrays control when the effect runs. Missing dependencies can cause stale values.
 
+Effects run after paint. In React Strict Mode (dev), effects may run twice to surface side-effect issues.
+
 ## useMemo
 
 Memoizes a computed value to avoid expensive recalculation.
@@ -63,6 +65,8 @@ function Expensive({ items }) {
   return <div>Total: {total}</div>;
 }
 ```
+
+`useMemo` is a performance hint, not a guarantee. React may discard memoized values under memory pressure.
 
 ## useCallback
 
@@ -81,6 +85,15 @@ function Parent() {
   return <Child onClick={handleClick} />;
 }
 ```
+
+`useCallback` is equivalent to `useMemo(() => fn, deps)`. Use it to keep function identity stable when passing to memoized children.
+
+## Choosing the right hook
+
+- `useState` for UI state.
+- `useEffect` for side effects and subscriptions.
+- `useMemo` for expensive derived data.
+- `useCallback` for stable function props.
 
 ## Interview Questions and Answers
 

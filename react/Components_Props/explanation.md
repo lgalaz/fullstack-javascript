@@ -4,6 +4,8 @@
 
 Components are the building blocks of a React UI. Props (short for properties) are inputs passed into components to configure how they render and behave. Components should be pure with respect to their props: given the same props, they should render the same output.
 
+React compares props by reference when deciding if a component can skip re-rendering (e.g., `React.memo`). Keeping props stable matters for performance-sensitive components.
+
 ## Function Components
 
 Function components are the modern, recommended way to write components.
@@ -41,6 +43,23 @@ function App() {
 }
 ```
 
+## Referential stability
+
+Passing new object or function instances each render breaks memoization.
+
+```javascript
+const MemoButton = React.memo(Button);
+
+function App() {
+  const onSave = React.useCallback(() => {
+    // save
+  }, []);
+
+  const style = React.useMemo(() => ({ color: 'white' }), []);
+  return <MemoButton label="Save" onClick={onSave} style={style} />;
+}
+```
+
 ## Children Prop
 
 Any JSX nested inside a component becomes `props.children`.
@@ -54,6 +73,20 @@ function Card({ children }) {
   <h2>Title</h2>
   <p>Content</p>
 </Card>
+```
+
+Children can also be a render function for advanced composition.
+
+```javascript
+function DataFetcher({ children }) {
+  const [data, setData] = React.useState(null);
+  React.useEffect(() => {
+    setData({ name: 'Ada' });
+  }, []);
+  return children(data);
+}
+
+<DataFetcher>{data => <span>{data?.name}</span>}</DataFetcher>;
 ```
 
 ## Default Props

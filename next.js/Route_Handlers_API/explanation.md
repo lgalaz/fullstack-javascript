@@ -28,6 +28,19 @@ export async function POST(request) {
 return new Response('Created', { status: 201 });
 ```
 
+## Dynamic segments and params
+
+```javascript
+// app/api/users/[id]/route.js
+export async function GET(_request, { params }) {
+  return Response.json({ id: params.id });
+}
+```
+
+## Edge vs Node runtimes
+
+Route handlers can run on the Edge or Node.js runtimes depending on your configuration and APIs used.
+
 ## Interview Questions and Answers
 
 ### 1. Where do route handlers live in the App Router?

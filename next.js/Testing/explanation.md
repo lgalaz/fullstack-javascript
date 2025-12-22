@@ -21,9 +21,22 @@ test('renders title', () => {
 
 Test route handlers by calling them as functions or using a test server.
 
+```javascript
+import { GET } from '@/app/api/users/route';
+
+test('GET users', async () => {
+  const res = await GET();
+  expect(res.status).toBe(200);
+});
+```
+
 ## E2E Testing
 
 Use Playwright or Cypress for full app flows.
+
+## Mocking Next.js APIs
+
+When testing server components, mock `cookies`, `headers`, or data functions to isolate behavior.
 
 ## Interview Questions and Answers
 

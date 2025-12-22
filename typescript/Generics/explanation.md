@@ -4,6 +4,8 @@
 
 Generics let you write reusable, type-safe functions and classes.
 
+They are important because they preserve relationships between inputs and outputs (e.g., "same type in, same type out") without sacrificing reuse, which avoids `any` and reduces manual runtime checks or type assertions (not JS coercion).
+
 ## Generic Functions
 
 ```typescript
@@ -17,6 +19,10 @@ const str = identity('hello');
 
 Type parameters are usually inferred from the arguments, so you rarely need to write `identity<number>(42)`.
 
+```typescript
+const literal = identity('x'); // T inferred as "x" if context preserves literal
+```
+
 ## Generic Constraints
 
 ```typescript
@@ -26,6 +32,17 @@ function getLength<T extends { length: number }>(value: T) {
 ```
 
 Constraints ensure the generic type has the required shape.
+
+You can constrain based on keys with `keyof`:
+
+```typescript
+function getProp<T, K extends keyof T>(obj: T, key: K) {
+  return obj[key];
+}
+
+const user = { id: 1, name: 'Ada' };
+const name = getProp(user, 'name'); // string
+```
 
 ## Generics with Arrays
 
@@ -51,6 +68,21 @@ interface Box<T = string> {
   value: T;
 }
 ```
+
+## Generic Inference in Higher-Order Functions
+
+```typescript
+function mapValues<T, U>(values: T[], mapper: (value: T) => U): U[] {
+  return values.map(mapper);
+}
+
+const lengths = mapValues(['a', 'bb'], s => s.length); // number[].
+// It would return [1, 2] at runtime, since 'a' has length 1 and 'bb' has length 2.
+```
+
+## Avoiding over-constraints
+
+Overly strict constraints can reduce reuse. Prefer structural constraints that describe what's required, not what the type "is".
 
 ## Interview Questions and Answers
 

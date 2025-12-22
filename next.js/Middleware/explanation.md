@@ -20,6 +20,14 @@ export function middleware(request) {
 }
 ```
 
+## Rewrites vs redirects
+
+`rewrite` serves content from a different path without changing the URL, while `redirect` changes the URL in the browser.
+
+```javascript
+return NextResponse.rewrite(new URL('/maintenance', request.url));
+```
+
 ## Matchers
 
 ```javascript

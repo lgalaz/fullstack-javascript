@@ -38,6 +38,19 @@ class Account {
 
 `public` is the default. `private` restricts access to the class itself, while `protected` allows access from subclasses.
 
+TypeScript `private` is a compile-time check. If you need runtime privacy, use JavaScript `#` private fields.
+
+```typescript
+class Secret {
+  #token = 'abc';
+  reveal() {
+    return this.#token;
+  }
+}
+```
+
+`#` fields are enforced by the JavaScript runtime: they cannot be accessed outside the class, even via bracket notation.
+
 ## Parameter Properties
 
 ```typescript
@@ -46,7 +59,18 @@ class Product {
 }
 ```
 
-Parameter properties declare and initialize fields in one step.
+Parameter properties declare and initialize fields in one step, instead of manually declaring class fields and assigning in the constructor.
+
+```typescript
+class Product {
+  public name: string;
+  private price: number;
+  constructor(name: string, price: number) {
+    this.name = name;
+    this.price = price;
+  }
+}
+```
 
 ## Readonly
 
@@ -58,6 +82,118 @@ class Config {
 
 `readonly` prevents reassignment of a field after construction.
 
+## Abstract classes and implements
+
+```typescript
+interface Serializable {
+  toJSON(): string;
+}
+
+abstract class BaseModel implements Serializable {
+  abstract toJSON(): string;
+}
+
+class User extends BaseModel {
+  constructor(public id: number, public name: string) {
+    super();
+  }
+  toJSON() {
+    return JSON.stringify({ id: this.id, name: this.name });
+  }
+}
+```
+
+## Strict property initialization
+
+With `strictPropertyInitialization`, you must initialize fields or use `!` for definite assignment.
+
+```typescript
+class Session {
+  token!: string; // assigned later, but guaranteed by logic
+}
+```
+
+`!` is the definite assignment assertion: it tells the compiler "this property will be assigned before it is used," even if it is not assigned in the constructor.
+
+## Structural typing vs nominal behavior
+
+Classes are structurally typed, but `private`/`protected` members make them nominal-like: only instances from the same declaration are compatible.
+
+```typescript
+class A {
+  private value = 1;
+}
+class B {
+  private value = 1;
+}
+
+// const a: A = new B(); // Error: private members are not compatible
+```
+
+## this typing and fluent APIs
+
+Use `this` return types to preserve subclass types in fluent APIs.
+
+```typescript
+class Builder {
+  setName(_name: string): this {
+    return this;
+  }
+}
+
+class UserBuilder extends Builder {
+  private role: 'admin' | 'user' = 'user';
+  private name = '';
+
+  setRole(role: 'admin' | 'user'): this {
+    this.role = role;
+    return this;
+  }
+
+  setName(name: string): this {
+    this.name = name;
+    return this;
+  }
+
+  build() {
+    return { name: this.name, role: this.role };
+  }
+}
+
+const user = new UserBuilder().setName('Ada').setRole('admin').build();
+// { name: 'Ada', role: 'admin' }
+```
+
+## Static vs instance members
+
+Static members belong to the class, not instances.
+
+```typescript
+class Counter {
+  static count = 0;
+  constructor() {
+    Counter.count += 1;
+  }
+}
+```
+
+## Accessors and invariants
+
+Getters and setters let you enforce invariants without changing callers.
+
+```typescript
+class BankAccount {
+  private _balance = 0;
+  get balance() {
+    return this._balance;
+  }
+  set balance(value: number) {
+    if (value < 0) throw new Error('Negative balance');
+    this._balance = value;
+  }
+}
+```
+
 ## Interview Questions and Answers
 
 ### 1. What is `private` used for in TypeScript?
@@ -67,3 +203,19 @@ To prevent access to a field from outside the class.
 ### 2. What are parameter properties?
 
 They declare and initialize class fields directly in the constructor signature.
+
+### 3. When would you prefer composition over inheritance?
+
+When behavior can be shared without deep type hierarchies; composition avoids brittle base classes and reduces coupling.
+
+### 4. Why might you use an abstract class instead of an interface?
+
+An abstract class can provide shared implementation and protected helpers, while still enforcing required methods.
+
+### 5. How does TypeScript treat classes in its type system?
+
+Classes are structurally typed, but `private`/`protected` members create nominal-like compatibility boundaries.
+
+### 6. What is the risk of relying on `private` in TS?
+
+It is compile-time only; at runtime the property is still accessible unless you use `#` private fields.

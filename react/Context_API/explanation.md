@@ -25,6 +25,8 @@ function Button() {
 }
 ```
 
+`createContext` default value is only used when there is no provider above in the tree.
+
 ## When to Use Context
 
 - Global app settings (theme, locale)
@@ -34,6 +36,21 @@ function Button() {
 ## Performance Considerations
 
 Any change to the provider value causes all consumers to re-render. Keep the context value stable and split contexts if needed.
+
+```javascript
+function ThemeProvider({ children }) {
+  const [theme, setTheme] = useState('dark');
+  const value = useMemo(() => ({ theme, setTheme }), [theme]);
+
+  return (
+    <ThemeContext.Provider value={value}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+```
+
+Context is not a state management replacement by itself. For complex derived state or async data, pair it with hooks or external stores.
 
 ## Interview Questions and Answers
 

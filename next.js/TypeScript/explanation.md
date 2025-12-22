@@ -12,11 +12,35 @@ export default function Page({ params, searchParams }) {
 }
 ```
 
+You can type these props explicitly for better tooling.
+
+```typescript
+type PageProps = {
+  params: { id: string };
+  searchParams: { [key: string]: string | string[] | undefined };
+};
+
+export default function Page({ params }: PageProps) {
+  return <div>{params.id}</div>;
+}
+```
+
 ## Route Handler Types
 
 ```javascript
 export async function GET(request) {
   return Response.json({ ok: true });
+}
+```
+
+Use `NextRequest` when you need cookies, headers, or URL utilities.
+
+```typescript
+import { NextRequest } from 'next/server';
+
+export async function GET(request: NextRequest) {
+  const id = request.nextUrl.searchParams.get('id');
+  return Response.json({ id });
 }
 ```
 

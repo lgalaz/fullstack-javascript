@@ -13,11 +13,19 @@ The Edge Runtime runs on a V8 isolate with low latency but has limitations compa
 export const runtime = 'edge';
 ```
 
+You can set it per route handler or page. It affects available APIs and performance characteristics.
+
 ## Limitations
 
 - No Node.js APIs (like `fs`)
 - Smaller runtime environment
 - Use Web APIs instead
+
+## Use cases
+
+- Geolocation-based routing
+- Lightweight auth checks
+- A/B testing at the edge
 
 ## Interview Questions and Answers
 

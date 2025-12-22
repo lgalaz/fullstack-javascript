@@ -31,6 +31,20 @@ export default function Dashboard() {
 }
 ```
 
+## Authorization
+
+Authentication proves identity; authorization controls access to resources. Enforce authorization in data access layers and route handlers.
+
+```javascript
+export async function GET(request) {
+  const user = await getSessionUser(request);
+  if (!user || !user.isAdmin) {
+    return new Response('Forbidden', { status: 403 });
+  }
+  return Response.json(await getAdminData());
+}
+```
+
 ## Interview Questions and Answers
 
 ### 1. Where should auth checks happen in Next.js?

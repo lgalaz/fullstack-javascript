@@ -22,7 +22,11 @@ TypeScript uses the same syntax as modern JavaScript, but can also separate type
 import type { User } from './types';
 ```
 
-Type-only imports are erased from the JS output, which helps avoid runtime dependency cycles.
+Type-only imports are erased from the JS output, which helps avoid runtime dependency cycles and prevents pulling in modules purely for types. This keeps the emitted JS smaller and avoids side effects from modules that are only needed at type-check time.
+
+```typescript
+export type { User } from './types';
+```
 
 ## Default Exports
 
@@ -37,6 +41,21 @@ Configured via `tsconfig.json` with `moduleResolution`, `baseUrl`, and `paths`.
 ```typescript
 // tsconfig.json\n// \"baseUrl\": \".\",\n// \"paths\": { \"@/*\": [\"src/*\"] }
 ```
+
+Path mappings are a compile-time feature. Your runtime (Node, bundler) must be configured to understand them too.
+
+## ESM vs CJS interop
+
+TypeScript can emit ESM or CommonJS depending on `module`. `esModuleInterop` and `allowSyntheticDefaultImports` affect how default imports are interpreted from CommonJS modules.
+
+```typescript
+// With esModuleInterop
+import express from 'express';
+```
+
+## Isolated modules
+
+If you use `isolatedModules` (common in Babel/tsc transpile-only setups), avoid `const enum` and certain `namespace` patterns because each file must be independently transpileable.
 
 ## Interview Questions and Answers
 

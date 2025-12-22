@@ -15,6 +15,16 @@ Next.js apps are commonly deployed on Vercel, but can run on any Node or edge-co
 - Server `fetch` caching for data
 - ISR for background revalidation
 
+Cache headers should align with your data freshness requirements. For static assets, long `max-age` with immutable is common.
+
+```javascript
+return new Response(body, {
+  headers: {
+    'Cache-Control': 'public, max-age=31536000, immutable'
+  }
+});
+```
+
 ## Headers
 
 You can set cache headers in route handlers or `next.config.js`.

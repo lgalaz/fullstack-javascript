@@ -20,6 +20,8 @@ const Chart = dynamic(() => import('./Chart'), { ssr: false });
 
 Use `fetch` caching and revalidation to avoid repeated work.
 
+Use `revalidateTag` for targeted invalidation instead of global revalidation.
+
 ## Streaming and Suspense
 
 Stream partial UI for faster time-to-first-byte and perceived speed.
@@ -27,6 +29,10 @@ Stream partial UI for faster time-to-first-byte and perceived speed.
 ## Optimize Images and Fonts
 
 Use `next/image` and `next/font`.
+
+## Server timing and profiling
+
+Instrument slow routes with logs and server timing. Next.js outputs can be inspected with Vercel analytics or custom tracing.
 
 ## Interview Questions and Answers
 

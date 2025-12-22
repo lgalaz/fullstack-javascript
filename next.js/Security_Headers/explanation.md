@@ -27,6 +27,22 @@ module.exports = {
 
 CSP is stricter and often requires nonces. It is commonly set in middleware.
 
+```javascript
+// middleware.js
+import { NextResponse } from 'next/server';
+
+export function middleware(request) {
+  const nonce = crypto.randomUUID();
+  const response = NextResponse.next();
+  response.headers.set(
+    'Content-Security-Policy',
+    `default-src 'self'; script-src 'self' 'nonce-${nonce}'`
+  );
+  response.headers.set('x-nonce', nonce);
+  return response;
+}
+```
+
 ## Interview Questions and Answers
 
 ### 1. Why are security headers important?

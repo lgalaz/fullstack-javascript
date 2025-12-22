@@ -35,6 +35,18 @@ Bad:
 
 Without stable keys, React may reuse DOM nodes incorrectly, leading to bugs like wrong input values or broken animations.
 
+```javascript
+function Example({ items }) {
+  return items.map(item => (
+    <input key={item.id} defaultValue={item.label} />
+  ));
+}
+```
+
+If `key` changes (or uses index), React may reuse the wrong input element and preserve the wrong value.
+
+Keys are used by React during reconciliation and are not available inside component props.
+
 ## Interview Questions and Answers
 
 ### 1. Why does React need keys?

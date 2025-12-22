@@ -39,6 +39,10 @@ Render only visible items with libraries like `react-window`.
 
 `useMemo` and `useCallback` add overhead. Use them when there is measurable benefit.
 
+## Context updates
+
+Context updates re-render all consumers. Split contexts by concern or memoize the provider value.
+
 ## React.memo
 
 `React.memo` prevents re-renders when props are equal by shallow comparison.
@@ -48,6 +52,10 @@ const Item = React.memo(function Item({ value }) {
   return <div>{value}</div>;
 });
 ```
+
+## Profiling
+
+Use the React Profiler to identify actual hotspots before optimizing.
 
 ## Interview Questions and Answers
 

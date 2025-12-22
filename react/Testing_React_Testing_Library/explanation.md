@@ -35,6 +35,17 @@ Prefer queries that match how users find elements:
 - `getByLabelText`
 - `getByText`
 
+Use `findBy*` for async elements and `queryBy*` when asserting absence.
+
+```javascript
+const alert = await screen.findByRole('alert');
+expect(screen.queryByText('Loading')).toBeNull();
+```
+
+## Async behavior
+
+`userEvent` returns promises for interactions that are async under the hood. Use `await` with click/type to avoid flaky tests.
+
 ## Interview Questions and Answers
 
 ### 1. What is the main philosophy of RTL?

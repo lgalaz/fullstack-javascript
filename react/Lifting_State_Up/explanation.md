@@ -37,6 +37,26 @@ function Calculator() {
 - Consistent updates across related components
 - Simpler debugging
 
+## Avoid duplicated state
+
+Compute derived values instead of storing multiple versions of the same data.
+
+```javascript
+function Calculator() {
+  const [celsius, setCelsius] = useState('');
+  const fahrenheit = celsius ? (celsius * 9) / 5 + 32 : '';
+
+  return (
+    <div>
+      <TemperatureInput label="C" value={celsius} onChange={setCelsius} />
+      <p>F: {fahrenheit}</p>
+    </div>
+  );
+}
+```
+
+If lifting causes deep prop chains, consider context or a state store for shared state.
+
 ## Interview Questions and Answers
 
 ### 1. What is lifting state up?
