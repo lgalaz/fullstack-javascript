@@ -91,6 +91,28 @@ arr.push(4); // Allowed
 arr = [5, 6]; // TypeError
 ```
 
+### Const and Arrays
+
+`const` prevents reassignment, but you can still mutate the array itself:
+
+```javascript
+const arr = [1, 2, 3];
+arr.push(4); // Allowed
+// arr = [5, 6]; // TypeError
+
+// Replace contents without reassigning
+arr.splice(0, arr.length, 5, 6);
+console.log(arr); // [5, 6]
+
+// Another option: clear then push
+arr.length = 0;
+arr.push(7, 8);
+console.log(arr); // [7, 8]
+```
+
+Note: `slice` returns a new array, so you'd have to reassign the result (which `const` does not allow).
+
+
 ## Scope
 
 Scope determines the accessibility of variables.
@@ -174,6 +196,21 @@ Function expressions:
 ```javascript
 hoistedFunc(); // TypeError: hoistedFunc is not a function
 var hoistedFunc = function() { console.log('Not hoisted'); };
+```
+
+Why use function expressions:
+
+- Treat functions as values (pass, return, assign).
+- Choose implementations at runtime (conditional assignment).
+- Avoid accidental hoisting; call sites are more explicit.
+- Named expressions can improve stack traces (e.g., `const fn = function doThing() {}`).
+
+Example (conditional assignment):
+
+```javascript
+const handler = isAdmin
+  ? function () { console.log('Admin mode'); }
+  : function () { console.log('User mode'); };
 ```
 
 Order of hoisting: Function declarations first, then variables.

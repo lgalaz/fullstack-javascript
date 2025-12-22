@@ -27,6 +27,24 @@ function strictFunc() {
 strictFunc();
 ```
 
+In a browser, top-level `this` still points to `window` (unless the script is a module), but inside a regular function called without an explicit receiver, strict mode leaves `this` as `undefined`. An explicit receiver is the object you call a function on (like `obj.method()`), or a manual binding via `call`, `apply`, or `bind`.
+
+```javascript
+const obj = {
+  name: 'Ada',
+  show() {
+    console.log(this.name);
+  }
+};
+
+obj.show();           // explicit receiver: obj
+obj.show.call(null);  // explicit receiver: null (strict mode -> this is null)
+const f = obj.show;
+f();                  // no receiver (strict mode -> this is undefined)
+```
+
+In non-strict mode, that last call would default `this` to `window`, which is why strict mode is useful for catching accidental `this` usage.
+
 ## Implicit Binding
 
 When a function is called as a method of an object, `this` refers to that object.
@@ -98,6 +116,12 @@ const numbers = [1, 2, 3];
 const max = Math.max.apply(null, numbers); // 3
 ```
 
+Apart from how arguments are passed, `call` and `apply` are the same: both invoke the function immediately and set `this` explicitly. The names reflect that difference: `call` takes a normal argument list, while `apply` "applies" an array (or array-like) of arguments. In modern JS, `call` + spread often replaces `apply`:
+
+```javascript
+Math.max.call(null, ...numbers);
+```
+
 ### `bind`
 
 Returns a new function with `this` bound to the provided value. The new function can be called later.
@@ -139,6 +163,15 @@ const obj = { name: 'Test' };
 arrow.bind(obj)(); // still global this
 ```
 
+Arrow functions capture `this` from the surrounding scope when they are created, so `bind`, `call`, and `apply` have no effect. In this example, `arrow` is created at the top level, so it keeps the top-level `this` forever. If you need a bindable function, use a regular function:
+
+```javascript
+function regular() {
+  console.log(this.name);
+}
+regular.bind(obj)(); // Test
+```
+
 ## Constructor Functions
 
 In constructors, `this` refers to the new instance being created.
@@ -157,8 +190,11 @@ p.greet(); // Hello, I'm Dave
 Without `new`:
 
 ```javascript
-const p2 = Person('Eve'); // this is global, creates global.name
-console.log(global.name); // Eve
+// Without `new`, `this` is the global object in non-strict mode.
+Person('Eve');
+console.log(global.name); // Eve (Node)
+// console.log(window.name); // Eve (browser)
+// In strict mode, `this` is undefined here and `this.name = ...` would throw.
 ```
 
 ## Edge Cases and Common Pitfalls
@@ -187,6 +223,18 @@ const method = instance.greet;
 method(); // undefined (lost context)
 ```
 
+To keep the context, either bind the method or wrap the call:
+
+```javascript
+const boundMethod = instance.greet.bind(instance);
+boundMethod(); // Class
+```
+
+```javascript
+const method2 = () => instance.greet();
+method2(); // Class
+```
+
 ## Interview Questions and Answers
 
 ### 1. What is `this` in JavaScript?
@@ -210,3 +258,7 @@ method(); // undefined (lost context)
 ### 4. How do arrow functions handle `this`?
 
 Arrow functions don't have their own `this`. They capture `this` from their lexical scope at creation time. This makes them useful for callbacks where you want to preserve the outer context, but they cannot be used as constructors or have their `this` explicitly bound.
+
+### 5. Why does `const method = instance.greet; method();` lose `this`, and how do you fix it?
+
+When you detach a method from its object, you remove the implicit receiver. The formal term is the "receiver" (the object a method is called on), as in `instance.greet()` where `instance` is the receiver. Calling `method()` has no receiver, so `this` becomes `undefined` in strict mode. There isn't a standard "right-hand object" term here. Fix it by calling `instance.greet()`, binding (`instance.greet.bind(instance)`), or wrapping (`() => instance.greet()`).
