@@ -4,6 +4,8 @@
 
 Type narrowing refines a union type to a more specific type at runtime.
 
+TypeScript uses control-flow analysis to track these checks and refine types in each branch.
+
 ## typeof Narrowing
 
 ```typescript
@@ -54,6 +56,8 @@ function isAdmin(u: User | Admin): u is Admin {
   return (u as Admin).role === 'admin';
 }
 ```
+
+User-defined guards are useful when the built-in checks are not enough to distinguish shapes.
 
 ## Interview Questions and Answers
 

@@ -20,11 +20,15 @@
 }
 ```
 
+Use `target` and `module` to control output syntax. `strict` enables the strictest safety checks.
+
 ## Important Strict Flags
 
 - `noImplicitAny`: disallow implicit `any`
 - `strictNullChecks`: make `null` and `undefined` explicit
 - `noUncheckedIndexedAccess`: safer indexing
+
+These flags catch subtle bugs like missing null checks or unsafe indexing.
 
 ## Incremental Builds
 
@@ -33,6 +37,8 @@
   "compilerOptions": { "incremental": true }
 }
 ```
+
+Incremental builds speed up large projects by reusing previous build information.
 
 ## Interview Questions and Answers
 

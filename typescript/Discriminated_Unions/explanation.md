@@ -25,6 +25,14 @@ function render(state: State) {
 }
 ```
 
+You can enforce exhaustiveness with a `never` check:
+
+```typescript
+function assertNever(x: never): never {
+  throw new Error('Unexpected state: ' + x);
+}
+```
+
 ## Interview Questions and Answers
 
 ### 1. Why use discriminated unions?

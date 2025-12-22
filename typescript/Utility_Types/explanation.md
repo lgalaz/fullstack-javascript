@@ -20,11 +20,15 @@ type UserPick = Pick<User, 'id' | 'name'>;
 type UserOmit = Omit<User, 'email'>;
 ```
 
+These help express common transformations without rewriting types by hand.
+
 ## Record
 
 ```typescript
 type Flags = Record<string, boolean>;
 ```
+
+`Record<K, V>` is useful for dictionaries and lookup tables.
 
 ## ReturnType and Parameters
 
@@ -35,6 +39,8 @@ type Args = Parameters<Fn>;
 
 type Result = ReturnType<Fn>;
 ```
+
+Use `Parameters` and `ReturnType` to keep types in sync with function signatures.
 
 ## Interview Questions and Answers
 

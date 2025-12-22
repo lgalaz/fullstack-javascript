@@ -15,6 +15,8 @@ enum Status {
 }
 ```
 
+Numeric enums generate a runtime object with reverse mappings.
+
 ## String Enums
 
 ```typescript
@@ -24,6 +26,8 @@ enum Role {
 }
 ```
 
+String enums are more stable and easier to debug because their values are readable.
+
 ## When to Avoid Enums
 
 Union of string literals is often simpler and tree-shake friendly.
@@ -31,6 +35,8 @@ Union of string literals is often simpler and tree-shake friendly.
 ```typescript
 type Role = 'admin' | 'user';
 ```
+
+Prefer unions when you do not need a runtime enum object.
 
 ## Interview Questions and Answers
 

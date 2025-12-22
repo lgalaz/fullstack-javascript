@@ -13,11 +13,22 @@ async function fetchUser(id: number): Promise<{ id: number; name: string }> {
 }
 ```
 
+The `Promise<...>` return type describes the value you get after awaiting the function. Here, `await fetchUser(1)` resolves to `{ id: number; name: string }`, even though the function itself returns a promise at runtime.
+
+```typescript
+async function loadName() {
+  const user = await fetchUser(1);
+  return user.name; // string
+}
+```
+
 ## Promise Types
 
 ```typescript
 const p: Promise<number> = Promise.resolve(42);
 ```
+
+Use `Promise<T>` to be explicit about the resolved value type.
 
 ## Error Handling
 
@@ -31,6 +42,8 @@ async function load() {
   }
 }
 ```
+
+If you do not rethrow in the `catch`, the function's return type becomes `Promise<User | undefined>` because the error path returns `undefined`.
 
 ## Interview Questions and Answers
 

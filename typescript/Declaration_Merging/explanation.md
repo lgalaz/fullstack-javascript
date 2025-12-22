@@ -18,6 +18,8 @@ interface User {
 const u: User = { name: 'Ada', age: 36 };
 ```
 
+This is useful for gradually extending types across files or modules.
+
 ## Module Augmentation
 
 ```typescript
@@ -28,6 +30,8 @@ declare module 'express' {
   }
 }
 ```
+
+Module augmentation is common in server-side apps to attach request metadata.
 
 ## Interview Questions and Answers
 

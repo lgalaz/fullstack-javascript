@@ -16,6 +16,8 @@ try {
 }
 ```
 
+Since TypeScript treats caught errors as `unknown`, you must narrow before accessing properties.
+
 ## Custom Error Types
 
 ```typescript
@@ -27,6 +29,8 @@ class ApiError extends Error {
   }
 }
 ```
+
+Custom errors help differentiate error cases and carry metadata like status codes.
 
 ## Interview Questions and Answers
 

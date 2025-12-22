@@ -18,6 +18,8 @@ class User {
 }
 ```
 
+Class fields are typed, and methods can use `this` safely when called as instance methods.
+
 ## Public, Private, Protected
 
 ```typescript
@@ -34,6 +36,8 @@ class Account {
 }
 ```
 
+`public` is the default. `private` restricts access to the class itself, while `protected` allows access from subclasses.
+
 ## Parameter Properties
 
 ```typescript
@@ -42,6 +46,8 @@ class Product {
 }
 ```
 
+Parameter properties declare and initialize fields in one step.
+
 ## Readonly
 
 ```typescript
@@ -49,6 +55,8 @@ class Config {
   readonly env = 'prod';
 }
 ```
+
+`readonly` prevents reassignment of a field after construction.
 
 ## Interview Questions and Answers
 

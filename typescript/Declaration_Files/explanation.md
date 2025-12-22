@@ -11,6 +11,8 @@ Declaration files describe the shape of JavaScript code for TypeScript. They all
 declare const VERSION: string;
 ```
 
+Ambient declarations describe values that exist at runtime but are not defined in TS code.
+
 ## Module Declarations
 
 ```typescript
@@ -19,9 +21,13 @@ declare module 'legacy-lib' {
 }
 ```
 
+Module declarations are useful when a library has no built-in typings.
+
 ## Generating Declarations
 
 Enable `declaration: true` in `tsconfig.json` to emit `.d.ts` files.
+
+These files allow your library consumers to get type safety without your source.
 
 ## Interview Questions and Answers
 

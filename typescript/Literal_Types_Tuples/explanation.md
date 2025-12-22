@@ -14,12 +14,16 @@ function move(dir: Direction) {
 }
 ```
 
+Literal types restrict values to specific strings or numbers, which is useful for enums without runtime cost.
+
 ## as const
 
 ```typescript
 const roles = ['admin', 'user'] as const;
 // roles is readonly ['admin', 'user']
 ```
+
+`as const` freezes the literal types and marks the array as readonly.
 
 ## Tuples
 
@@ -28,6 +32,8 @@ type Point = [number, number];
 
 const p: Point = [10, 20];
 ```
+
+Tuples enforce order and length, unlike regular arrays.
 
 ## Labeled Tuples
 

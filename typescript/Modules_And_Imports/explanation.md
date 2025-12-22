@@ -14,11 +14,15 @@ export function sum(a: number, b: number) {
 import { sum } from './math';
 ```
 
+TypeScript uses the same syntax as modern JavaScript, but can also separate type-only imports.
+
 ## Type-Only Imports
 
 ```typescript
 import type { User } from './types';
 ```
+
+Type-only imports are erased from the JS output, which helps avoid runtime dependency cycles.
 
 ## Default Exports
 
@@ -29,6 +33,10 @@ export default function main() {}
 ## Module Resolution
 
 Configured via `tsconfig.json` with `moduleResolution`, `baseUrl`, and `paths`.
+
+```typescript
+// tsconfig.json\n// \"baseUrl\": \".\",\n// \"paths\": { \"@/*\": [\"src/*\"] }
+```
 
 ## Interview Questions and Answers
 

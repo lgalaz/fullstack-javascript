@@ -14,6 +14,14 @@ function printId(id: ID) {
 }
 ```
 
+With unions, you must narrow before using type-specific operations.
+
+```typescript
+function formatId(id: ID) {
+  return typeof id === 'string' ? id.toUpperCase() : id.toFixed(0);
+}
+```
+
 ## Intersection Types
 
 ```typescript
@@ -23,6 +31,8 @@ type User = { id: number; name: string };
 
 type UserWithTime = User & Timestamped;
 ```
+
+Intersections combine all properties. If two types conflict (same key, different types), the result can become `never` for that property.
 
 ## Interview Questions and Answers
 

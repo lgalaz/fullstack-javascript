@@ -13,6 +13,15 @@ type A = IsString<string>; // true
 type B = IsString<number>; // false
 ```
 
+Conditional types can also be distributive over unions by default:
+
+```typescript
+type ToArray<T> = T extends any ? T[] : never;
+type Result = ToArray<string | number>; // string[] | number[]
+```
+
+Wrap the type in `[]` to prevent distribution.
+
 ## Mapped Types
 
 ```typescript
@@ -20,6 +29,8 @@ type Readonlyify<T> = {
   readonly [K in keyof T]: T[K];
 };
 ```
+
+Mapped types iterate over keys to build new types from existing shapes.
 
 ## Key Remapping
 

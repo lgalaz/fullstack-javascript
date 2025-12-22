@@ -15,6 +15,8 @@ const p: Point = { x: 1, y: 2 };
 const c: Coord = p; // OK: same shape
 ```
 
+This is why TypeScript is called structurally typed: names do not matter, shapes do.
+
 ## Excess Property Checks
 
 ```typescript
@@ -29,6 +31,8 @@ Use a variable to bypass excess checks:
 const temp = { x: 1, y: 2, z: 3 };
 draw(temp); // OK
 ```
+
+Excess property checks only apply to object literals, not variables.
 
 ## Interview Questions and Answers
 

@@ -11,12 +11,24 @@ let count = 0; // inferred as number
 const name = 'Ada'; // inferred as "Ada" in some contexts
 ```
 
+Inference can be widened (e.g., `let` to `string`) or kept literal with `const`.
+
 ## Function Return Inference
 
 ```typescript
 function makeUser(name: string) {
   return { name, active: true };
 }
+```
+
+The return type here is inferred as `{ name: string; active: boolean }`.
+
+## Contextual Typing
+
+TypeScript can infer types from context, such as callback parameters.
+
+```typescript
+['a', 'b'].map(s => s.toUpperCase());
 ```
 
 ## Best Practices

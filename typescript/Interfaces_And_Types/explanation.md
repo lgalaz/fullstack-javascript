@@ -14,6 +14,8 @@ interface User {
 }
 ```
 
+Interfaces are ideal for object shapes that may be extended or merged.
+
 ## Type Aliases
 
 ```typescript
@@ -23,6 +25,8 @@ type User = {
   email?: string;
 };
 ```
+
+Type aliases can represent unions, intersections, and primitives in addition to objects.
 
 ## Differences
 
@@ -37,6 +41,8 @@ interface Admin extends User {
 type ID = string | number;
 ```
 
+Interfaces can be reopened and merged later. Type aliases cannot.
+
 ## Index Signatures
 
 ```typescript
@@ -44,6 +50,8 @@ interface StringMap {
   [key: string]: string;
 }
 ```
+
+Index signatures are useful for dictionary-like objects with unknown keys.
 
 ## Interview Questions and Answers
 

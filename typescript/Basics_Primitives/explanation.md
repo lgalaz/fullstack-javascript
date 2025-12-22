@@ -16,12 +16,16 @@ let big: bigint = 9007199254740991n;
 let unique: symbol = Symbol('id');
 ```
 
+Primitives are immutable values. When you pass them around, you pass the value itself, not a reference.
+
 ## Arrays
 
 ```typescript
 let nums: number[] = [1, 2, 3];
 let names: Array<string> = ['Ada', 'Grace'];
 ```
+
+Both syntaxes are equivalent; use the one your team prefers.
 
 ## any vs unknown
 
@@ -33,6 +37,8 @@ if (typeof value === 'string') {
   console.log(value.toUpperCase());
 }
 ```
+
+Prefer `unknown` at boundaries (like JSON parsing) so you must validate before use.
 
 ## void and never
 
@@ -48,6 +54,8 @@ function fail(message: string): never {
   throw new Error(message);
 }
 ```
+
+Use `never` in exhaustive checks to ensure all cases are handled.
 
 ## Interview Questions and Answers
 
