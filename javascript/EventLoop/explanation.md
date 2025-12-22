@@ -29,6 +29,46 @@ foo();
 
 These are browser-provided APIs for asynchronous operations like `setTimeout`, `fetch`, DOM events, etc. When an async operation is initiated, it's handled by the Web API, and the callback is scheduled to run later.
 
+### Event Delegation (DOM)
+
+Event delegation is a pattern where you attach a single event listener to a common ancestor instead of adding listeners to many child elements. Because events bubble up the DOM tree, the ancestor can handle events that originated from its descendants. This is useful for performance (fewer listeners) and for elements added dynamically after the listener is set up.
+
+```html
+<ul id="list">
+  <li data-id="1">Item 1</li>
+  <li data-id="2">Item 2</li>
+  <li data-id="3">Item 3</li>
+</ul>
+```
+
+```javascript
+const list = document.getElementById('list');
+
+list.addEventListener('click', event => {
+  const item = event.target.closest('li');
+  if (!item || !list.contains(item)) return;
+  console.log('Clicked item id:', item.dataset.id);
+});
+```
+
+Why it works: when a click happens on an `<li>`, the event bubbles to the `<ul>`. The handler checks `event.target` to find the actual clicked element and handles it if it matches. Use `closest` to support clicks on nested elements inside the `<li>`. You can stop delegation with `event.stopPropagation()` on a child if needed.
+
+Example with nested content:
+
+```html
+<ul id="list">
+  <li data-id="1"><span>Item 1</span></li>
+</ul>
+```
+
+```javascript
+list.addEventListener('click', event => {
+  console.log(event.target.tagName); // "SPAN" if the span was clicked
+  const item = event.target.closest('li'); // finds the parent <li>
+  console.log(item.dataset.id); // "1"
+});
+```
+
 ### Task Queues
 
 - **Macrotask Queue (Callback Queue)**: Contains tasks like `setTimeout`, `setInterval`, I/O operations, UI rendering.

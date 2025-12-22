@@ -112,6 +112,51 @@ console.log(arr); // [7, 8]
 
 Note: `slice` returns a new array, so you'd have to reassign the result (which `const` does not allow).
 
+## Destructuring Assignment
+
+Destructuring lets you unpack values from arrays or properties from objects into distinct variables in a single step. It is just syntax for assignment, so it works with `let`, `const`, and reassignment.
+
+### Array Destructuring
+
+```javascript
+const coords = [10, 20, 30];
+const [x, y] = coords;
+console.log(x, y); // 10 20
+
+const [first, , third] = coords; // skip items
+console.log(first, third); // 10 30
+
+const [a = 1, b = 2] = [5]; // defaults
+console.log(a, b); // 5 2
+```
+
+### Object Destructuring
+
+```javascript
+const user = { id: 7, name: 'Ada', role: 'admin' };
+const { id, name } = user;
+console.log(id, name); // 7 Ada
+
+const { role: userRole } = user; // rename
+console.log(userRole); // admin
+
+const { missing = 'default' } = user; // default
+console.log(missing); // default
+```
+
+### Rest and Nested Patterns
+
+```javascript
+const [head, ...tail] = [1, 2, 3, 4];
+console.log(head, tail); // 1 [2, 3, 4]
+
+const settings = { theme: { mode: 'dark' }, lang: 'en' };
+const { theme: { mode } } = settings;
+console.log(mode); // dark
+```
+
+Why use it: it reduces repetitive property access, makes intent clear, and pairs well with returning multiple values from functions.
+
 
 ## Scope
 

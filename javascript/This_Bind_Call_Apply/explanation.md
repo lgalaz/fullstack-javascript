@@ -259,6 +259,24 @@ method2(); // Class
 
 Arrow functions don't have their own `this`. They capture `this` from their lexical scope at creation time. This makes them useful for callbacks where you want to preserve the outer context, but they cannot be used as constructors or have their `this` explicitly bound.
 
-### 5. Why does `const method = instance.greet; method();` lose `this`, and how do you fix it?
+### 5. What are arrow functions in JavaScript? How do they differ from regular functions?
+
+Arrow functions are a shorthand syntax for function expressions. They are concise and lexically bind `this`, so they inherit `this` from the surrounding scope rather than being set by how they are called. They also do not have their own `arguments`, `super`, or `new.target`, and they cannot be used as constructors (no `prototype`).
+
+```javascript
+const add = (a, b) => a + b;
+
+function regular() {
+  console.log(arguments.length);
+}
+
+const arrow = () => {
+  // No `arguments` object here
+};
+```
+
+Use arrows for callbacks and short functions; use regular functions when you need dynamic `this` or `arguments`.
+
+### 6. Why does `const method = instance.greet; method();` lose `this`, and how do you fix it?
 
 When you detach a method from its object, you remove the implicit receiver. The formal term is the "receiver" (the object a method is called on), as in `instance.greet()` where `instance` is the receiver. Calling `method()` has no receiver, so `this` becomes `undefined` in strict mode. There isn't a standard "right-hand object" term here. Fix it by calling `instance.greet()`, binding (`instance.greet.bind(instance)`), or wrapping (`() => instance.greet()`).
