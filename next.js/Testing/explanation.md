@@ -1,0 +1,36 @@
+# Testing Next.js Apps - Comprehensive Study Guide
+
+## Introduction
+
+Testing in Next.js usually includes unit tests, integration tests, and end-to-end tests.
+
+## Unit and Integration
+
+Use Jest and React Testing Library for component tests.
+
+```javascript
+import { render, screen } from '@testing-library/react';
+
+test('renders title', () => {
+  render(<h1>Home</h1>);
+  expect(screen.getByText('Home')).toBeInTheDocument();
+});
+```
+
+## API Route Tests
+
+Test route handlers by calling them as functions or using a test server.
+
+## E2E Testing
+
+Use Playwright or Cypress for full app flows.
+
+## Interview Questions and Answers
+
+### 1. What should be tested with E2E tests?
+
+Critical user flows like login, checkout, and navigation.
+
+### 2. Why use React Testing Library?
+
+It encourages testing the UI the way users interact with it.
