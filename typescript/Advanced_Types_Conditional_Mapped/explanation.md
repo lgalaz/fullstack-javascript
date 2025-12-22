@@ -29,6 +29,8 @@ type PrefixKeys<T> = {
 };
 ```
 
+Note: `string & K` is an intersection that narrows `K` to string keys only, since template literal types require strings. This avoids `number` or `symbol` keys that cannot be used in template literals.
+
 ## Interview Questions and Answers
 
 ### 1. What is a conditional type?
