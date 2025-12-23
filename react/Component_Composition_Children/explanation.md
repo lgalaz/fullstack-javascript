@@ -1,8 +1,47 @@
-# Component Composition and Children - Comprehensive Study Guide
+# Component Composition and Children 
 
 ## Introduction
 
 React encourages composition over inheritance. You build complex UIs by combining small components.
+
+Composition is preferred because it keeps components flexible and decoupled, avoids deep inheritance hierarchies, and makes behavior easier to reuse by composing components and passing props/children instead of extending base classes.
+
+Example contrast (inheritance vs composition):
+
+```javascript
+// Inheritance
+class ButtonBase extends React.Component {
+  render() {
+    return <button className={`btn ${this.props.variant}`}>{this.props.label}</button>;
+  }
+}
+class PrimaryButton extends ButtonBase {}
+
+// use:
+// <PrimaryButton variant="primary" label="Save" />
+```
+
+```javascript
+// Composition
+function Button({ children, variant }) {
+  return <button className={`btn ${variant}`}>{children}</button>;
+}
+function PrimaryButton() {
+  return <Button variant="primary">Save</Button>;
+}
+```
+
+Inheritance with override (to hardcode "primary"):
+
+```javascript
+class PrimaryButton2 extends ButtonBase {
+  render() {
+    return <button className="btn primary">{this.props.label}</button>;
+  }
+}
+// use:
+// <PrimaryButton2 label="Save" />
+```
 
 ## Basic Composition
 
@@ -98,6 +137,18 @@ function Tab({ index, children }) {
   );
 }
 ```
+
+Usage with multiple tabs:
+
+```javascript
+<Tabs>
+  <Tab index={0}>Overview</Tab>
+  <Tab index={1}>Settings</Tab>
+  <Tab index={2}>Billing</Tab>
+</Tabs>
+```
+
+All `Tab` children read and update the shared `active` state from `TabsContext`.
 
 ## Interview Questions and Answers
 

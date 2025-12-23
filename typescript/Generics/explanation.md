@@ -1,4 +1,4 @@
-# Generics - Comprehensive Study Guide
+# Generics 
 
 ## Introduction
 

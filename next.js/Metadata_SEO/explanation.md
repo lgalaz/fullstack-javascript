@@ -1,4 +1,4 @@
-# Metadata and SEO - Comprehensive Study Guide
+# Metadata and SEO 
 
 ## Introduction
 

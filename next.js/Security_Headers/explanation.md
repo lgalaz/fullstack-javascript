@@ -1,4 +1,4 @@
-# Security Headers - Comprehensive Study Guide
+# Security Headers 
 
 ## Introduction
 

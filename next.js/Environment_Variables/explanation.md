@@ -1,4 +1,4 @@
-# Environment Variables - Comprehensive Study Guide
+# Environment Variables 
 
 ## Introduction
 

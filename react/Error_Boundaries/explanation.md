@@ -1,4 +1,4 @@
-# Error Boundaries in React - Comprehensive Study Guide
+# Error Boundaries in React 
 
 ## Introduction
 
@@ -6,7 +6,7 @@ Error boundaries catch JavaScript errors in rendering, lifecycle methods, and co
 
 ## Creating an Error Boundary
 
-Error boundaries must be class components.
+Error boundaries must be class components. `ErrorBoundary` is not built-in; it is your own class component that you define and then reuse. It is a pattern to isolate parts of the UI so a failure does not crash the entire app.
 
 ```javascript
 class ErrorBoundary extends React.Component {
@@ -63,6 +63,10 @@ function App() {
 }
 ```
 
+Explanation: calling `setResetKey(k => k + 1)` increments the `key` prop. Changing the `key` forces React to unmount and remount `ErrorBoundary`, resetting its internal error state and re-rendering its children.
+
+Note: `key` is a special React prop used for element identity during reconciliation. It is not passed to the component via `props`.
+
 ## Placement
 
 Place boundaries around independent UI regions so a failure does not blank the whole page.
@@ -75,4 +79,4 @@ Errors during rendering, lifecycle methods, and constructors of child components
 
 ### 2. Why are error boundaries class components?
 
-React currently provides error boundary APIs only for class components.
+React currently provides error boundary APIs only for class components. The APIs are `static getDerivedStateFromError` (to render a fallback) and `componentDidCatch` (to log/report errors).

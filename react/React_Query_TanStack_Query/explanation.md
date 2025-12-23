@@ -1,8 +1,8 @@
-# React Query / TanStack Query - Comprehensive Study Guide
+# React Query / TanStack Query 
 
 ## Introduction
 
-TanStack Query (React Query) manages server state: fetching, caching, background updates, and mutations. It reduces manual loading and error state code.
+TanStack Query (React Query) is a client-side data fetching and caching library. It manages server state: fetching, caching, background updates, retries, and mutations. It does not replace your API or database; it sits in the client to orchestrate requests, keep data fresh, and reduce manual loading/error state code.
 
 ## Core Concepts
 
@@ -58,6 +58,15 @@ function AddUser() {
     </button>
   );
 }
+
+function App() {
+  return (
+    <>
+      <AddUser />
+      <Users />
+    </>
+  );
+}
 ```
 
 ## Query key structure
@@ -74,21 +83,46 @@ useQuery({
 ## Optimistic updates
 
 ```javascript
-const mutation = useMutation({
-  mutationFn: updateUser,
-  onMutate: async updated => {
-    await qc.cancelQueries({ queryKey: ['user', updated.id] });
-    const prev = qc.getQueryData(['user', updated.id]);
-    qc.setQueryData(['user', updated.id], updated);
-    return { prev };
-  },
-  onError: (_err, updated, ctx) => {
-    qc.setQueryData(['user', updated.id], ctx.prev);
-  },
-  onSettled: (_data, _err, updated) => {
-    qc.invalidateQueries({ queryKey: ['user', updated.id] });
-  }
-});
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+
+async function updateUser(user) {
+  const res = await fetch(`/api/users/${user.id}`, {
+    method: 'PUT',
+    body: JSON.stringify(user)
+  });
+  return res.json();
+}
+
+function UserEditor({ user }) {
+  const qc = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: updateUser,
+    onMutate: async updated => {
+      await qc.cancelQueries({ queryKey: ['user', updated.id] });
+      const prev = qc.getQueryData(['user', updated.id]);
+      qc.setQueryData(['user', updated.id], updated);
+      return { prev };
+    },
+    onError: (_err, updated, ctx) => {
+      qc.setQueryData(['user', updated.id], ctx.prev);
+    },
+    onSettled: (_data, _err, updated) => {
+      qc.invalidateQueries({ queryKey: ['user', updated.id] });
+    }
+  });
+
+  return (
+    <button onClick={() => mutation.mutate({ ...user, name: 'Updated' })}>
+      Save
+    </button>
+  );
+}
+
+function App() {
+  const user = { id: 1, name: 'Ada' };
+  return <UserEditor user={user} />;
+}
 ```
 
 ## Interview Questions and Answers

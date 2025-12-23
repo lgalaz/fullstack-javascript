@@ -1,4 +1,4 @@
-# Discriminated Unions - Comprehensive Study Guide
+# Discriminated Unions 
 
 ## Introduction
 

@@ -1,4 +1,4 @@
-# Debounce and Throttle - Comprehensive Study Guide
+# Debounce and Throttle 
 
 ## Introduction
 

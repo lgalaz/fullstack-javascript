@@ -1,4 +1,4 @@
-# Error Handling in JavaScript - Comprehensive Study Guide
+# Error Handling in JavaScript 
 
 ## Introduction
 

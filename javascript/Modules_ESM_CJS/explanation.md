@@ -1,4 +1,4 @@
-# ESM vs CommonJS (CJS) - Comprehensive Study Guide
+# ESM vs CommonJS (CJS) 
 
 ## Introduction
 

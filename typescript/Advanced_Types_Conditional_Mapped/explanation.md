@@ -1,4 +1,4 @@
-# Advanced Types: Conditional and Mapped - Comprehensive Study Guide
+# Advanced Types: Conditional and Mapped 
 
 ## Introduction
 

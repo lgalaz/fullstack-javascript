@@ -1,4 +1,4 @@
-# Routing with React Router - Comprehensive Study Guide
+# Routing with React Router 
 
 ## Introduction
 
@@ -26,6 +26,61 @@ function App() {
 }
 ```
 
+Typical app setup (entry + routes in a separate file):
+
+```javascript
+// main.jsx (entry)
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import App from './App';
+
+createRoot(document.getElementById('root')).render(
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>
+);
+```
+
+```javascript
+// routes.jsx (external routes file)
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
+import Home from './Home';
+import About from './About';
+import User from './User';
+
+export default function AppRoutes() {
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/users/:id" element={<User />} />
+    </Routes>
+  );
+}
+```
+
+```javascript
+// App.jsx (uses the routes)
+import React from 'react';
+import { Link } from 'react-router-dom';
+import AppRoutes from './routes';
+
+export default function App() {
+  return (
+    <>
+      <nav>
+        <Link to="/">Home</Link>
+        <Link to="/about">About</Link>
+        <Link to="/users/42">User 42</Link>
+      </nav>
+      <AppRoutes />
+    </>
+  );
+}
+```
+
 ## Route Params
 
 ```javascript
@@ -36,6 +91,8 @@ function User() {
   return <div>User {id}</div>;
 }
 ```
+
+Explanation: this component is rendered by a route that matches `/users/:id`. The `User` name is just a component label; the path determines the URL. `useParams()` returns the named params from the matched path, so `id` comes from the URL `/users/42`. The param name (`id`) is your choice and can be anything, as long as it matches the `:paramName` in the route.
 
 ## Nested Routes
 
@@ -60,6 +117,8 @@ function Settings() {
 }
 ```
 
+Explanation: visiting `/settings/profile` renders `Settings`, and the nested `Profile` route is inserted where `<Outlet />` appears.
+
 ## Navigation
 
 ```javascript
@@ -71,6 +130,8 @@ function SaveButton() {
 }
 ```
 
+Explanation: `useNavigate` returns a function for programmatic navigation, useful after actions like saving a form.
+
 ## Interview Questions and Answers
 
 ### 1. What does React Router do?
@@ -79,4 +140,4 @@ It maps URL paths to components and manages navigation without full page reloads
 
 ### 2. How do you read route parameters?
 
-Using the `useParams` hook from `react-router-dom`.
+Using the `useParams` hook from `react-router-dom`, which reads params defined in the route path (e.g., `/users/:id`).

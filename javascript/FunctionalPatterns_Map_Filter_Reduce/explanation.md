@@ -1,4 +1,4 @@
-# Functional Patterns: Map, Filter, Reduce - Comprehensive Study Guide
+# Functional Patterns: Map, Filter, Reduce 
 
 ## Introduction
 

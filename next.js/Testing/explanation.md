@@ -1,4 +1,4 @@
-# Testing Next.js Apps - Comprehensive Study Guide
+# Testing Next.js Apps 
 
 ## Introduction
 

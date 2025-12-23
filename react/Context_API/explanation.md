@@ -1,4 +1,4 @@
-# Context API in React - Comprehensive Study Guide
+# Context API in React 
 
 ## Introduction
 
@@ -10,6 +10,14 @@ Context provides a way to pass data through the component tree without manually 
 import { createContext, useContext } from 'react';
 
 const ThemeContext = createContext('light');
+
+function App() {
+  return (
+    <ThemeProvider>
+      <Button />
+    </ThemeProvider>
+  );
+}
 
 function ThemeProvider({ children }) {
   return (
@@ -25,7 +33,63 @@ function Button() {
 }
 ```
 
-`createContext` default value is only used when there is no provider above in the tree.
+Resulting HTML (simplified):
+
+```html
+<button class="dark">Click</button>
+```
+
+`createContext` takes a single `defaultValue` argument (not a context object) and returns a context object with `Provider` and `Consumer` properties. The default value is only used when there is no provider above in the tree.
+
+Example of the created context object (shape):
+
+```javascript
+const ThemeContext = createContext('light');
+
+ThemeContext = {
+  Provider: /* React component */,
+  Consumer: /* React component */,
+  // Internal fields
+};
+```
+
+The default value can be any JavaScript value: primitives, arrays, objects (including nested objects), or functions. A common pattern is passing an object with data and callbacks:
+
+```javascript
+const ThemeContext = createContext({
+  theme: 'light',
+  setTheme: () => {},
+});
+
+function ThemeProvider({ children }) {
+  const [theme, setTheme] = useState('light');
+  const value = useMemo(() => ({ theme, setTheme }), [theme]);
+
+  return (
+    <ThemeContext.Provider value={value}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+function ThemeToggleButton() {
+  const { theme, setTheme } = useContext(ThemeContext);
+
+  return (
+    <button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
+      Current: {theme}
+    </button>
+  );
+}
+
+function App() {
+  return (
+    <ThemeProvider>
+      <ThemeToggleButton />
+    </ThemeProvider>
+  );
+}
+```
 
 ## When to Use Context
 
@@ -48,9 +112,61 @@ function ThemeProvider({ children }) {
     </ThemeContext.Provider>
   );
 }
+
+function ThemeStatus() {
+  const { theme } = useContext(ThemeContext);
+  console.log('ThemeStatus render');
+  return <p>Theme is {theme}</p>;
+}
+
+function ThemeToggleButton() {
+  const { theme, setTheme } = useContext(ThemeContext);
+  return (
+    <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+      Toggle
+    </button>
+  );
+}
+
+function App() {
+  return (
+    <ThemeProvider>
+      <ThemeToggleButton />
+      <ThemeStatus />
+    </ThemeProvider>
+  );
+}
 ```
 
 Context is not a state management replacement by itself. For complex derived state or async data, pair it with hooks or external stores.
+
+Example with a custom hook for async data:
+
+```javascript
+function useUserProfile(userId) {
+  const [state, setState] = useState({ status: 'idle', data: null });
+
+  useEffect(() => {
+    let active = true;
+    setState({ status: 'loading', data: null });
+    fetch(`/api/users/${userId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (active) setState({ status: 'ready', data });
+      });
+    return () => {
+      active = false;
+    };
+  }, [userId]);
+
+  return state;
+}
+
+function UserProvider({ userId, children }) {
+  const userState = useUserProfile(userId);
+  return <UserContext.Provider value={userState}>{children}</UserContext.Provider>;
+}
+```
 
 ## Interview Questions and Answers
 

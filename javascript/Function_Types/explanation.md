@@ -1,4 +1,4 @@
-# Function Types in JavaScript - Comprehensive Study Guide
+# Function Types in JavaScript 
 
 ## Introduction
 

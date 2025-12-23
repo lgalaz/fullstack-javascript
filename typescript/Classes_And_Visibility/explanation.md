@@ -1,4 +1,4 @@
-# Classes and Visibility - Comprehensive Study Guide
+# Classes and Visibility 
 
 ## Introduction
 

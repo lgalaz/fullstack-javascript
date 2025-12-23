@@ -1,4 +1,4 @@
-# Routing and Dynamic Segments - Comprehensive Study Guide
+# Routing and Dynamic Segments 
 
 ## Introduction
 

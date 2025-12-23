@@ -1,4 +1,4 @@
-# Lifting State Up - Comprehensive Study Guide
+# Lifting State Up 
 
 ## Introduction
 
@@ -29,6 +29,10 @@ function Calculator() {
     </div>
   );
 }
+
+function App() {
+  return <Calculator />;
+}
 ```
 
 ## Why It Helps
@@ -55,7 +59,34 @@ function Calculator() {
 }
 ```
 
+Example of duplicated state (harder to keep in sync):
+
+```javascript
+function Calculator() {
+  const [celsius, setCelsius] = useState('');
+  const [fahrenheit, setFahrenheit] = useState('');
+
+  function onCelsiusChange(value) {
+    setCelsius(value);
+    setFahrenheit(value ? (value * 9) / 5 + 32 : '');
+  }
+
+  return (
+    <div>
+      <TemperatureInput label="C" value={celsius} onChange={onCelsiusChange} />
+      <p>F: {fahrenheit}</p>
+    </div>
+  );
+}
+```
+
 If lifting causes deep prop chains, consider context or a state store for shared state.
+
+Notes:
+- Lifting state up: keep state in the nearest common parent and pass props down; simplest and explicit, but can lead to prop drilling.
+- Context: share values without passing props through every level; good for app-wide data like theme or auth, but updates re-render all consumers.
+- State store: externalized state (e.g., Zustand/Redux) for complex, shared, or cross-cutting data; good for larger apps and advanced patterns.
+- Event bus: less common in React because it hides data flow and makes updates harder to trace; use sparingly if at all.
 
 ## Interview Questions and Answers
 

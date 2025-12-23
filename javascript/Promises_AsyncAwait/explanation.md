@@ -1,4 +1,4 @@
-# Promises and Async/Await in JavaScript - Comprehensive Study Guide
+# Promises and Async/Await in JavaScript 
 
 ## Introduction
 

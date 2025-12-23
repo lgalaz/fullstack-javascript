@@ -1,4 +1,4 @@
-# Middleware - Comprehensive Study Guide
+# Middleware 
 
 ## Introduction
 

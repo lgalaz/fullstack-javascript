@@ -1,4 +1,4 @@
-# Data Fetching, Caching, and Revalidation - Comprehensive Study Guide
+# Data Fetching, Caching, and Revalidation 
 
 ## Introduction
 

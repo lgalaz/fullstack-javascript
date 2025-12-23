@@ -1,4 +1,4 @@
-# Enums - Comprehensive Study Guide
+# Enums 
 
 ## Introduction
 

@@ -1,4 +1,4 @@
-# Declaration Files (.d.ts) - Comprehensive Study Guide
+# Declaration Files (.d.ts) 
 
 ## Introduction
 

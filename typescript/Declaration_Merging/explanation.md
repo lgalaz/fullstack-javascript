@@ -1,4 +1,4 @@
-# Declaration Merging - Comprehensive Study Guide
+# Declaration Merging 
 
 ## Introduction
 

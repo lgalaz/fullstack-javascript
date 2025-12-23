@@ -1,4 +1,4 @@
-# Literal Types and Tuples - Comprehensive Study Guide
+# Literal Types and Tuples 
 
 ## Introduction
 

@@ -1,4 +1,4 @@
-# Error Handling in TypeScript - Comprehensive Study Guide
+# Error Handling in TypeScript 
 
 ## Introduction
 

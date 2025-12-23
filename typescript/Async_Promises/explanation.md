@@ -1,4 +1,4 @@
-# Async and Promises in TypeScript - Comprehensive Study Guide
+# Async and Promises in TypeScript 
 
 ## Introduction
 

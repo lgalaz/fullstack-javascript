@@ -1,4 +1,4 @@
-# TypeScript Basics and Primitives - Comprehensive Study Guide
+# TypeScript Basics and Primitives 
 
 ## Introduction
 

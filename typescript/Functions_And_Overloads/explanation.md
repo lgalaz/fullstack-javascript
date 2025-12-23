@@ -1,4 +1,4 @@
-# Functions and Overloads - Comprehensive Study Guide
+# Functions and Overloads 
 
 ## Introduction
 

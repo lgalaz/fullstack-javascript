@@ -1,4 +1,4 @@
-# Type Assertions - Comprehensive Study Guide
+# Type Assertions 
 
 ## Introduction
 

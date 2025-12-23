@@ -1,8 +1,8 @@
-# Refs and DOM Interaction - Comprehensive Study Guide
+# Refs and DOM Interaction 
 
 ## Introduction
 
-Refs provide a way to access DOM nodes or persist mutable values across renders without causing re-renders.
+Refs provide a way to access DOM nodes or persist mutable values across renders without causing re-renders. Unlike state, updating a ref does not trigger a render (e.g., focusing an input or reading its value via a ref does not re-render the component).
 
 ## Accessing DOM Nodes
 
@@ -28,8 +28,12 @@ function FocusInput() {
 Refs can store values that do not trigger a re-render.
 
 ```javascript
-const renderCount = useRef(0);
-renderCount.current += 1;
+function Counter() {
+  const renderCount = useRef(0);
+  renderCount.current += 1;
+
+  return <p>Renders: {renderCount.current}</p>;
+}
 ```
 
 ## Forwarding Refs
@@ -40,11 +44,21 @@ Use `forwardRef` to pass refs to child components.
 const TextInput = React.forwardRef(function TextInput(props, ref) {
   return <input ref={ref} {...props} />;
 });
+
+function Form() {
+  const inputRef = React.useRef(null);
+  return (
+    <>
+      <TextInput ref={inputRef} placeholder="Name" />
+      <button onClick={() => inputRef.current?.focus()}>Focus</button>
+    </>
+  );
+}
 ```
 
 ## useImperativeHandle
 
-Expose a controlled imperative API from a child component.
+Expose a controlled imperative API from a child component. This means the child decides which methods/fields the parent can call via the ref (e.g., `focus`, `reset`), instead of exposing the raw DOM node.
 
 ```javascript
 const FancyInput = React.forwardRef(function FancyInput(_props, ref) {
@@ -56,6 +70,16 @@ const FancyInput = React.forwardRef(function FancyInput(_props, ref) {
 
   return <input ref={inputRef} />;
 });
+
+function App() {
+  const fancyRef = React.useRef(null);
+  return (
+    <>
+      <FancyInput ref={fancyRef} />
+      <button onClick={() => fancyRef.current?.focus()}>Focus</button>
+    </>
+  );
+}
 ```
 
 ## Interview Questions and Answers

@@ -1,4 +1,4 @@
-# Controlled vs Uncontrolled Inputs - Comprehensive Study Guide
+# Controlled vs Uncontrolled Inputs 
 
 ## Introduction
 
@@ -52,13 +52,30 @@ function NameForm() {
 
 Pros: fewer re-renders, simpler for large forms with rare reads.
 
+Note: In React, you aren’t writing raw HTML attributes; you’re setting properties on DOM nodes via JSX. `defaultValue` sets the initial DOM value for uncontrolled inputs without making them controlled.
+
 ## Avoid switching modes
 
 React warns if an input switches between controlled and uncontrolled. Keep `value` defined (even empty string) for controlled inputs, and use `defaultValue` for uncontrolled.
 
 ```javascript
-<input value={value ?? ''} onChange={...} />
+function ControlledInput() {
+  const [value, setValue] = useState('');
+  return (
+    <input
+      value={value ?? ''}
+      onChange={(e) => setValue(e.target.value)}
+    />
+  );
+}
+
+function UncontrolledInput() {
+  const inputRef = useRef(null);
+  return <input ref={inputRef} defaultValue="" />;
+}
 ```
+
+Good practice: for controlled inputs, always pass a string (use `value ?? ''`) so `value` never flips between `undefined` and a string, which triggers React's warning.
 
 ## Hybrid patterns
 
@@ -91,7 +108,7 @@ function Search() {
 
 ### 1. What is a controlled input?
 
-An input whose value is driven by React state and updated via `onChange`.
+An input whose value is driven by React state and updated via `onChange` (similar to two-way binding or reactivity in other frameworks).
 
 ### 2. When would you choose uncontrolled inputs?
 

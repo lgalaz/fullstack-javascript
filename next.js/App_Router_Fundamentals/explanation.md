@@ -1,4 +1,4 @@
-# App Router Fundamentals - Comprehensive Study Guide
+# App Router Fundamentals 
 
 ## Introduction
 

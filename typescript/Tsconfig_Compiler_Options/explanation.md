@@ -1,4 +1,4 @@
-# tsconfig and Compiler Options - Comprehensive Study Guide
+# tsconfig and Compiler Options 
 
 ## Introduction
 

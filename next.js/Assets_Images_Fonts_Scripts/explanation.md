@@ -1,4 +1,4 @@
-# Assets, Images, Fonts, and Scripts - Comprehensive Study Guide
+# Assets, Images, Fonts, and Scripts 
 
 ## Introduction
 

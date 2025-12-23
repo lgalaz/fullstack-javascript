@@ -1,4 +1,4 @@
-# Server Actions and Forms - Comprehensive Study Guide
+# Server Actions and Forms 
 
 ## Introduction
 

@@ -1,4 +1,4 @@
-# Union and Intersection Types - Comprehensive Study Guide
+# Union and Intersection Types 
 
 ## Introduction
 

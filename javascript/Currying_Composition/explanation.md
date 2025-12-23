@@ -1,4 +1,4 @@
-# Currying and Function Composition - Comprehensive Study Guide
+# Currying and Function Composition 
 
 ## Introduction
 

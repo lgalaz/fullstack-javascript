@@ -1,4 +1,4 @@
-# Next.js Basics (SSR vs CSR) - Comprehensive Study Guide
+# Next.js Basics (SSR vs CSR) 
 
 ## Introduction
 
@@ -6,30 +6,30 @@ Next.js is a React framework that adds routing, data fetching, and rendering str
 
 ## CSR (Client-Side Rendering)
 
-The browser downloads a JS bundle and renders the UI on the client.
+Meaning: the browser downloads a JS bundle and renders the UI on the client.
 
 Pros: fast subsequent navigation, rich interactivity.
 Cons: slower initial render, SEO challenges if no pre-render.
 
 ## SSR (Server-Side Rendering)
 
-The server renders HTML per request.
+Meaning: render HTML on the server for every request, then hydrate on the client.
 
 Pros: better SEO, faster first contentful paint.
 Cons: more server load, slower TTFB if data is slow.
 
-SSR still hydrates on the client. The server sends HTML, and the client attaches event handlers during hydration.
+SSR still hydrates on the client. The server sends HTML, and the client attaches event handlers during hydration (React matches the server-rendered HTML to its virtual tree and makes it interactive without re-rendering everything).
 
 ## SSG (Static Site Generation)
 
-Pages are generated at build time.
+Meaning: render HTML at build time and serve the same file for every request.
 
 Pros: very fast, cached on CDN.
 Cons: content is fixed until rebuild.
 
 ## ISR (Incremental Static Regeneration)
 
-Pages are generated at build time but can be updated on a schedule.
+Meaning: start with static HTML, then revalidate and rebuild pages in the background on a schedule or trigger.
 
 ISR combines static delivery with background revalidation so you avoid full rebuilds.
 

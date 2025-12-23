@@ -1,4 +1,4 @@
-# Type Checking vs Runtime - Comprehensive Study Guide
+# Type Checking vs Runtime 
 
 ## Introduction
 

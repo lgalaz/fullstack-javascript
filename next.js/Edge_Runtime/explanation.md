@@ -1,4 +1,4 @@
-# Edge Runtime - Comprehensive Study Guide
+# Edge Runtime 
 
 ## Introduction
 

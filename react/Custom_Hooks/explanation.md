@@ -1,4 +1,4 @@
-# Custom Hooks in React - Comprehensive Study Guide
+# Custom Hooks in React 
 
 ## Introduction
 
@@ -28,7 +28,16 @@ Usage:
 ```javascript
 function Settings() {
   const [theme, setTheme] = useLocalStorage('theme', 'light');
-  return <button onClick={() => setTheme('dark')}>{theme}</button>;
+  const [theme2, setTheme2] = useLocalStorage('theme2', 'light');
+  const [theme3, setTheme3] = useLocalStorage('theme3', 'light');
+
+  return (
+    <>
+      <button onClick={() => setTheme('dark')}>{theme}</button>
+      <button onClick={() => setTheme2('dark')}>{theme2}</button>
+      <button onClick={() => setTheme3('dark')}>{theme3}</button>
+    </>
+  );
 }
 ```
 
@@ -42,6 +51,7 @@ function Settings() {
 
 ```javascript
 function useEventListener(target, type, handler) {
+  // Keep the latest handler without re-attaching the listener every render.
   const handlerRef = useRef(handler);
   useEffect(() => {
     handlerRef.current = handler;
@@ -49,12 +59,33 @@ function useEventListener(target, type, handler) {
 
   useEffect(() => {
     if (!target) return;
-    const listener = event => handlerRef.current(event);
+
+    // Use a stable listener that calls the latest handler.
+    const listener = (event) => handlerRef.current(event);
     target.addEventListener(type, listener);
+
+    // Cleanup runs on unmount and before re-running when target/type changes.
     return () => target.removeEventListener(type, listener);
   }, [target, type]);
 }
+
+function Example() {
+  const [count, setCount] = useState(0);
+
+  useEventListener(window, 'keydown', (event) => {
+    if (event.key === 'ArrowUp') {
+      setCount((c) => c + 1);
+    }
+  });
+
+  return <p>Count: {count}</p>;
+}
 ```
+
+Notes:
+- `target` is a DOM node or `window`/`document`. Pass `null` until it exists (e.g., before a ref is set).
+- `type` is the event name string, like `'click'` or `'keydown'`.
+- `handler` can change every render; the ref ensures the listener always calls the latest function.
 
 Custom hooks encapsulate lifecycle and cleanup logic so components stay small.
 
@@ -67,3 +98,7 @@ A reusable function that uses hooks to share stateful logic across components.
 ### 2. Why must custom hooks start with `use`?
 
 It allows React to detect hook usage and enforce the rules of hooks.
+
+Sample rules of hooks:
+- Call hooks only at the top level (never inside loops, conditions, or nested functions).
+- Call hooks only from React function components or other custom hooks.

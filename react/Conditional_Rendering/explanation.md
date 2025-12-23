@@ -1,4 +1,4 @@
-# Conditional Rendering in React - Comprehensive Study Guide
+# Conditional Rendering in React 
 
 ## Introduction
 
@@ -64,7 +64,29 @@ function Screen({ state }) {
 }
 ```
 
+`Screen` looks up the component for the current `state` key. If the key doesn't exist, it renders `null`.
+
+```javascript
+<Screen state="loading" />
+<Screen state="ready" />
+```
+
 Rendering `null` removes the element from the tree without errors.
+
+```javascript
+function MaybeMessage({ show }) {
+  if (!show) return null;
+  return <p>Hello</p>;
+}
+```
+
+Equivalent `&&` version:
+
+```javascript
+function MaybeMessage2({ show }) {
+  return show && <p>Hello</p>;
+}
+```
 
 ## Interview Questions and Answers
 

@@ -1,4 +1,4 @@
-# Type Compatibility and Structural Typing - Comprehensive Study Guide
+# Type Compatibility and Structural Typing 
 
 ## Introduction
 

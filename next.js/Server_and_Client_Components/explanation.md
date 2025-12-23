@@ -1,4 +1,4 @@
-# Server and Client Components - Comprehensive Study Guide
+# Server and Client Components 
 
 ## Introduction
 

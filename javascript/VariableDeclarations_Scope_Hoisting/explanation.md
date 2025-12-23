@@ -1,4 +1,4 @@
-# Variable Declarations, Scope, and Hoisting in JavaScript - Comprehensive Study Guide
+# Variable Declarations, Scope, and Hoisting in JavaScript 
 
 ## Introduction
 

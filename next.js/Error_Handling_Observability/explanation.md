@@ -1,4 +1,4 @@
-# Error Handling and Observability - Comprehensive Study Guide
+# Error Handling and Observability 
 
 ## Introduction
 

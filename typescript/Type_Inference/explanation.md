@@ -1,4 +1,4 @@
-# Type Inference - Comprehensive Study Guide
+# Type Inference 
 
 ## Introduction
 

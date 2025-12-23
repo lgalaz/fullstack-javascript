@@ -1,4 +1,4 @@
-# Internationalization (i18n) - Comprehensive Study Guide
+# Internationalization (i18n) 
 
 ## Introduction
 

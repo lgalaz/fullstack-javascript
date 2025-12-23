@@ -1,4 +1,4 @@
-# Immutability, Reference vs Value in JavaScript - Comprehensive Study Guide
+# Immutability, Reference vs Value in JavaScript 
 
 ## Introduction
 

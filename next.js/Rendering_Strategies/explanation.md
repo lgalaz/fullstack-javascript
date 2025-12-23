@@ -1,4 +1,4 @@
-# Rendering Strategies (SSR, SSG, ISR, CSR) - Comprehensive Study Guide
+# Rendering Strategies (SSR, SSG, ISR, CSR) 
 
 ## Introduction
 

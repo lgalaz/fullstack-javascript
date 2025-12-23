@@ -1,4 +1,4 @@
-# Deployment and Caching - Comprehensive Study Guide
+# Deployment and Caching 
 
 ## Introduction
 

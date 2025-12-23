@@ -1,4 +1,4 @@
-# 'this', bind, call, and apply in JavaScript - Comprehensive Study Guide
+# 'this', bind, call, and apply in JavaScript 
 
 ## Introduction
 

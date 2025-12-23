@@ -1,4 +1,4 @@
-# JavaScript Data Types - Comprehensive Study Guide
+# JavaScript Data Types 
 
 ## Introduction
 

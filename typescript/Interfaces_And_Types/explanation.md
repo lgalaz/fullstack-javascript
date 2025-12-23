@@ -1,4 +1,4 @@
-# Interfaces and Type Aliases - Comprehensive Study Guide
+# Interfaces and Type Aliases 
 
 ## Introduction
 

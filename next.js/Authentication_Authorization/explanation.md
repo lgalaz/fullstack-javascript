@@ -1,4 +1,4 @@
-# Authentication and Authorization - Comprehensive Study Guide
+# Authentication and Authorization 
 
 ## Introduction
 

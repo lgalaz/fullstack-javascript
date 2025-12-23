@@ -1,4 +1,4 @@
-# Route Handlers (API Routes) - Comprehensive Study Guide
+# Route Handlers (API Routes) 
 
 ## Introduction
 

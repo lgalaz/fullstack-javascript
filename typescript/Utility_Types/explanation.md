@@ -1,4 +1,4 @@
-# Utility Types - Comprehensive Study Guide
+# Utility Types 
 
 ## Introduction
 

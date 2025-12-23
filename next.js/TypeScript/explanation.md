@@ -1,4 +1,4 @@
-# TypeScript in Next.js - Comprehensive Study Guide
+# TypeScript in Next.js 
 
 ## Introduction
 

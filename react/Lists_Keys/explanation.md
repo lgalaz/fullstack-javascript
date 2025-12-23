@@ -1,8 +1,8 @@
-# Lists and Keys in React - Comprehensive Study Guide
+# Lists and Keys in React 
 
 ## Introduction
 
-Rendering lists is common in React. Keys help React identify which items change, are added, or are removed.
+Rendering lists is common in React. Keys help React identify which items change, are added, or are removed during reconciliation.
 
 ## Rendering Lists
 

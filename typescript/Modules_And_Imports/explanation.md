@@ -1,4 +1,4 @@
-# Modules and Imports - Comprehensive Study Guide
+# Modules and Imports 
 
 ## Introduction
 

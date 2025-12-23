@@ -1,4 +1,4 @@
-# Closures in JavaScript - Comprehensive Study Guide
+# Closures in JavaScript 
 
 ## Introduction
 

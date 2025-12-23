@@ -1,4 +1,4 @@
-# Event Loop in JavaScript - Comprehensive Study Guide
+# Event Loop in JavaScript 
 
 ## Introduction
 

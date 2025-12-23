@@ -1,4 +1,4 @@
-# Layouts, Templates, Loading, and Error UI - Comprehensive Study Guide
+# Layouts, Templates, Loading, and Error UI 
 
 ## Introduction
 

@@ -1,4 +1,4 @@
-# Type Narrowing and Guards - Comprehensive Study Guide
+# Type Narrowing and Guards 
 
 ## Introduction
 
