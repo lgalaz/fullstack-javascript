@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The Edge Runtime runs on a V8 isolate with low latency but has limitations compared to the Node runtime.
+The Edge Runtime runs on a V8 isolate (a lightweight JS sandbox) close to users, which reduces latency. It is not full Node.js, so some APIs are unavailable.
 
 ## Where It Applies
 
@@ -19,7 +19,34 @@ You can set it per route handler or page. It affects available APIs and performa
 
 - No Node.js APIs (like `fs`)
 - Smaller runtime environment
-- Use Web APIs instead
+- Use Web APIs instead (the browser-like standards such as `fetch`, `Request`, `Response`, `Headers`, and `URL` available in edge runtimes)
+
+Good: use Web APIs in an edge route handler.
+
+```javascript
+// app/api/geo/route.js
+import { NextRequest } from 'next/server';
+
+export const runtime = 'edge';
+
+export async function GET(request: NextRequest) {
+  const country = request.geo?.country ?? 'US';
+  return Response.json({ country });
+}
+```
+
+Bad: using Node-only modules on the edge.
+
+```javascript
+import fs from 'fs';
+
+export const runtime = 'edge';
+
+export async function GET() {
+  const data = fs.readFileSync('data.json', 'utf8');
+  return new Response(data);
+}
+```
 
 ## Use cases
 

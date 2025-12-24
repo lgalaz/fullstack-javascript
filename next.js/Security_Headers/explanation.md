@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Security headers reduce common web vulnerabilities like XSS and clickjacking. Next.js can set headers globally or per route.
+Security headers reduce common web vulnerabilities like XSS (injected scripts) and clickjacking (tricking users into clicking hidden UI). Next.js can set headers globally or per route.
 
 ## next.config.js Headers
 
@@ -25,7 +25,7 @@ module.exports = {
 
 ## Content Security Policy (CSP)
 
-CSP is stricter and often requires nonces. It is commonly set in middleware.
+CSP is stricter and often requires nonces. A nonce is a unique, per-request token you add to both the CSP header and specific `<script>` tags, allowing only those inline scripts to run while keeping other inline scripts blocked. CSP is commonly set in middleware.
 
 ```javascript
 // middleware.js
@@ -43,11 +43,31 @@ export function middleware(request) {
 }
 ```
 
+Example: use the nonce on inline scripts that must run.
+
+```html
+<script nonce="NONCE_FROM_HEADER">window.__BOOTSTRAP__ = {};</script>
+```
+
+Bad practice: using an overly permissive CSP.
+
+```javascript
+response.headers.set('Content-Security-Policy', "default-src * 'unsafe-inline' 'unsafe-eval'");
+```
+
+Note: `'unsafe-inline'` allows any inline script to execute, and `'unsafe-eval'` allows `eval()`/`new Function()`-style execution. Both reduce CSP to a much weaker protection against XSS.
+
 ## Interview Questions and Answers
 
 ### 1. Why are security headers important?
 
-They mitigate attacks like XSS, clickjacking, and MIME sniffing.
+They mitigate common web attacks and data leaks:
+- XSS (cross-site scripting): injected scripts run in the user's browser.
+- Clickjacking: hidden iframes trick users into clicking.
+- MIME sniffing: browsers misinterpret file types and execute unsafe content.
+- Mixed content: insecure HTTP assets on HTTPS pages.
+- Data exfiltration: overly broad resource loading or `connect-src` leaks.
+- Referrer leakage: sensitive URLs sent in the `Referer` header.
 
 ### 2. Where can you set headers in Next.js?
 

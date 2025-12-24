@@ -20,7 +20,7 @@ export default function DashboardLayout({ children }) {
 }
 ```
 
-Nested layouts compose, so parent layout UI persists while child layouts render below.
+Nested layouts compose, so parent layout UI persists while child layouts render at the `{children}` placeholder.
 
 ## Templates
 
@@ -32,6 +32,42 @@ Templates are useful when you need to re-run client component state on each navi
 // app/dashboard/template.js
 export default function Template({ children }) {
   return <div>{children}</div>;
+}
+```
+
+Example: a template can reset a form when navigating between sub-pages.
+
+```javascript
+// app/dashboard/template.js
+'use client';
+import { useState } from 'react';
+
+export default function Template({ children }) {
+  const [value, setValue] = useState('');
+  return (
+    <div>
+      <input value={value} onChange={e => setValue(e.target.value)} />
+      {children}
+    </div>
+  );
+}
+```
+
+Bad practice: using a layout when you expect local state to reset between sub-routes.
+
+```javascript
+// app/dashboard/layout.js
+'use client';
+import { useState } from 'react';
+
+export default function DashboardLayout({ children }) {
+  const [value, setValue] = useState('');
+  return (
+    <div>
+      <input value={value} onChange={e => setValue(e.target.value)} />
+      {children}
+    </div>
+  );
 }
 ```
 
@@ -47,6 +83,23 @@ export default function Loading() {
 ```
 
 Loading UI boundaries work with Suspense. Each segment can have its own `loading.js` for fine-grained loading states.
+
+Example:
+
+```javascript
+// app/dashboard/loading.js
+export default function Loading() {
+  return <p>Loading dashboard...</p>;
+}
+```
+
+```javascript
+// app/dashboard/page.js
+export default async function DashboardPage() {
+  const data = await fetch('https://api.example.com/dashboard').then(r => r.json());
+  return <div>{data.title}</div>;
+}
+```
 
 ## Error and Not Found
 

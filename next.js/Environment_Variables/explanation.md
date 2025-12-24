@@ -13,6 +13,13 @@ Next.js supports environment variables via `.env` files and `process.env`.
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 ```
 
+Bad practice: putting secrets in `NEXT_PUBLIC_` variables exposes them to the browser.
+
+```javascript
+// BAD: this will be bundled into client code
+const secret = process.env.NEXT_PUBLIC_SECRET_KEY;
+```
+
 ## Files
 
 - `.env.local` for local dev (not committed)
@@ -23,6 +30,12 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 Environment variables are inlined at build time for client bundles, so changes require rebuilds.
 
 On the server, variables are read at runtime. Keep secrets server-only and never expose them via `NEXT_PUBLIC_`.
+
+Example server-only usage:
+
+```javascript
+const dbUrl = process.env.DATABASE_URL;
+```
 
 ## Interview Questions and Answers
 

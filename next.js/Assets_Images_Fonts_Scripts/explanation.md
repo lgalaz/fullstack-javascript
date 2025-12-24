@@ -14,7 +14,20 @@ import Image from 'next/image';
 <Image src="/avatar.png" width={64} height={64} alt="Avatar" />
 ```
 
-Image optimization requires width/height to avoid layout shift. For dynamic sizes, use `fill` with a parent that has position and size.
+Image optimization requires width/height to avoid layout shift (the page jumping as images load). For dynamic sizes, use `fill` with a parent that has position and size. `fill` is a Next.js `next/image` prop, not a standard HTML attribute, and it makes the image absolutely fill its parent box.
+
+```javascript
+// Good: parent has size and position for fill
+<div style={{ position: 'relative', width: 200, height: 200 }}>
+  <Image src="/avatar.png" alt="Avatar" fill />
+</div>
+```
+
+Bad practice: using plain `<img>` for large or responsive images misses Next.js optimizations.
+
+```javascript
+<img src="/avatar.png" alt="Avatar" />
+```
 
 ## Fonts
 
@@ -32,6 +45,12 @@ export default function Layout({ children }) {
 
 Fonts are inlined with CSS and preloaded to reduce layout shifts.
 
+Bad practice: loading fonts via a remote stylesheet causes extra network hops and can delay text rendering.
+
+```html
+<link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet" />
+```
+
 ## Scripts
 
 Use `next/script` to control script loading strategy.
@@ -47,6 +66,18 @@ import Script from 'next/script';
 - `beforeInteractive` for critical scripts
 - `afterInteractive` for default
 - `lazyOnload` for low priority
+
+Bad practice: dropping a blocking script tag into the page can delay interactivity.
+
+```html
+<script src="https://example.com/sdk.js"></script>
+```
+
+These strategies control when the script is executed. They do not replace `preload`/`prefetch` for all cases, but most apps can rely on `next/script` without manually adding resource hints unless you have a specific performance need.
+
+`afterInteractive` and `lazyOnload` load without blocking rendering (async/deferred behavior). `beforeInteractive` loads as early as possible and can block interactivity because it must run before hydration. Hydration is the process where React attaches event listeners and makes the server-rendered HTML interactive on the client.
+
+Example of a specific need: preloading a critical third-party script that must be ready immediately after first paint (like a payment SDK on a checkout page) to avoid visible delays when the user interacts.
 
 ## Public Assets
 
