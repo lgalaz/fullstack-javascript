@@ -6,6 +6,12 @@ State represents data that changes over time within a component. In class compon
 
 State is a snapshot tied to a render. Updating state schedules a re-render; it does not mutate state in place. When you change state, React creates a new snapshot for the next render.
 
+## Why You Must Use React State Setters
+
+Updating state outside React's setters is like bypassing a setter in OOP - you may change the raw value, but you skip all the logic that makes the system work.
+
+React state must be written through React, or it stops being React state. Mutating an object key directly (for example `state.obj.x = 2`) changes the data without changing the reference, so React does not detect an update. It may seem to work if a render later happens for another reason (for example a parent re-render, a context update, or a different state change) and React reads the mutated value, but the change was never tracked. Because React detects updates by reference, state must be treated as immutable and replaced with a new object to avoid non-deterministic bugs, dev/prod differences, and race conditions.
+
 ## State with Function Components
 
 Use `useState` to create local state.
