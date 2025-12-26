@@ -183,6 +183,19 @@ Note: `(.)` is the convention for "intercept in the same segment," so `/photos/[
 
 Route handlers can run on the Edge or Node.js runtimes depending on your configuration and APIs used.
 
+## When to Use a Separate Backend
+
+Next.js route handlers work well for simple backend-for-frontend use cases: auth callbacks, small CRUD endpoints, and aggregating data for pages.
+
+Consider a separate Node.js backend when server responsibilities grow beyond request/response handlers, such as:
+- long-running processes or background jobs
+- real-time connections (WebSockets, Socket.IO)
+- queues and worker orchestration
+- a shared API for multiple clients (web, mobile, internal services)
+- independent scaling and deployment of the API layer
+
+In those cases, a dedicated backend provides clearer layering, more reliable process control, and decoupled scaling from the UI.
+
 ## Interview Questions and Answers
 
 ### 1. Where do route handlers live in the App Router?
