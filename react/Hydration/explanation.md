@@ -4,6 +4,51 @@
 
 Hydration is the process of attaching React's event handlers and internal state to server-rendered HTML on the client. React expects the existing DOM to match what it would render for the same component tree.
 
+## Phases (SSR + Hydration vs Client-Only)
+
+Hydration is a special first mount that reuses server HTML. The render and commit phases are the same high-level phases React always uses, but the commit work differs.
+
+### SSR + Hydration (first client render only)
+
+HTML already exists.
+
+Render phase (hydrating render):
+- React renders components.
+- It reconciles the current fiber tree with new elements and marks effects for the commit.
+
+Commit phase (hydration commit):
+- Attach event listeners.
+- Attach refs.
+- Claim existing DOM nodes for the fiber tree.
+- Do not create DOM nodes unless React detects a mismatch and falls back to client rendering for that subtree.
+
+Effects:
+- `useLayoutEffect` runs after the commit and before paint.
+- Browser paint happens.
+- `useEffect` runs after paint.
+
+### Client-Only Render (no SSR)
+
+Render phase:
+- React renders components and builds a work-in-progress fiber tree.
+
+Commit phase:
+- Create DOM nodes.
+- Attach event listeners.
+- Attach refs.
+
+Effects run with the same ordering as above.
+
+### Subsequent Renders (both cases)
+
+Render phase:
+- Recompute the virtual tree and reconcile against current fibers.
+
+Commit phase:
+- Update, create, or remove DOM nodes as needed.
+
+Effects run.
+
 ## Why Hydration Can Fail
 
 If the HTML in the DOM changes before or during hydration, React can detect a mismatch and either warn or re-render, which may remove unexpected DOM nodes.

@@ -12,6 +12,53 @@ React decides when to pause by checking time spent, browser signals and  whether
 
 Browser signals here means hints from the browser event loop, like pending user input, rendering work, or other tasks queued on the main thread.
 
+## What Is a Fiber?
+
+A Fiber is React's internal data structure that represents a single unit of work in the UI tree. It is the runtime representation of a component or a DOM node, not JSX and not a virtual DOM element.
+
+Each Fiber corresponds to exactly one of these:
+- A function component
+- A class component
+- A host component (DOM node like `div`)
+- A fragment
+- A Suspense boundary
+- A text node
+
+Example:
+
+```jsx
+<App>
+  <Header />
+  <Main>
+    <Button />
+  </Main>
+</App>
+```
+
+Internally this becomes a Fiber tree:
+
+```
+Fiber(App)
+ ├─ Fiber(Header)
+ └─ Fiber(Main)
+     └─ Fiber(Button)
+```
+
+Conceptually, a Fiber stores:
+- Component type (function, host, etc.)
+- Props and state
+- Hooks (linked list)
+- Child, sibling, and parent pointers
+- Effect flags for the commit phase
+- A reference to the actual DOM node (for host fibers)
+
+Why Fiber exists:
+- Pre-React 16 rendering was synchronous and recursive.
+- Large trees could block the main thread.
+- There was no prioritization or interruption.
+
+Fiber enables React to pause, resume, and prioritize rendering work, which is the basis for concurrent features.
+
 ## React.lazy with Suspense
 
 `React.lazy` lets you split code and load a component only when it is needed. `Suspense` wraps the lazy component and shows a fallback while the module is loading.
