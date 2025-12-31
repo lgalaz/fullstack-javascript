@@ -10,6 +10,10 @@ React compares props by reference when deciding if a component can skip re-rende
 
 Function components are the modern, recommended way to write components.
 
+A function becomes a component only when rendered as `<MyComponent />`.
+
+Render functions = helpers; components = identity + lifecycle.
+
 ```javascript
 function Greeting(props) {
   return (

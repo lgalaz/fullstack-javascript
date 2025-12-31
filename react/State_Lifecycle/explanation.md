@@ -126,6 +126,8 @@ class Timer extends React.Component {
 
 `useEffect` replaces most lifecycle methods.
 
+Function components have no lifecycle events. Lifecycle is implicit = React owns timing. Effects are explicit = you declare relationships, React schedules.
+
 ```javascript
 import { useEffect, useState } from 'react';
 
@@ -143,8 +145,8 @@ function Timer() {
 }
 ```
 
-`useEffect` runs after paint. 
-For DOM measurement (reading layout from the DOM) or synchronous layout updates (writing changes that must happen before the browser paints), use `useLayoutEffect`.
+`useEffect` runs after paint.
+For DOM measurement (reading layout from the DOM) or synchronous layout updates (writing changes that must happen before the browser paints), use `useLayoutEffect`. useLayoutEffect exists for DOM-measure-before-paint cases.
 
 DOM measurement means reading layout-dependent values like size or position: `getBoundingClientRect`, `offsetWidth`, `offsetHeight`, or `scrollTop`. Synchronous layout updates are changes you want applied before the user sees the frame, like setting a tooltip position based on measured size or preventing a visible layout jump.
 

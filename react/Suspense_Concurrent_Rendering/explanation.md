@@ -12,6 +12,8 @@ React decides when to pause by checking time spent, browser signals and  whether
 
 Browser signals here means hints from the browser event loop, like pending user input, rendering work, or other tasks queued on the main thread.
 
+React is a deterministic UI state machine with a non-deterministic scheduler.
+
 ## What Is a Fiber?
 
 A Fiber is React's internal data structure that represents a single unit of work in the UI tree. It is the runtime representation of a component or a DOM node, not JSX and not a virtual DOM element.
@@ -67,6 +69,8 @@ Fiber enables React to pause, resume, and prioritize rendering work, which is th
 `React.lazy` is what makes that happen by wrapping a dynamic `import()` into a component that loads on first render.
 
 Suspense can wrap any component that suspends (like a `lazy()` component). The fallback shows while React is waiting for the suspended work to resolve. For `React.lazy`, the fallback remains until the dynamic `import()` finishes and the module loads.
+
+Suspense replays render. Suspense prevents effects from running until UI is actually committed.
 
 ```javascript
 import { Suspense, lazy } from 'react';
@@ -179,6 +183,10 @@ function Search() {
 ## Notes
 
 Concurrent rendering means React can interrupt renders and resume later. It does not mean multi-threaded rendering in JavaScript.
+
+This model enables concurrency and correctness. All of this exists to support concurrent rendering. Strict Mode simulates concurrency. Ergonomics = ease-of-use React deliberately sacrifices for correctness.
+
+If your code assumes when things run, it will eventually break. If your code only cares about what should be true, it will survive concurrency, SSR, and future React versions.
 
 ## Interview Questions and Answers
 

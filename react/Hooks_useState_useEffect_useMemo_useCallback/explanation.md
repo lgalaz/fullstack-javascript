@@ -26,6 +26,8 @@ function Toggle() {
 
 Use for side effects like data fetching, subscriptions, and timers.
 
+useEffect declares side effects tied to state.
+
 ```javascript
 import { useEffect, useState } from 'react';
 
@@ -48,7 +50,7 @@ function User({ id }) {
 }
 ```
 
-Dependency arrays control when the effect runs. Missing dependencies can cause stale values.
+Dependency arrays control when the effect runs. Missing dependencies can cause stale values. Cleanup enforces correctness across updates.
 
 Example of stale values:
 
@@ -104,7 +106,7 @@ function Counter({ step }) {
 }
 ```
 
-Effects run after paint. In React Strict Mode (dev), effects may run twice to surface side-effect issues.
+Effects run after paint. Effects must be restart-safe. In React Strict Mode (dev), effects may run twice to surface side-effect issues. Strict Mode double-invokes effects to prove they are restart-safe.
 
 ## useMemo
 
@@ -192,6 +194,12 @@ function Parent() {
 Eplanation: That inline arrow function is re-created on every render of Parent, so onClick is a new reference each time. Because Child is memoized, it only skips re-rendering when props are referentially equal; the new onClick prop breaks that, so Child re-renders every time. It still works functionally, but you lose the render‑skipping benefit of memo.
 
 `useCallback` is equivalent to `useMemo(() => fn, deps)`. Use it to keep function identity stable when passing to memoized children.
+
+useCallback can cascade into dependency hell.
+
+## useEvent (experimental)
+
+useEvent gives you stable handlers with fresh logic, solving the closure problem cleanly. useEvent is the future solution, not stable yet.
 
 ## Choosing the right hook
 
