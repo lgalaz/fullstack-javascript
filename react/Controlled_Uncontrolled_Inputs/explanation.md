@@ -25,6 +25,7 @@ function NameForm() {
 ```
 
 Pros: single source of truth, easy validation, instant UI updates.
+Cons: more re-renders, more boilerplate, can be slower for very large forms.
 
 ## Uncontrolled Inputs
 
@@ -51,8 +52,36 @@ function NameForm() {
 ```
 
 Pros: fewer re-renders, simpler for large forms with rare reads.
+Cons: harder to validate as you type, less predictable UI state, manual syncing when needed.
 
 Note: In React, you aren’t writing raw HTML attributes; you’re setting properties on DOM nodes via JSX. `defaultValue` sets the initial DOM value for uncontrolled inputs without making them controlled.
+Note: To pass refs through function components, use `forwardRef`, and expose custom instance methods with `useImperativeHandle` when needed.
+Note: This pattern is best for small imperative actions (focus/scroll or integration with non-React libs.), but prefer props/state and composition for most UI logic.
+
+```javascript
+const FancyInput = React.forwardRef(function FancyInput(props, ref) {
+  const inputRef = React.useRef(null);
+
+  React.useImperativeHandle(ref, () => ({
+    focus: () => inputRef.current?.focus(),
+    clear: () => {
+      if (inputRef.current) inputRef.current.value = '';
+    },
+  }));
+
+  return <input ref={inputRef} {...props} />;
+});
+
+function App() {
+  const fancyRef = React.useRef(null);
+  return (
+    <>
+      <FancyInput ref={fancyRef} />
+      <button onClick={() => fancyRef.current.focus()}>Focus</button>
+    </>
+  );
+}
+```
 
 ## Avoid switching modes
 

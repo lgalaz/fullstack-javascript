@@ -1,0 +1,43 @@
+# React DevTools
+
+## Introduction
+
+React DevTools is a browser extension that lets you inspect the component tree, props, state, and hooks in a running React app. It also includes a Profiler to measure render performance.
+
+## Components Tab (Inspecting UI State)
+
+Use the Components tab to:
+- Browse the component tree.
+- Inspect and edit props and state.
+- View hooks and their current values.
+- Jump to the source when source maps are available.
+
+Common use cases:
+- Verify a prop is flowing down correctly.
+- Check whether state updates are happening as expected.
+- Confirm a memoized component is actually receiving stable props.
+
+## Profiler Tab (Performance)
+
+Use the Profiler tab to:
+- Record commits and see what re-rendered.
+- Measure how long each component took to render.
+- Identify expensive renders and unnecessary updates.
+
+What to look for:
+- Components that render frequently without visible changes.
+- High commit durations or long render times.
+- Unexpected renders after small state updates.
+
+## Browser DevTools (Supporting Tools)
+
+React DevTools works best alongside browser DevTools:
+- **Console**: runtime errors and warnings.
+- **Network**: API request timing, payload sizes, and failures.
+- **Performance**: long tasks, scripting time, and frame drops.
+
+## Quick Tips
+
+- Start with the Profiler when you suspect performance issues.
+- Use React DevTools to confirm memoization is helping.
+- Compare before/after when you add `useMemo` or `useCallback`.

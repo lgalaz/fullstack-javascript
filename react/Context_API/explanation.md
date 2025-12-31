@@ -143,6 +143,8 @@ Context is not a state management replacement by itself. For complex derived sta
 Example with a custom hook for async data:
 
 ```javascript
+const UserContext = React.createContext({ status: 'idle', data: null });
+
 function useUserProfile(userId) {
   const [state, setState] = useState({ status: 'idle', data: null });
 

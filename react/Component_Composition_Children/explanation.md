@@ -15,6 +15,7 @@ class ButtonBase extends React.Component {
     return <button className={`btn ${this.props.variant}`}>{this.props.label}</button>;
   }
 }
+// here PrimaryButton is just an alias with the same behavior.
 class PrimaryButton extends ButtonBase {}
 
 // use:
@@ -32,7 +33,6 @@ function PrimaryButton() {
 ```
 
 Inheritance with override (to hardcode "primary"):
-
 ```javascript
 class PrimaryButton2 extends ButtonBase {
   render() {
@@ -82,6 +82,8 @@ function Panel({ title, children }) {
 ## Render props
 
 Children can be a function to pass data down without additional components.
+This is useful for sharing logic while letting the caller control markup.
+It is more flexible than HOCs for one-off sharing, but can get noisy and is often replaced by custom hooks in function components.
 
 ```javascript
 function Mouse({ children }) {
@@ -94,6 +96,24 @@ function Mouse({ children }) {
 }
 
 <Mouse>{pos => <span>{pos.x}, {pos.y}</span>}</Mouse>;
+```
+
+Custom hook alternative:
+
+```javascript
+function useMousePosition() {
+  const [pos, setPos] = React.useState({ x: 0, y: 0 });
+  const onMouseMove = React.useCallback(
+    e => setPos({ x: e.clientX, y: e.clientY }),
+    []
+  );
+  return { pos, onMouseMove };
+}
+
+function MouseTracker() {
+  const { pos, onMouseMove } = useMousePosition();
+  return <div onMouseMove={onMouseMove}>{pos.x}, {pos.y}</div>;
+}
 ```
 
 ## Multiple Slots
@@ -110,11 +130,34 @@ function Layout({ header, sidebar, content }) {
     </div>
   );
 }
+
+<Layout
+  header={<h1>Dashboard</h1>}
+  sidebar={<nav>Links</nav>}
+  content={<section>Main content</section>}
+/>;
+
+or
+
+function Header() {
+  return <h1>Dashboard</h1>;
+}
+
+function Sidebar() {
+  return <nav>Links</nav>;
+}
+
+function Content() {
+  return <section>Main content</section>;
+}
+
+<Layout header={<Header />} sidebar={<Sidebar />} content={<Content />} />;
 ```
 
 ## Compound components
 
 Compound components share state implicitly via context.
+The `null` passed to `createContext` is the default value used when a component reads the context without a matching provider.
 
 ```javascript
 const TabsContext = React.createContext(null);
@@ -138,8 +181,6 @@ function Tab({ index, children }) {
 }
 ```
 
-Usage with multiple tabs:
-
 ```javascript
 <Tabs>
   <Tab index={0}>Overview</Tab>
@@ -149,6 +190,13 @@ Usage with multiple tabs:
 ```
 
 All `Tab` children read and update the shared `active` state from `TabsContext`.
+
+Example without a matching provider (ctx is `null`, so `Tab` would throw):
+
+```javascript
+<Tab index={0}>Overview</Tab>
+```
+
 
 ## Interview Questions and Answers
 

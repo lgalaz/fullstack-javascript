@@ -6,6 +6,26 @@ Components are the building blocks of a React UI. Props (short for properties) a
 
 React compares props by reference when deciding if a component can skip re-rendering (e.g., `React.memo`). Keeping props stable matters for performance-sensitive components.
 
+## Class Components
+
+Class components are the older way to define components using ES6 classes. They are still supported, but function components with hooks are now preferred for most new code.
+
+```javascript
+class Greeting extends React.Component {
+  render() {
+    const { name, children } = this.props;
+    return (
+      <h1>
+        Hello, {name}! {children}
+      </h1>
+    );
+  }
+}
+
+// Usage
+<Greeting name="Ada">Welcome</Greeting>
+```
+
 ## Function Components
 
 Function components are the modern, recommended way to write components.
@@ -42,6 +62,7 @@ function Greeting({ children, name }) {
 - Props can be values, functions (callbacks), or other components/JSX.
 - Parents control data; children request changes by calling callbacks.
 - Changing a prop causes the child to re-render with the new value.
+- If a child tries to modify a prop directly, it will be ignored or overwritten on the next render; the correct pattern is to call a callback prop (e.g., `onChange`, `onClick`) so the parent updates state and passes new props down.
 
 Examples:
 
@@ -62,7 +83,20 @@ function Counter({ count, onInc }) {
 
 function CounterApp() {
   const [count, setCount] = React.useState(0);
-  return <Counter count={count} onInc={() => setCount(count + 1)} />;
+  // Good: uses functional update, safe with batching
+  const handleInc = () => setCount(c => c + 1);
+  return <Counter count={count} onInc={handleInc} />;
+}
+```
+
+Avoid this in event handlers that might be called quickly or batched:
+
+```javascript
+function CounterAppBad() {
+  const [count, setCount] = React.useState(0);
+  // Bad: closes over stale count if updates are batched
+  const handleInc = () => setCount(count + 1);
+  return <Counter count={count} onInc={handleInc} />;
 }
 ```
 
@@ -79,8 +113,6 @@ function App() {
 In this example, `App` owns the data and behavior (`label`, `onClick`). `Button` is a pure view of those props and cannot mutate them directly; it can only call `onClick` to notify the parent.
 
 ## Referential stability
-
-Passing new object or function instances each render breaks memoization.
 
 ```javascript
 const MemoButton = React.memo(Button);
@@ -131,6 +163,7 @@ function App() {
 ## Children Prop
 
 Any JSX nested inside a component becomes `props.children`.
+In JSX, `className` is used instead of `class` because `class` is a reserved JavaScript keyword, and `className` maps to the HTML `class` attribute.
 
 ```javascript
 function Card({ children }) {
@@ -164,6 +197,7 @@ function DataFetcher({ children }) {
 }
 
 <DataFetcher>{data => <span>{data?.name}</span>}</DataFetcher>;
+// Prints: <span>Ada</span>
 ```
 
 TypeScript version (typed render prop):
@@ -198,7 +232,7 @@ Passing props through multiple layers can be noisy. Context can help when many n
 
 ```javascript
 function App() {
-  const [theme] = React.useState('dark');
+  const [theme, setTheme] = React.useState('dark');
   return <Layout theme={theme} />;
 }
 
@@ -221,7 +255,7 @@ Context version to avoid prop drilling:
 const ThemeContext = React.createContext('light');
 
 function App() {
-  const [theme] = React.useState('dark');
+  const [theme, setTheme] = React.useState('dark');
   return (
     <ThemeContext.Provider value={theme}>
       <Layout />
@@ -251,4 +285,4 @@ Props are inputs passed from a parent component to a child component. They are r
 
 ### 2. Can a child component change its props?
 
-No. Props are immutable from the child's perspective. If changes are needed, the parent should pass new props.
+Not in a meaningful or supported way. A child can mutate a prop object it receives, but that is an anti-pattern and won't trigger a re-render; the correct approach is to call a callback and let the parent pass new props.

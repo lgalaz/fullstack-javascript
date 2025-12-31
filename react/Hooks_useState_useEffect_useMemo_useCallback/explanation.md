@@ -4,10 +4,253 @@
 
 Hooks let function components manage state, side effects, and performance. The most commonly used are `useState`, `useEffect`, `useMemo`, and `useCallback`.
 
+Other built-in hooks and when to use them:
+
+- `useReducer` for complex state logic or when the next state depends on the previous state in multiple ways.
+- Example:
+
+```javascript
+import { useReducer } from 'react';
+
+function reducer(state, action) {
+  switch (action.type) {
+    case 'inc':
+      return { count: state.count + 1 };
+    case 'dec':
+      return { count: state.count - 1 };
+    default:
+      return state;
+  }
+}
+
+function Counter() {
+  const [state, dispatch] = useReducer(reducer, { count: 0 });
+  return (
+    <>
+      <button onClick={() => dispatch({ type: 'dec' })}>-</button>
+      <span>{state.count}</span>
+      <button onClick={() => dispatch({ type: 'inc' })}>+</button>
+    </>
+  );
+}
+```
+
+- `useContext` to read values from React context without prop drilling.
+- Example:
+
+```javascript
+import { createContext, useContext } from 'react';
+
+const ThemeContext = createContext('light');
+
+function Button() {
+  const theme = useContext(ThemeContext);
+  return <button className={`btn-${theme}`}>OK</button>;
+}
+```
+
+- `useRef` to hold a mutable value that persists across renders (DOM nodes, timers, or instance-like data that should not trigger re-renders).
+- Example:
+
+```javascript
+import { useRef } from 'react';
+
+function SearchInput() {
+  const inputRef = useRef(null);
+  return (
+    <>
+      <input ref={inputRef} />
+      <button onClick={() => inputRef.current?.focus()}>Focus</button>
+    </>
+  );
+}
+```
+
+- `useLayoutEffect` for measurements or DOM mutations that must happen before the browser paints (use sparingly, because it runs synchronously after DOM updates and before paint, which can block rendering and cause visible jank if it does heavy work).
+- Example:
+
+```javascript
+import { useLayoutEffect, useRef, useState } from 'react';
+
+function Box() {
+  const ref = useRef(null);
+  const [width, setWidth] = useState(0);
+
+  useLayoutEffect(() => {
+    setWidth(ref.current.getBoundingClientRect().width);
+  }, []);
+
+  return <div ref={ref}>Width: {width}</div>;
+}
+```
+
+- `useImperativeHandle` with `forwardRef` to expose an imperative API to parent components.
+- Example:
+
+```javascript
+import { forwardRef, useImperativeHandle, useRef } from 'react';
+
+const Input = forwardRef(function Input(props, ref) {
+  const localRef = useRef(null);
+  useImperativeHandle(ref, () => ({
+    focus() {
+      localRef.current?.focus();
+    },
+  }));
+  return <input ref={localRef} />;
+});
+```
+
+Usage:
+
+```javascript
+import { useRef } from 'react';
+
+function Form() {
+  const inputRef = useRef(null);
+  return (
+    <>
+      <Input ref={inputRef} />
+      <button onClick={() => inputRef.current?.focus()}>Focus input</button>
+    </>
+  );
+}
+```
+
+- `useDebugValue` to label custom hooks in React DevTools.
+- Example:
+
+```javascript
+import { useDebugValue, useState } from 'react';
+
+function useStatus() {
+  const [status] = useState('idle');
+  useDebugValue(status);
+  return status;
+}
+```
+
+In React DevTools, the hook will show a label like:
+
+```
+useStatus: idle
+```
+
+- `useTransition` to mark updates as non-urgent (keep the UI responsive during expensive renders).
+- Example:
+
+```javascript
+import { useState, useTransition } from 'react';
+
+function Search() {
+  const [query, setQuery] = useState('');
+  const [isPending, startTransition] = useTransition();
+
+  function onChange(e) {
+    const next = e.target.value;
+    startTransition(() => setQuery(next));
+  }
+
+  return <input value={query} onChange={onChange} aria-busy={isPending} />;
+}
+```
+
+How transitions work: they are not like `React.lazy`. `React.lazy` splits code and defers loading a component. `useTransition` marks a state update as low priority so React can keep urgent updates (like typing and clicks) responsive. React will render the urgent update first, then finish the transition update when time is available, which can mean showing the previous UI briefly while the new result renders. This scheduling is handled by React's scheduler, which yields to higher-priority work and resumes low-priority rendering in idle slices. `isPending` lets you show a spinner or subtle loading state while the transition work completes.
+
+- `useDeferredValue` to let a value lag behind so expensive rendering can be deferred.
+- Example:
+
+```javascript
+import { useDeferredValue, useState } from 'react';
+
+function Filter() {
+  const [text, setText] = useState('');
+  const deferredText = useDeferredValue(text);
+  return <input value={text} onChange={(e) => setText(e.target.value)} />;
+}
+```
+
+Note: the deferral is managed by React's scheduler, which prioritizes urgent input updates and lets the deferred value update catch up in idle time.
+
+- `useId` to generate stable IDs for accessibility attributes.
+- Example:
+
+```javascript
+import { useId } from 'react';
+
+function Field() {
+  const id = useId();
+  return (
+    <>
+      <label htmlFor={id}>Email</label>
+      <input id={id} type="email" />
+    </>
+  );
+}
+```
+
+Note: `useId` avoids ID collisions and prevents hydration mismatches in SSR. Hardcoded strings can collide across instances, and Symbols are not valid DOM `id` values.
+
+- `useSyncExternalStore` to subscribe safely to external stores (e.g., Redux, custom store) with concurrent rendering support.
+- Example:
+
+```javascript
+import { useSyncExternalStore } from 'react';
+
+function useWindowWidth() {
+  return useSyncExternalStore(
+    (onStoreChange) => {
+      window.addEventListener('resize', onStoreChange);
+      return () => window.removeEventListener('resize', onStoreChange);
+    },
+    () => window.innerWidth
+  );
+}
+```
+
+- `useInsertionEffect` for CSS-in-JS libraries to inject styles before layout (library-level, rarely used in app code). It's mainly for library authors who need to inject styles before layout to avoid flicker; most apps should use `useEffect`/`useLayoutEffect` or just static CSS. "Library-level" means it's primarily intended for CSS-in-JS tooling and third-party styling libraries.
+- Example:
+
+```javascript
+import { useInsertionEffect } from 'react';
+
+function useInjectedStyles(cssText) {
+  useInsertionEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = cssText;
+    document.head.appendChild(style);
+    return () => document.head.removeChild(style);
+  }, [cssText]);
+}
+```
+
+Usage:
+
+```javascript
+function Badge({ tone }) {
+  const css = `
+    .badge {
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: ${tone === 'success' ? 'green' : 'gray'};
+      color: white;
+    }
+  `;
+
+  useInjectedStyles(css);
+  return <span className="badge">New</span>;
+}
+```
+
 ## Rules of Hooks
 
 - Only call hooks at the top level.
 - Only call hooks from React function components or custom hooks.
+
+Why these rules matter:
+
+- Only call hooks at the top level so React can rely on a stable hook call order across renders. If you call a hook inside a condition or loop, the order can change and React may attach state to the wrong hook, leading to bugs or errors like "Rendered fewer hooks than expected."
+- Only call hooks from React function components or custom hooks because hooks need React's internal render context. Calling them in regular functions or event handlers will throw "Invalid hook call" since there is no component render to associate the hook state with.
 
 ## useState
 
@@ -50,7 +293,7 @@ function User({ id }) {
 }
 ```
 
-Dependency arrays control when the effect runs. Missing dependencies can cause stale values. Cleanup enforces correctness across updates.
+Dependency arrays control when the effect runs. Missing dependencies can cause stale values, meaning the effect keeps using variables from an older render instead of the latest state/props. Cleanup enforces correctness across updates.
 
 Example of stale values:
 
@@ -137,7 +380,9 @@ function App() {
 }
 ```
 
-`useMemo` is a performance hint, not a guarantee. React may discard memoized values under memory pressure (when it needs to free memory, it can drop cached values and recompute later).
+Note: `setItems((prev) => [...prev, 4])` uses the functional update form, so it always appends to the latest array. In this example, each click adds another `4`, so yes, it would produce `[1, 2, 3, 4, 4, 4, ...]`. If you want to add a dynamic value instead, replace `4` with the value you intend to append.
+
+`useMemo` is a performance hint, not a guarantee (it suggests React can reuse a cached value, but React is free to recompute if it wants). React may discard memoized values under memory pressure (when it needs to free memory, it can drop cached values and recompute later).
 
 ## useCallback
 
@@ -193,13 +438,14 @@ function Parent() {
 
 Eplanation: That inline arrow function is re-created on every render of Parent, so onClick is a new reference each time. Because Child is memoized, it only skips re-rendering when props are referentially equal; the new onClick prop breaks that, so Child re-renders every time. It still works functionally, but you lose the render‑skipping benefit of memo.
 
-`useCallback` is equivalent to `useMemo(() => fn, deps)`. Use it to keep function identity stable when passing to memoized children.
+`useCallback(fn, deps)` is equivalent to `useMemo(() => fn, deps)`. Use it to keep function identity stable when passing to memoized children.
 
-useCallback can cascade into dependency hell.
+useCallback can cascade into dependency hell, where stabilizing one function forces you to add more dependencies, which then change and require more memoization, creating a chain of `useCallback`/`useMemo` calls that adds complexity and is hard to maintain. Mitigations include using functional state updates, using `useReducer` so callbacks depend on stable `dispatch`, avoiding memoization unless there's a measured benefit, or adopting `useEvent` when it becomes stable.
 
 ## useEvent (experimental)
 
 useEvent gives you stable handlers with fresh logic, solving the closure problem cleanly. useEvent is the future solution, not stable yet.
+Note: As of Dec 2025 status is experimental/proposed (available in React Canary, not in stable releases), so the API may change.
 
 ## Choosing the right hook
 
@@ -216,4 +462,4 @@ It replaces `componentDidMount`, `componentDidUpdate`, and `componentWillUnmount
 
 ### 2. When should you use `useMemo` or `useCallback`?
 
-Use them when you need stable references or expensive calculations and can measure a performance benefit. Avoid blanket memoization (adding `useMemo`/`useCallback` everywhere); it adds complexity, increases dependency management, and can be wasted work if renders are cheap. Start by memoizing where you see re-render hotspots, especially with memoized children or expensive computations.
+Use them when you need stable references or when you have expensive calculations that benefit from memoization, and you can measure a performance gain (for example, using the React DevTools Profiler or browser performance traces). Avoid blanket memoization (adding `useMemo`/`useCallback` everywhere); it adds complexity, increases dependency management, and can be wasted work if renders are cheap. Start by memoizing where you see re-render hotspots, especially with memoized children or expensive computations.

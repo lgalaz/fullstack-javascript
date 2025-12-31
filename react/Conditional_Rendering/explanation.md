@@ -97,3 +97,11 @@ Use `if`/`return` for clarity, or a ternary operator for simple cases.
 ### 2. What is a common pitfall with `&&`?
 
 Falsy values like `0` will render in the output. Use explicit boolean checks when needed.
+
+```javascript
+// Pitfall: items.length is 0, so the expression evaluates to 0 and React renders it
+{items.length && <ItemList items={items} />}
+
+// Safer: explicit boolean check, renders nothing when length is 0
+{items.length > 0 && <ItemList items={items} />}
+```

@@ -3,6 +3,8 @@
 ## Introduction
 
 Custom hooks let you extract and reuse stateful logic across components. They are plain functions whose names start with `use`.
+They can call other hooks, which is what differentiates them from regular utility functions.
+Use a custom hook when you need reusable stateful behavior that plugs into React's lifecycle (state, effects, context); use a plain function for pure, stateless helpers.
 
 ## Example: useLocalStorage
 
@@ -102,3 +104,35 @@ It allows React to detect hook usage and enforce the rules of hooks.
 Sample rules of hooks:
 - Call hooks only at the top level (never inside loops, conditions, or nested functions).
 - Call hooks only from React function components or other custom hooks.
+
+Example bug (state gets associated with the wrong hook):
+
+```javascript
+function Profile({ showStatus }) {
+  const [name, setName] = useState('');
+
+  // This hook is called only when showStatus is true.
+  if (showStatus) {
+    useEffect(() => {
+      document.title = `Status for ${name}`;
+    }, [name]);
+  }
+
+  const [age, setAge] = useState(0);
+
+  return (
+    <>
+      <input value={name} onChange={(e) => setName(e.target.value)} />
+      <input value={age} onChange={(e) => setAge(Number(e.target.value))} />
+    </>
+  );
+}
+```
+
+If `showStatus` changes from true to false, React "skips" the effect hook and the next hook (`useState` for age) takes its place. On the next render, the
+state that used to belong to the effect slot is now treated as the age state.
+In practice, you might see the age input suddenly show `undefined` or a stale value, or the app might throw a runtime error like:
+
+```
+Rendered fewer hooks than expected. This may be caused by an accidental early return statement.
+```
