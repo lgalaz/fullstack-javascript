@@ -146,14 +146,11 @@ function Timer() {
 ```
 
 `useEffect` runs after paint.
-For DOM measurement (reading layout from the DOM) or synchronous layout updates (writing changes that must happen before the browser paints), use `useLayoutEffect`. useLayoutEffect exists for DOM-measure-before-paint cases.
+For DOM measurement (reading layout) or synchronous layout updates (changes that must happen before paint), use `useLayoutEffect`. This is for DOM-measure-before-paint cases.
 
-DOM measurement means reading layout-dependent values like size or position: `getBoundingClientRect`, `offsetWidth`, `offsetHeight`, or `scrollTop`. Synchronous layout updates are changes you want applied before the user sees the frame, like setting a tooltip position based on measured size or preventing a visible layout jump.
+Reading layout means accessing computed geometry like `getBoundingClientRect`, `offsetWidth`, `offsetHeight`, `clientHeight`, or `scrollTop`, not style values like colors or fonts. Synchronous layout updates are changes you want applied before the user sees the frame, like setting a tooltip position based on measured size or preventing a visible layout jump.
 
 Rule of thumb: use `useEffect` for most DOM work, data fetching, subscriptions, and non-layout updates. Use `useLayoutEffect` only when you must read layout or apply a layout-critical change before paint to avoid flicker or incorrect measurements.
-
-Reading layout means accessing computed size or position values, such as `getBoundingClientRect`, `offsetWidth`, `clientHeight`, or `scrollTop`.
-Here, computed layout refers to measured geometry (sizes, positions, scroll metrics), not styling like colors or fonts.
 
 ```javascript
 import { useLayoutEffect, useRef, useState } from 'react';
@@ -195,6 +192,25 @@ function Counter() {
     }, 1000);
     return () => clearInterval(id);
   }, []);
+
+  return <div>{count}</div>;
+}
+```
+
+Note: this effect uses an empty dependency array, but it does not suffer from stale `count` because it uses the functional `setCount`, which always receives the latest state.
+
+Example with a missing dependency (stale `count`):
+
+```javascript
+function CounterWithStaleEffect() {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setCount(count + 1);
+    }, 1000);
+    return () => clearInterval(id);
+  }, []); // Missing `count` dependency: interval always uses the initial value.
 
   return <div>{count}</div>;
 }

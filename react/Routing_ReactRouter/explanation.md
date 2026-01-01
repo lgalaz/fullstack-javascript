@@ -4,7 +4,7 @@
 
 React Router is the most common routing library for React applications. It maps URLs to components.
 
-## Basic Setup
+## Basic Setup (All in App)
 
 ```javascript
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
@@ -25,6 +25,8 @@ function App() {
   );
 }
 ```
+
+Same idea, but in a typical app you move `BrowserRouter` to the entry file and keep routes inside `App` (or a separate routes file).
 
 Typical app setup (entry + routes in a separate file):
 
@@ -102,6 +104,18 @@ Explanation: this component is rendered by a route that matches `/users/:id`. Th
 </Route>
 ```
 
+Deep nesting example (3+ levels):
+
+```javascript
+<Route path="/dashboard" element={<Dashboard />}>
+  <Route path="teams" element={<Teams />}>
+    <Route path=":teamId" element={<Team />}>
+      <Route path="members" element={<Members />} />
+    </Route>
+  </Route>
+</Route>
+```
+
 Render children with `Outlet` in the parent route.
 
 ```javascript
@@ -116,9 +130,40 @@ function Settings() {
   );
 }
 ```
-
 Explanation: visiting `/settings/profile` renders `Settings`, and the nested `Profile` route is inserted where `<Outlet />` appears.
 
+Deep nesting with `Outlet` (each parent renders the next level):
+
+```javascript
+import { Outlet } from 'react-router-dom';
+
+function Dashboard() {
+  return (
+    <div>
+      <h1>Dashboard</h1>
+      <Outlet />
+    </div>
+  );
+}
+
+function Teams() {
+  return (
+    <div>
+      <h2>Teams</h2>
+      <Outlet />
+    </div>
+  );
+}
+
+function Team() {
+  return (
+    <div>
+      <h3>Team</h3>
+      <Outlet />
+    </div>
+  );
+}
+```
 ## Navigation
 
 ```javascript

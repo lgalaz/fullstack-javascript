@@ -28,6 +28,10 @@ This folder explains the full lifecycle of a React app: how you set it up, how i
 3. **Create a new project**
    - Common CLI: `npm create vite@latest` or `npx create-react-app`.
    - This creates the folder structure and installs dependencies.
+4. **Know your tooling**
+   - **Vite**: A fast dev server and build tool (not a runtime). It runs on Node.js to serve and build your app, but the app itself runs in the browser.
+   - **Runtime**: The environment that executes JavaScript (for example Node.js on your machine or the browser for client code).
+   - **Vite vs. Node.js**: Vite is the tool; Node.js is the runtime that executes Vite on your machine. The app Vite serves runs in the browser, not in Node.
 
 ## Project Structure (What the Tooling Reads)
 
@@ -35,7 +39,7 @@ React itself does not enforce a file structure. Your build tool does.
 
 Common files and folders:
 
-- **`package.json`**: Lists dependencies and scripts like `dev`, `build`, and `preview`/`start` (`preview` often serves the production build locally; `start` is just a script name and different tools use it differently, for example CRA uses `start` for dev, while some tools use `start` to serve a production build).
+- **`package.json`**: Lists dependencies and scripts like `dev`, `build`, and `preview`/`start` (`preview` often serves the production build locally; `start` is just a script name and different tools use it differently, for example CRA (Create React App) uses `start` for dev, while some tools use `start` to serve a production build).
 - **`src/`**: Your application source code.
 - **`public/`**: Static files copied as-is.
 - **`index.html`**: The HTML entry point (Vite and similar tools). This is the file your static server serves, and it contains the root element where React mounts the app (similar to Vue).
@@ -133,7 +137,8 @@ This section lists common options and a simple workflow for debugging issues wit
 
 - **`npm run dev`**: Start the dev server.
 - **`npm run build`**: Create a production build.
-- **`npm run preview`** or **`npm run start`**: Serve the production build (depends on tooling).
+- **`npm run preview`**: Serve the production build (Vite).
+- **`npm start`**: Start the dev server (Create React App). To serve the production build, use a static server (for example `npx serve -s build`).
 
 ## Typical Lifecycle Summary
 

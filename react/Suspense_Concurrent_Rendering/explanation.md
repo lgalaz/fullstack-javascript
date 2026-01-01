@@ -8,7 +8,7 @@ Suspense lets you show fallback UI while a component or data is loading. Concurr
 
 The scheduler is React's internal priority system for rendering work. Urgent updates (like input) are handled first, while low-priority updates (like transitions or deferred values) can be paused and resumed so the UI stays responsive. It does not run on multiple threads; it yields back to the browser between chunks of work.
 
-React decides when to pause by checking time spent, browser signals and  whether higher-priority updates are pending. It resumes low-priority work when the main thread is free and no urgent updates are waiting.
+React decides when to pause by checking time spent, browser signals, and whether higher-priority updates are pending. It resumes low-priority work when the main thread is free and no urgent updates are waiting. "Browser signals" here means frame deadlines and input/paint timing that tell React whether it should yield to keep the page responsive.
 
 Browser signals here means hints from the browser event loop, like pending user input, rendering work, or other tasks queued on the main thread.
 
@@ -29,21 +29,33 @@ Each Fiber corresponds to exactly one of these:
 Example:
 
 ```jsx
-<App>
-  <Header />
-  <Main>
-    <Button />
-  </Main>
-</App>
+<>
+  <App>
+    <Header />
+    <Main>
+      <Button />
+      {'Save'}
+    </Main>
+  </App>
+  <Footer />
+</>
 ```
+
+Fiber mapping in that example:
+- Function components: `App`, `Header`, `Main`, `Button`, `Footer`
+- Fragment: the outer `<>...</>`
+- Text node: `'Save'`
 
 Internally this becomes a Fiber tree:
 
 ```
-Fiber(App)
- ├─ Fiber(Header)
- └─ Fiber(Main)
-     └─ Fiber(Button)
+Fiber(Fragment)
+ ├─ Fiber(App)
+ │   ├─ Fiber(Header)
+ │   └─ Fiber(Main)
+ │       ├─ Fiber(Button)
+ │       └─ Fiber(Text: "Save")
+ └─ Fiber(Footer)
 ```
 
 Conceptually, a Fiber stores:
@@ -122,6 +134,8 @@ function Search() {
 }
 ```
 
+Note: transitions are not debounce or throttle. They only lower priority; the update still runs for each keystroke, just at a lower priority.
+
 You can also use `useTransition` to track pending state.
 
 ```javascript
@@ -168,9 +182,13 @@ function Search() {
 
   return (
     <div>
-      <input value={query} onChange={e => setQuery(e.target.value)} />
-      <p>Showing results for: {deferredQuery}</p>
+      <input
+        value={query}
+        onChange={e => setQuery(e.target.value)} // Urgent: input updates immediately.
+      />
+      <p>Showing results for: {deferredQuery}</p> {/* Deferred: lags behind typing. */}
       <ul>
+        {/* Heavy work based on deferred value so typing stays responsive. */}
         {results.map(item => (
           <li key={item.id}>{item.label}</li>
         ))}

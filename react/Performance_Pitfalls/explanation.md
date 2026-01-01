@@ -24,7 +24,7 @@ return <Child style={style} onClick={handleClick} />;
 
 Fix with `useMemo` and `useCallback` when it matters.
 
-Note: the deps array controls when the memoized value/function is recreated. `[]` means it stays stable for the component's lifetime.
+Note: the deps array in `useMemo`/`useCallback` controls when the memoized value/function is recreated. `[]` means it stays stable for the component's lifetime.
 
 Best practice: only stabilize props for components that are memoized or demonstrably expensive; otherwise keep code simple.
 
@@ -74,6 +74,10 @@ Best practice: memoize only if the computation is expensive and renders are freq
 
 Render only visible items with libraries like `react-window`.
 
+How it works: it calculates which rows are visible based on scroll position and only mounts those rows (plus a small overscan buffer). It doesn't stream data; it just avoids rendering off-screen items. It's closer to windowing than lazy loading, though you can combine it with lazy data fetching if needed.
+Windowing: only render the items inside the current viewport (plus a small buffer) and reuse DOM nodes as you scroll.
+Infinite scroll (deferred loading): fetch more items when the user scrolls near the end. It reduces network/initial load, but the DOM can still grow unless you combine it with virtualization.
+
 ```javascript
 // Bad: Render thousands of rows at once
 <ul>{items.map(item => <li key={item.id}>{item.name}</li>)}</ul>
@@ -86,6 +90,30 @@ Render only visible items with libraries like `react-window`.
     <div style={style}>{items[index].name}</div>
   )}
 </FixedSizeList>
+```
+
+How `FixedSizeList` works: it renders a fixed-height scroll container, calculates which item indexes are visible from the scroll offset, and only mounts those rows. Each rendered row gets a `style` prop with absolute positioning to place it correctly.
+
+```javascript
+import { FixedSizeList } from 'react-window';
+
+function Row({ index, style, data }) {
+  return <div style={style}>{data[index].name}</div>;
+}
+
+function BigList({ items }) {
+  return (
+    <FixedSizeList
+      height={400}
+      itemCount={items.length}
+      itemSize={32}
+      width="100%"
+      itemData={items}
+    >
+      {Row}
+    </FixedSizeList>
+  );
+}
 ```
 
 Best practice: virtualize lists when item counts are large enough to cause slow renders or scrolling.
@@ -233,6 +261,8 @@ DevTools: React DevTools has a Profiler tab that visualizes these timings and sh
 Caveats:
 
 - Profiling adds overhead; avoid leaving it enabled in production.
+- If you're using `React.Profiler`, remove those components (or guard them by environment) to disable callback logging.
+- DevTools profiling is toggled in the React DevTools UI, independent of `React.Profiler`.
 - Memoization can reduce `actualDuration` but may increase complexity; verify gains.
 
 ## Interview Questions and Answers

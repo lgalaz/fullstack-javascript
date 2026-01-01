@@ -4,7 +4,14 @@
 
 JSX is a syntax extension for JavaScript that looks like HTML. It compiles to `React.createElement` calls (or to the new `jsx` runtime functions when using the modern transform).
 
-With the modern JSX transform (`react-jsx`), you usually do not need to import React in every file because the compiler auto-injects the needed runtime calls. Before this transform, JSX compiled to `React.createElement`, so `React` had to be in scope for every JSX file:
+With the modern JSX transform (`react-jsx`), you usually do not need to import React in every file because the compiler auto-injects the needed runtime calls. Before this transform, JSX compiled to `React.createElement`, so `React` had to be in scope for every JSX file.
+
+The JSX syntax you write is the same, but the compiled output and runtime imports differ:
+
+- Classic transform: emits `React.createElement(...)` calls and requires `React` to be in scope.
+- `react-jsx` transform: emits `jsx`/`jsxs` calls from `react/jsx-runtime` and does not require `React` in scope.
+
+Here is the same JSX compiled both ways to show the difference clearly:
 
 ```javascript
 // Before (classic transform)
@@ -17,6 +24,31 @@ const element = <h1>Hello</h1>;
 // After (react-jsx transform)
 const element = <h1>Hello</h1>;
 ```
+
+```javascript
+// Classic transform output (simplified)
+import React from 'react';
+
+const element = React.createElement('h1', null, 'Hello');
+```
+
+```javascript
+// react-jsx transform output (simplified)
+import { jsx as _jsx } from 'react/jsx-runtime';
+
+const element = _jsx('h1', { children: 'Hello' });
+```
+
+Note on signatures:
+
+- `React.createElement(type, props, ...children)`
+- `jsx(type, props, key?)` / `jsxs(type, props, key?)` where `children` live inside `props.children`
+
+Practical differences besides the import:
+
+- No global `React` dependency in every JSX file.
+- The new runtime enables better tree-shaking and smaller bundles in many cases.
+- Newer tooling can avoid injecting `React` even when you only use JSX, while still letting you import `React` when you actually need it (hooks, APIs).
 
 ## Expressions in JSX
 
@@ -92,6 +124,8 @@ const items = ['a', 'b'];
 
 Keys help React preserve element identity during reorders and updates. They are not passed as props.
 
+Note: Using the item value as a key only works if values are unique and stable. If duplicates are possible or order changes, prefer a unique id (e.g., `item.id`) to avoid key collisions.
+
 ## Conditional Rendering in JSX
 
 ```javascript
@@ -118,7 +152,12 @@ You can assign JSX to variables, pass it as props, or return it from functions.
 
 ```javascript
 const Empty = () => null;
+const condition = true;
 const content = condition ? <span>Yes</span> : <Empty />;
+
+function Panel() {
+  return <div>{content}</div>;
+}
 ```
 
 ## Dangerous HTML
