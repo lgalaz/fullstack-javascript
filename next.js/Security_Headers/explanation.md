@@ -23,6 +23,34 @@ module.exports = {
 };
 ```
 
+## Route Handler Headers
+
+```javascript
+// app/api/status/route.js
+export async function GET() {
+  return new Response('ok', {
+    headers: {
+      'X-Frame-Options': 'DENY',
+      'X-Content-Type-Options': 'nosniff'
+    }
+  });
+}
+```
+
+## Middleware Headers
+
+```javascript
+// middleware.js
+import { NextResponse } from 'next/server';
+
+export function middleware(request) {
+  const response = NextResponse.next();
+  response.headers.set('X-Frame-Options', 'DENY');
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  return response;
+}
+```
+
 ## Content Security Policy (CSP)
 
 CSP is stricter and often requires nonces. A nonce is a unique, per-request token you add to both the CSP header and specific `<script>` tags, allowing only those inline scripts to run while keeping other inline scripts blocked. CSP is commonly set in middleware.

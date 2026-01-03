@@ -64,6 +64,19 @@ CSR still benefits from server-rendered shells when combined with App Router lay
 Note: a server-rendered shell is the initial HTML frame (layout, nav, placeholders) sent by the server before client components hydrate.
 
 ```javascript
+// app/layout.js (server-rendered shell)
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        <nav>App Nav</nav>
+        {children}
+      </body>
+    </html>
+  );
+}
+
+// app/profile/page.js (client-rendered content inside the shell)
 'use client';
 import { useEffect, useState } from 'react';
 

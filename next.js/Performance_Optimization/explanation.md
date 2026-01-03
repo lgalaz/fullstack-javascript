@@ -19,6 +19,34 @@ import dynamic from 'next/dynamic';
 const Chart = dynamic(() => import('./Chart'), { ssr: false });
 ```
 
+How dynamic imports work:
+- `import()` is a JavaScript feature that tells the bundler to split code into a separate chunk loaded at runtime.
+- `next/dynamic` is a Next.js helper for React components. It adds loading states and optional server rendering control.
+- It is similar to `React.lazy`, but `next/dynamic` works with Next.js routing, supports `ssr: false`, and can be used in the App Router with client components.
+
+Example: load a component only when it is needed (client-only).
+
+```javascript
+'use client';
+import dynamic from 'next/dynamic';
+import { useState } from 'react';
+
+const Chart = dynamic(() => import('./Chart'), {
+  ssr: false,
+  loading: () => <p>Loading chart...</p>,
+});
+
+export default function Dashboard() {
+  const [show, setShow] = useState(false);
+  return (
+    <div>
+      <button onClick={() => setShow(true)}>Show chart</button>
+      {show ? <Chart /> : null}
+    </div>
+  );
+}
+```
+
 Bad practice: importing a heavy client-only library at the top level of a page.
 
 ```javascript

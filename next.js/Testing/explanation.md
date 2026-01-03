@@ -19,6 +19,46 @@ test('renders title', () => {
 });
 ```
 
+Example: test a client component with React Testing Library.
+
+```javascript
+// Counter.test.js
+import { render, screen, fireEvent } from '@testing-library/react';
+import Counter from '@/app/Counter';
+
+test('increments on click', () => {
+  render(<Counter />);
+  fireEvent.click(screen.getByRole('button'));
+  expect(screen.getByRole('button')).toHaveTextContent('1');
+});
+```
+
+## React Server Components (RSC) Testing
+
+Server components run on the server and can be tested by calling their data helpers directly or by rendering the output of async functions and asserting on the resulting JSX.
+
+```javascript
+// app/users/page.js
+export default async function UsersPage() {
+  const users = await getUsers();
+  return <pre>{JSON.stringify(users, null, 2)}</pre>;
+}
+```
+
+```javascript
+// users.test.js
+import UsersPage from '@/app/users/page';
+
+test('users page renders JSON', async () => {
+  const element = await UsersPage();
+  // Example shape: element.type === 'pre', element.props.children === '[{"id":1,"name":"Ada"}]'
+  expect(element.type).toBe('pre');
+  expect(element.props.children).toMatch(/^\[/);
+});
+```
+
+Note: in most cases you test the server-side data functions directly and keep UI tests focused on client components.
+
 ## API Route Tests
 
 Test route handlers by calling them as functions or using a test server.
@@ -81,6 +121,38 @@ Bad practice: relying on live external APIs in unit tests.
 test('GET users', async () => {
   const res = await fetch('https://api.example.com/users');
   expect(res.status).toBe(200);
+});
+```
+
+## Mock Service Worker (MSW)
+
+MSW intercepts `fetch` calls in tests and returns mock responses without hitting the network. Use it for integration tests of components that call APIs.
+
+```javascript
+// test/setup-msw.js
+import { setupServer } from 'msw/node';
+import { http, HttpResponse } from 'msw';
+
+export const server = setupServer(
+  http.get('https://api.example.com/users', () =>
+    HttpResponse.json([{ id: 1, name: 'Ada' }])
+  )
+);
+```
+
+```javascript
+// users.test.js
+import { server } from './setup-msw';
+import { render, screen } from '@testing-library/react';
+import UsersList from '@/app/UsersList';
+
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
+
+test('renders users from mocked API', async () => {
+  render(<UsersList />);
+  expect(await screen.findByText('Ada')).toBeInTheDocument();
 });
 ```
 

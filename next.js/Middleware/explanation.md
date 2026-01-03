@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Middleware runs before a request is completed. It can rewrite, redirect, or set headers. It is best for lightweight checks, not heavy data fetching.
+Middleware runs before a request is handled by your route. It can rewrite, redirect, or set headers. It is best for lightweight checks, not heavy data fetching.
 
 ## Basic Middleware
 
@@ -135,6 +135,33 @@ export function middleware(request) {
   }
 
   return null;
+}
+
+export const config = {
+  matcher: ['/dashboard/:path*', '/docs/:path*']
+};
+```
+
+Example: separate middleware per matcher (one global middleware file).
+
+```javascript
+// src/middleware.ts
+import { withAuth } from './middleware/auth';
+import { withDocsHeaders } from './middleware/docs-headers';
+import { NextResponse } from 'next/server';
+
+export function middleware(request) {
+  const { pathname } = request.nextUrl;
+
+  if (pathname.startsWith('/dashboard')) {
+    return withAuth(request) ?? NextResponse.next();
+  }
+
+  if (pathname.startsWith('/docs')) {
+    return withDocsHeaders(request);
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {

@@ -22,9 +22,13 @@ export async function GET() {
 ```javascript
 export async function POST(request) {
   const body = await request.json();
-  return Response.json({ ok: true, body });
+  const user = { id: crypto.randomUUID(), ...body };
+  // Example: persist to DB here (omitted) before responding
+  return Response.json({ ok: true, user }, { status: 201 });
 }
 ```
+
+Note: the "do something" step (validate, write to a DB, call a service) happens between parsing the request body and returning the response.
 
 Multiple methods can live in the same route file.
 
@@ -171,13 +175,13 @@ export default function Photos() {
   return <div>Photos grid</div>;
 }
 
-// app/photos/(.)[id]/page.js
+// app/photos/@modal/(.)[id]/page.js
 // Navigating to /photos/123 keeps the /photos UI and renders this inside it.
 export default function PhotoModal({ params }) {
   return <div className="modal">Photo {params.id}</div>;
 }
 ```
-Note: `(.)` is the convention for "intercept in the same segment," so `/photos/[id]` renders inside `/photos` instead of replacing it.
+Note: this pattern uses a `@modal` slot in `app/photos/layout.js` (e.g., `export default function Layout({ children, modal }) { ... }`). `(.)` is the convention for "intercept in the same segment," so `/photos/[id]` renders inside `/photos` instead of replacing it.
 
 ## Edge vs Node runtimes
 

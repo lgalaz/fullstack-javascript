@@ -104,6 +104,8 @@ export const metadata = {
 };
 ```
 
+Note: Metadata images are fetched by crawlers; they must be real URLs. Use static files in `public/` (e.g., `/og.png`) or Next.js metadata routes like `app/opengraph-image.tsx`/`app/twitter-image.tsx` to generate images dynamically. Benefits of built-in OG generation include dynamic per-route content, consistent branding templates, and no manual asset export for every page.
+
 ## Interview Questions and Answers
 
 ### 1. How do you define page metadata in the App Router?

@@ -21,11 +21,24 @@ export default async function Users() {
 }
 ```
 
+```javascript
+// lib/users.js
+// Example data access function tied to a users table.
+import { db } from './db';
+
+export async function getUsers() {
+  return db.users.findMany({ orderBy: { createdAt: 'desc' } });
+}
+```
+
+Note: `db` is a placeholder for your database client (for example, Prisma, Sequelize, Drizzle, or a custom wrapper).
+
 Server Components can stream HTML and are cached by default unless you opt out.
 
 Bad practice: using hooks or browser APIs in a server component. Server components do not run in the browser, so hooks like `useState` and APIs like `window` or `document` are unavailable. If you need interactivity, move that part into a client component with `'use client'` and keep the server component focused on data fetching and static UI.
 
 ```javascript
+// Missing 'use client' - this will error in a server component.
 import { useState } from 'react';
 
 export default function Page() {
@@ -43,6 +56,31 @@ Note: using a browser API does not automatically turn a server component into a 
 ```javascript
 'use client';
 
+import { useState } from 'react';
+
+export default function Counter() {
+  const [count, setCount] = useState(0);
+  return <button onClick={() => setCount(c => c + 1)}>{count}</button>;
+}
+```
+
+Server + client composition example:
+
+```javascript
+// app/page.js (server component)
+import Counter from './Counter';
+
+export default function Page() {
+  return (
+    <div>
+      <h1>Welcome</h1>
+      <Counter />
+    </div>
+  );
+}
+
+// app/Counter.js (client component)
+'use client';
 import { useState } from 'react';
 
 export default function Counter() {

@@ -4,6 +4,8 @@
 
 Next.js has first-class TypeScript support. It generates `tsconfig.json` and `next-env.d.ts` automatically.
 
+Note: `next-env.d.ts` is an auto-generated TypeScript declaration file that includes Next.js types and JSX settings. You typically do not edit it; it just needs to exist for TS to recognize Next.js globals.
+
 ## Server Component Types
 
 ```javascript
