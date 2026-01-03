@@ -6,6 +6,76 @@ Next.js can handle auth with server components, middleware, and route handlers. 
 
 Authentication proves who a user is. Authorization decides what that user can access.
 
+Auth.js (formerly NextAuth) is a popular, batteries-included authentication library for Next.js. It handles OAuth providers (GitHub, Google), session management (JWT or database sessions), and helpers for server components and route handlers.
+
+## Auth.js (NextAuth) Example
+
+This example uses GitHub OAuth and JWT sessions (default). You create a route handler that hosts the auth endpoints and a shared config that your app can import on the server to read the current session.
+
+Environment variables (in `.env.local`):
+
+```bash
+GITHUB_ID=your_github_oauth_client_id
+GITHUB_SECRET=your_github_oauth_client_secret
+NEXTAUTH_SECRET=long_random_string
+```
+
+Auth route handler:
+
+```javascript
+// app/api/auth/[...nextauth]/route.js
+import NextAuth from 'next-auth';
+import GitHub from 'next-auth/providers/github';
+
+export const authOptions = {
+  providers: [
+    GitHub({
+      clientId: process.env.GITHUB_ID,
+      clientSecret: process.env.GITHUB_SECRET
+    })
+  ],
+  session: { strategy: 'jwt' }
+};
+
+const handler = NextAuth(authOptions);
+export { handler as GET, handler as POST };
+```
+
+Server component session read:
+
+```javascript
+// app/dashboard/page.js
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+
+export default async function Dashboard() {
+  const session = await getServerSession(authOptions);
+  if (!session) return <p>Unauthorized</p>;
+  return <div>Welcome, {session.user.name}</div>;
+}
+```
+
+Client sign-in/out buttons:
+
+```javascript
+'use client';
+import { signIn, signOut } from 'next-auth/react';
+
+export function AuthButtons() {
+  return (
+    <div>
+      <button onClick={() => signIn('github')}>Sign in with GitHub</button>
+      <button onClick={() => signOut()}>Sign out</button>
+    </div>
+  );
+}
+```
+
+Notes:
+- `NEXTAUTH_SECRET` is used to sign/encrypt session tokens. Keep it private.
+- `getServerSession` runs on the server, so it can safely read cookies and validate the session.
+- If you want database sessions, configure an adapter and set `session: { strategy: 'database' }`.
+
 ## Middleware Guard
 
 ```javascript

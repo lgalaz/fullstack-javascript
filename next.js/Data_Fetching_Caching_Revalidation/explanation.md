@@ -6,7 +6,7 @@ Next.js extends `fetch` on the server with caching and revalidation. You can con
 
 ## Default Caching
 
-Server `fetch` requests are cached by default when possible.
+Server `fetch` requests are cached by default when possible, meaning Next.js will attempt to cache a server `fetch` unless the request is explicitly marked dynamic (for example, `cache: 'no-store'`, as opposed to the default static or cacheable, `cache: force-cache`, behavior), depends on per-request data (cookies/headers), uses a non-cacheable method, or the cache entry is invalidated/evicted.
 
 ```javascript
 export default async function Page() {
@@ -44,7 +44,7 @@ JSON.stringify(user, (key, value) => (key === 'password' ? undefined : value), 2
 
 Caching is per request and respects `next` options. If you read cookies or headers, the route often becomes dynamic.
 
-A dynamic route is rendered on each request (no static cache). A static route is rendered at build time and served from cache. ISR is static with periodic revalidation.
+A dynamic route is rendered on each request (no static cache). A static route is rendered at build time and served from cache. ISR is static with periodic revalidation (Incremental Static Regeneration).
 
 Bad practice: forcing dynamic fetches for data that rarely changes.
 
@@ -89,6 +89,11 @@ await fetch('https://api.example.com/users', {
 ```
 
 Tags label cached responses so you can invalidate them later. Call `revalidateTag('users')` in a server action or route handler to refresh.
+
+Other `next` options that affect invalidation:
+
+- `next: { revalidate: seconds }` sets time-based revalidation (cached until the interval expires, then refreshed).
+- `next: { tags: [...] }` enables manual invalidation via `revalidateTag`.
 
 Example server action:
 

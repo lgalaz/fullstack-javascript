@@ -48,6 +48,8 @@ export async function GET() {
 }
 ```
 
+This will throw at runtime because the Edge Runtime does not provide the `fs` module (for example, "Module not found: fs" or "`fs` is not defined").
+
 ## Use cases
 
 - Geolocation-based routing

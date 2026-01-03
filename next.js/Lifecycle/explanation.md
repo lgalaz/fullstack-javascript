@@ -41,6 +41,17 @@ Next.js looks for specific files and folders when it starts.
 
 If both `app/` and `pages/` exist, Next.js can support both routing systems, but they are separate trees.
 
+There is no single React entry point file like `index.js` in a plain React app. Next.js uses file-based routing: in the App Router the entry is `app/page.js` (or `app/layout.js` for shared root layout), and in the Pages Router it is `pages/index.js`.
+
+Example:
+
+```javascript
+// app/page.js
+export default function Home() {
+  return <h1>Home</h1>;
+}
+```
+
 ## Route Collisions (Same URL in Both Routers)
 
 If the same URL path is defined in both routers (for example `app/about/page.js` and `pages/about.js`), Next.js treats it as a conflict. The dev server and the build process will throw a route collision error because they cannot decide which file should own that path. The fix is to keep that URL in only one router.
@@ -72,6 +83,12 @@ When the dev server is running, it uses file-system watchers to detect changes. 
 
 If OS events are unreliable (for example on networked file systems), the watcher falls back to polling, which checks for changes at intervals.
 
+Common dev-time watcher errors you might see while hot reloading (especially on macOS) include:
+- `ENOSPC: System limit for number of file watchers reached` (too many files; increase watcher limits or reduce watched paths).
+- `EMFILE: too many open files` (OS file descriptor limit).
+- `FSEvents unavailable` or `watchman`/`chokidar` fallback messages (watcher backend issues).
+- HMR compile errors (syntax/type errors) that appear after saving a file and prevent hot reload until fixed.
+
 When a change is detected:
 
 1. **Invalidate cached modules**
@@ -99,14 +116,14 @@ This is what happens when you run `npm run build`.
 3. **Pre-render pages**
    - Static routes are rendered to HTML at build time.
 4. **Write build output**
-   - Output is stored in `.next/`, the build directory. This is Next.js' default build folder (similar to `dist` in other tools) and holds framework-specific artifacts like server bundles, client assets, and manifests.
+   - Output is stored in `.next/`, the build directory. This is Next.js' default build folder (similar to `dist` in other tools) and holds framework-specific artifacts like server bundles, client assets, manifests, and any generated source maps.
 
 ## Production Runtime (Serving Users)
 
 This is what happens when you run `npm run start`.
 
 1. **Start the Next.js server**
-   - This starts a Node.js process that runs Next.js and loads the build output from `.next/`. In production you either run this yourself (often behind a reverse proxy like Nginx) or use a hosting provider that runs the server/runtime for you.
+   - This starts a Node.js process that runs Next.js and loads the build output from `.next/`. In production you either run this yourself (often behind a reverse proxy like Nginx) or use a hosting provider that runs the server/runtime for you. Locally, `npm run start` does not build assets; you run `npm run build` first, then `npm run start` runs the server in the foreground of your terminal until you stop it.
 2. **Handle incoming requests**
    - Each request is matched to a route (from `app/` or `pages/`).
 3. **Render and respond**
@@ -175,7 +192,7 @@ This section lists common options and a simple workflow for debugging issues wit
 ### Common Debugging Workflow for a Slow App
 
 1. **Decide if the slowness is server or client**
-   - If the initial request (TTFB) is slow, the server or data fetching is slow. You can check TTFB in the browser DevTools Network panel (Timing tab).
+   - If the initial request (TTFB) is slow, the server or data fetching is slow. In DevTools, click the request in the Network panel: Chrome shows a "Timing" tab, Firefox shows "Timings," and Safari shows timing details in the request pane/waterfall.
    - If the page loads fast but feels slow to interact, client-side JS or hydration is the issue.
 2. **Check server-side bottlenecks**
    - Look for slow `fetch` calls in server components or route handlers by timing the call (log start/end in the server logs).
@@ -183,7 +200,7 @@ This section lists common options and a simple workflow for debugging issues wit
    - Add a `loading.js` to stream UI while slow data resolves, then confirm it appears in the browser while the request is in flight.
 3. **Check client-side bottlenecks**
    - Reduce `use client` usage so more rendering happens on the server. Verify by searching for `'use client'` directives in your code and compare bundle size changes in the build output.
-   - Split large client bundles with dynamic imports when appropriate. Confirm bundle size changes in the `npm run build` output.
+   - Split large client bundles with dynamic imports when appropriate (code-splitting with `import()` or `next/dynamic`, similar to `React.lazy` but with Next.js-specific options). Confirm bundle size changes in the `npm run build` output.
    - Use React DevTools Profiler to find expensive components and confirm their render cost (how long they take to render and how often they re-render).
 4. **Confirm the fix**
    - Re-run `npm run build` to verify bundle size changes.

@@ -75,9 +75,11 @@ Bad practice: dropping a blocking script tag into the page can delay interactivi
 
 These strategies control when the script is executed. They do not replace `preload`/`prefetch` for all cases, but most apps can rely on `next/script` without manually adding resource hints unless you have a specific performance need.
 
+If a script can run `afterInteractive` but you want to reduce its load time, a `preload` hint can help by fetching it earlier. Use it selectively: preloading consumes bandwidth and can compete with more critical resources, so only preload when you know the script is needed immediately after hydration.
+
 `afterInteractive` and `lazyOnload` load without blocking rendering (async/deferred behavior). `beforeInteractive` loads as early as possible and can block interactivity because it must run before hydration. Hydration is the process where React attaches event listeners and makes the server-rendered HTML interactive on the client.
 
-Example of a specific need: preloading a critical third-party script that must be ready immediately after first paint (like a payment SDK on a checkout page) to avoid visible delays when the user interacts.
+Example of a specific need: preloading a critical third-party script that must be ready immediately after first paint (like a payment SDK on a checkout page) to avoid visible delays when the user interacts. This is a good fit for `beforeInteractive` because it runs before hydration, ensuring the SDK is ready for immediate user actions.
 
 ## Public Assets
 

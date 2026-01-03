@@ -39,6 +39,8 @@ Log on the server for critical failures, and use client logging for UI errors.
 console.error('Failed to load user');
 ```
 
+Server logs are `console.*` output from the Node process (stdout/stderr). In dev, `npm run dev` runs in the foreground, so logs appear in your terminal. In production, you typically run `npm run build` then `npm run start` (or `next start`), and logs go to whatever manages the process (PM2, systemd, Docker), e.g. PM2 writes to `~/.pm2/logs/<app>-out.log` and `~/.pm2/logs/<app>-error.log`.
+
 Prefer structured logs with request IDs to correlate errors across services.
 
 Bad practice: swallowing errors without logs or user feedback.
@@ -64,9 +66,9 @@ try {
 
 ## Instrumentation
 
-Next.js supports `instrumentation.ts` for advanced tracing and OpenTelemetry setups. Instrumentation is code that hooks into app lifecycle and requests to collect logs, metrics, and traces. OpenTelemetry is a standard set of APIs and tools for generating and exporting telemetry (traces, metrics, logs) to observability backends.
+Next.js supports `instrumentation.ts` for advanced tracing and OpenTelemetry setups. Instrumentation is code that hooks into app lifecycle and requests to collect logs, metrics, and traces. OpenTelemetry is a standard set of APIs and tools for generating and exporting telemetry (traces, metrics, logs) to observability backends like Datadog, New Relic, Honeycomb, or Grafana Tempo.
 
-Example: initialize OpenTelemetry and export traces to a collector.
+Example: initialize OpenTelemetry and export traces to a provider via an OTLP endpoint.
 
 ```javascript
 // instrumentation.ts
@@ -75,6 +77,7 @@ import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 
 const sdk = new NodeSDK({
   traceExporter: new OTLPTraceExporter({
+    // Example: Datadog/Honeycomb OTLP endpoint
     url: process.env.OTEL_EXPORTER_OTLP_ENDPOINT
   })
 });

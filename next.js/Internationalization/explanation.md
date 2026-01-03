@@ -7,16 +7,26 @@ Next.js supports internationalized routing using either locale segments or the i
 ## Locale Segment Pattern (App Router)
 
 ```javascript
-// app/[locale]/page.js
-// Example routes:
 // /en
+// app/[locale]/page.js
+export default function LocaleHome({ params }) {
+  return <div>Locale: {params.locale}</div>;
+}
+
 // /en/users
+// app/[locale]/users/page.js
+export default function UsersPage({ params }) {
+  return <div>Locale: {params.locale}</div>;
+}
+
 // /en/users/companies
-// ...
-export default function Home({ params }) {
+// app/[locale]/users/companies/page.js
+export default function CompaniesPage({ params }) {
   return <div>Locale: {params.locale}</div>;
 }
 ```
+
+`params.locale` comes from the dynamic route segment name `[locale]`. The first path segment is treated as the locale because the folder is `app/[locale]/...`. In the Pages Router, you configure locale routing via `i18n` in `next.config.js` instead of a `[locale]` segment.
 
 Load translations per locale and pass them to client components.
 
@@ -45,6 +55,19 @@ export default async function Home({ params }) {
 }
 ```
 
+Example `tsconfig.json` alias for `@`:
+
+```json
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    }
+  }
+}
+```
+
 ## Config-Based i18n (Pages Router)
 
 ```javascript
@@ -55,6 +78,41 @@ module.exports = {
     defaultLocale: 'en'
   }
 };
+```
+
+Pages Router: read and switch locale.
+
+```javascript
+// pages/index.js
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+
+export default function Home() {
+  const router = useRouter();
+  return (
+    <>
+      <p>Locale: {router.locale}</p>
+      <Link href={router.asPath} locale="en">EN</Link>
+      <Link href={router.asPath} locale="es">ES</Link>
+    </>
+  );
+}
+```
+
+Note: `router.asPath` preserves the current path (including query/hash) when switching locales.
+
+Pages Router: load messages by locale.
+
+```javascript
+// pages/index.js
+export async function getStaticProps({ locale }) {
+  const messages = await import(`../messages/${locale}.json`);
+  return { props: { messages: messages.default } };
+}
+
+export default function Home({ messages }) {
+  return <p>{messages.welcome}</p>;
+}
 ```
 
 ## Interview Questions and Answers

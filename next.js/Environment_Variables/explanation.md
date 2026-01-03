@@ -7,7 +7,7 @@ Next.js supports environment variables via `.env` files and `process.env`.
 ## Server vs Client
 
 - Server-only variables: any name (not exposed to the browser)
-- Client-exposed variables must start with `NEXT_PUBLIC_`
+- Client-exposed variables must start with `NEXT_PUBLIC_` (they are inlined into the client bundle at build time)
 
 ```javascript
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -23,7 +23,8 @@ const secret = process.env.NEXT_PUBLIC_SECRET_KEY;
 ## Files
 
 - `.env.local` for local dev (not committed)
-- `.env.production` for production
+- `.env.production` for production (typically not committed if it contains secrets)
+- Common convention: commit a `.env.example` template (not required by Next.js, but widely used)
 
 ## Runtime Usage
 
