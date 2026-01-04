@@ -121,6 +121,80 @@ export default function UsersPage() {
 }
 ```
 
+## unstable_cache
+
+`unstable_cache` lets you cache the result of an async function (not just `fetch`). It is useful for database queries, RPC calls, or any expensive server-side computation you want to cache and revalidate.
+
+Signature:
+
+```javascript
+unstable_cache(fn, keyParts?, options?)
+```
+
+Parameters:
+
+- `fn`: async function to cache. Its return value is cached.
+- `keyParts` (optional): array of strings used to build a stable cache key. Use it to include variable inputs (e.g., IDs, filters).
+- `options` (optional):
+  - `revalidate`: seconds before the cache is revalidated (ISR-like behavior).
+  - `tags`: array of tags for on-demand invalidation via `revalidateTag`.
+
+It returns a new function. When you call it, Next.js returns cached data if available, otherwise it runs `fn`, caches the result, and returns it.
+Note: `unstable_cache` builds the cache key from `keyParts` plus the function arguments.
+
+Example (cache a database query):
+
+```javascript
+import { unstable_cache } from 'next/cache';
+
+async function getUsersFromDb() {
+  // Replace with real DB call.
+  return [{ id: 1, name: 'Ada' }];
+}
+
+const getUsersCached = unstable_cache(
+  async () => {
+    return getUsersFromDb();
+  },
+  ['users-list'],
+  { revalidate: 300, tags: ['users'] }
+);
+
+export default async function UsersPage() {
+  const users = await getUsersCached();
+  return <pre>{JSON.stringify(users, null, 2)}</pre>;
+}
+```
+
+Example (cache by parameter):
+
+```javascript
+import { unstable_cache } from 'next/cache';
+
+async function getUserById(id) {
+  return { id, name: `User ${id}` };
+}
+
+const getUserCached = unstable_cache(
+  async (id) => {
+    return getUserById(id);
+  },
+  ['user-by-id'],
+  { revalidate: 600, tags: ['users'] }
+);
+
+export default async function ProfilePage({ params }) {
+  const user = await getUserCached(params.id);
+  return <div>{user.name}</div>;
+}
+```
+
+Notes:
+
+- `unstable_cache` is server-only (use it in Server Components, Route Handlers, or Server Actions).
+- Make sure `keyParts` and arguments uniquely describe the cached data; otherwise you can serve the wrong result.
+- Use `revalidateTag('users')` to invalidate cached results tagged with `users`.
+
 ## Streaming and Suspense
 
 You can use `Suspense` in server components to stream parts of the UI while data loads.

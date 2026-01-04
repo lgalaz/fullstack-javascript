@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>React Items List (JSX CDN)</title>
+    <style>
+      :root {
+        font-family: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+        color: #1b1b1b;
+        background: #f4f2ef;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      .app {
+        max-width: 720px;
+        margin: 48px auto;
+        padding: 32px;
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        text-align: left;
+        padding: 10px 8px;
+        border-bottom: 1px solid #ececec;
+      }
+
+      .empty {
+        text-align: center;
+        color: #7b7b7b;
+        padding: 20px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+      const { useEffect, useState } = React;
+
+      function App() {
+        const [users, setUsers] = useState([]);
+        const [status, setStatus] = useState('loading');
+
+        useEffect(() => {
+          fetch('./data/users.json')
+            .then((res) => res.json())
+            .then((data) => {
+              setUsers(data);
+              setStatus('ready');
+            })
+            .catch(() => setStatus('error'));
+        }, []);
+
+        return (
+          <div className="app">
+            <h1>Users List</h1>
+            {status === 'error' ? (
+              <p>Failed to load users.</p>
+            ) : (
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.length === 0 && status === 'ready' ? (
+                    <tr>
+                      <td colSpan="2" className="empty">No users found.</td>
+                    </tr>
+                  ) : (
+                    users.map((user) => (
+                      <tr key={user.id}>
+                        <td>{user.id}</td>
+                        <td>{user.name}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            )}
+          </div>
+        );
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(<App />);
+    </script>
+  </body>
+</html>

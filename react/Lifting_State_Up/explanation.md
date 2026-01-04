@@ -160,6 +160,98 @@ State stores move shared state out of components so any part of the app can read
     Redux helps here because action logs and devtools make changes traceable; Zustand offers fewer built-in audit guarantees.
   - Testing/inspection: Redux favors pure reducers and has mature tooling, which makes unit testing and debugging more consistent; Zustand is testable but less standardized.
 
+## Example: Redux Store + Component Update
+
+```javascript
+// store.js (Redux Toolkit)
+import { configureStore, createSlice } from '@reduxjs/toolkit';
+
+const counterSlice = createSlice({
+  name: 'counter',
+  initialState: { value: 0 },
+  reducers: {
+    increment: state => {
+      state.value += 1;
+    },
+    decrement: state => {
+      state.value -= 1;
+    },
+  },
+});
+
+export const { increment, decrement } = counterSlice.actions;
+
+export const store = configureStore({
+  reducer: { counter: counterSlice.reducer },
+});
+```
+
+```javascript
+// Counter.js
+import { useDispatch, useSelector } from 'react-redux';
+import { decrement, increment } from './store';
+
+function Counter() {
+  const value = useSelector(state => state.counter.value);
+  const dispatch = useDispatch();
+
+  return (
+    <div>
+      <p>Count: {value}</p>
+      <button onClick={() => dispatch(decrement())}>-</button>
+      <button onClick={() => dispatch(increment())}>+</button>
+    </div>
+  );
+}
+```
+
+```javascript
+// App.js
+import { Provider } from 'react-redux';
+import { store } from './store';
+import Counter from './Counter';
+
+function App() {
+  return (
+    <Provider store={store}>
+      <Counter />
+    </Provider>
+  );
+}
+```
+
+## Example: Zustand Store + Component Update
+
+```javascript
+// useCounterStore.js
+import { create } from 'zustand';
+
+export const useCounterStore = create(set => ({
+  value: 0,
+  increment: () => set(state => ({ value: state.value + 1 })),
+  decrement: () => set(state => ({ value: state.value - 1 })),
+}));
+```
+
+```javascript
+// Counter.js
+import { useCounterStore } from './useCounterStore';
+
+function Counter() {
+  const value = useCounterStore(state => state.value);
+  const increment = useCounterStore(state => state.increment);
+  const decrement = useCounterStore(state => state.decrement);
+
+  return (
+    <div>
+      <p>Count: {value}</p>
+      <button onClick={decrement}>-</button>
+      <button onClick={increment}>+</button>
+    </div>
+  );
+}
+```
+
 ## Interview Questions and Answers
 
 ### 1. What is lifting state up?

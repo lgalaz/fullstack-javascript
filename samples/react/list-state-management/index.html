@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>React List State Management (JSX CDN)</title>
+    <style>
+      :root {
+        font-family: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+        color: #1b1b1b;
+        background: #f4f2ef;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      .app {
+        max-width: 860px;
+        margin: 48px auto;
+        padding: 32px;
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+      }
+
+      .row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+
+      input {
+        flex: 1;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid #d7d7d7;
+        font-size: 15px;
+      }
+
+      button {
+        padding: 10px 16px;
+        border-radius: 10px;
+        border: none;
+        background: #1b1b1b;
+        color: white;
+        cursor: pointer;
+        font-weight: 600;
+      }
+
+      button.ghost {
+        background: #f0f0f0;
+        color: #1b1b1b;
+      }
+
+      button.danger {
+        background: #e63946;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+
+      th,
+      td {
+        text-align: left;
+        padding: 10px 8px;
+        border-bottom: 1px solid #ececec;
+      }
+
+      .actions {
+        text-align: right;
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        background: #f0f0f0;
+      }
+
+      .badge.active {
+        background: #d8f3dc;
+        color: #1b4332;
+      }
+
+      .empty {
+        text-align: center;
+        color: #7b7b7b;
+        padding: 20px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+      const { useEffect, useState } = React;
+
+      function App() {
+        const [users, setUsers] = useState([]);
+        const [name, setName] = useState('');
+        const [editingId, setEditingId] = useState(null);
+        const [editName, setEditName] = useState('');
+        const [status, setStatus] = useState('loading');
+
+        useEffect(() => {
+          fetch('./data/users.json')
+            .then((res) => res.json())
+            .then((data) => {
+              setUsers(data);
+              setStatus('ready');
+            })
+            .catch(() => setStatus('error'));
+        }, []);
+
+        function addUser() {
+          const trimmed = name.trim();
+          if (!trimmed) return;
+          const nextId = users.length ? Math.max(...users.map((u) => u.id)) + 1 : 1;
+          setUsers((prev) => [...prev, { id: nextId, name: trimmed, active: true }]);
+          setName('');
+        }
+
+        function startEdit(user) {
+          setEditingId(user.id);
+          setEditName(user.name);
+        }
+
+        function saveEdit() {
+          const trimmed = editName.trim();
+          if (!trimmed) return;
+          setUsers((prev) =>
+            prev.map((user) =>
+              user.id === editingId ? { ...user, name: trimmed } : user
+            )
+          );
+          setEditingId(null);
+          setEditName('');
+        }
+
+        function cancelEdit() {
+          setEditingId(null);
+          setEditName('');
+        }
+
+        function toggleActive(id) {
+          setUsers((prev) =>
+            prev.map((user) =>
+              user.id === id ? { ...user, active: !user.active } : user
+            )
+          );
+        }
+
+        function deleteUser(id) {
+          setUsers((prev) => prev.filter((user) => user.id !== id));
+          if (editingId === id) cancelEdit();
+        }
+
+        return (
+          <div className="app">
+            <h1>Manage a List of Users</h1>
+            <p>Common interview task: add, edit, toggle, and delete items immutably.</p>
+
+            <div className="row">
+              <input
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                placeholder="Add a user name"
+              />
+              <button type="button" onClick={addUser} disabled={!name.trim()}>
+                Add
+              </button>
+            </div>
+
+            {status === 'error' ? (
+              <p>Failed to load users.</p>
+            ) : (
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <th className="actions">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.length === 0 && status === 'ready' ? (
+                    <tr>
+                      <td colSpan="4" className="empty">No users found.</td>
+                    </tr>
+                  ) : (
+                    users.map((user) => (
+                      <tr key={user.id}>
+                        <td>{user.id}</td>
+                        <td>
+                          {editingId === user.id ? (
+                            <input
+                              value={editName}
+                              onChange={(event) => setEditName(event.target.value)}
+                            />
+                          ) : (
+                            user.name
+                          )}
+                        </td>
+                        <td>
+                          <span className={`badge ${user.active ? 'active' : ''}`}>
+                            {user.active ? 'Active' : 'Inactive'}
+                          </span>
+                        </td>
+                        <td className="actions">
+                          {editingId === user.id ? (
+                            <>
+                              <button type="button" onClick={saveEdit}>
+                                Save
+                              </button>
+                              <button type="button" className="ghost" onClick={cancelEdit}>
+                                Cancel
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button type="button" onClick={() => startEdit(user)}>
+                                Edit
+                              </button>
+                              <button type="button" className="ghost" onClick={() => toggleActive(user.id)}>
+                                Toggle
+                              </button>
+                              <button type="button" className="danger" onClick={() => deleteUser(user.id)}>
+                                Delete
+                              </button>
+                            </>
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            )}
+          </div>
+        );
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(<App />);
+    </script>
+  </body>
+</html>

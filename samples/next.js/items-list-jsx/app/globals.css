@@ -1,0 +1,50 @@
+:root {
+  font-family: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  color: #1b1b1b;
+  background: radial-gradient(circle at top, #e0f7fa 0%, #f4f2ef 60%, #e8f3f4 100%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.page {
+  padding: 48px 16px;
+}
+
+.app {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 32px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.12);
+}
+
+header h1 {
+  margin-bottom: 8px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+th,
+ td {
+  text-align: left;
+  padding: 10px 8px;
+  border-bottom: 1px solid #ececec;
+}
+
+.empty {
+  text-align: center;
+  color: #7b7b7b;
+  padding: 20px 0;
+}

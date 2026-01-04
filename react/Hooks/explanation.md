@@ -6,7 +6,23 @@ Hooks let function components manage state, side effects, and performance. The m
 
 Other built-in hooks and when to use them:
 
+- Quick list: `useReducer`, `useContext`, `useRef`, `useLayoutEffect`, `useImperativeHandle`, `useDebugValue`, `useTransition`, `useDeferredValue`, `useId`, `useSyncExternalStore`, `useInsertionEffect`
+
 - `useReducer` for complex state logic or when the next state depends on the previous state in multiple ways.
+- Signature: `const [state, dispatch] = useReducer(reducer, initialArg, init?)`
+- `reducer(state, action) -> nextState` describes how state changes in response to actions.
+- Returns a tuple:
+  - `state`: the current state value.
+  - `dispatch`: a stable function you call with an `action` to schedule a state update.
+- `initialArg` is the initial state (or the value passed to `init`).
+- Optional `init(initialArg) -> initialState` lets you lazily compute the initial state (runs once).
+- `useReducer` does not add new capabilities vs. `useState`; it provides a clearer state-management pattern when complexity grows.
+- Use it when:
+  - Multiple related fields update together (forms, wizards, editors).
+  - Many different actions can change the state (add/edit/remove/reset/toggle).
+  - You want predictable, testable transitions (a pure reducer).
+  - The component behaves like a simple state machine (loading/success/error modes).
+- Stick with `useState` for small, local, or simple state where transitions are few.
 - Example:
 
 ```javascript
@@ -161,12 +177,32 @@ How transitions work: they are not like `React.lazy`. `React.lazy` splits code a
 - Example:
 
 ```javascript
-import { useDeferredValue, useState } from 'react';
+import { useDeferredValue, useMemo, useState } from 'react';
 
 function Filter() {
   const [text, setText] = useState('');
+  // This value updates immediately as the user types.
+  // The deferred value updates later, letting expensive UI lag behind.
   const deferredText = useDeferredValue(text);
-  return <input value={text} onChange={(e) => setText(e.target.value)} />;
+
+  const results = useMemo(() => {
+    // Simulate expensive filtering that we want to defer.
+    return ['apple', 'apricot', 'banana', 'berry', 'grape'].filter((item) =>
+      item.includes(deferredText.toLowerCase())
+    );
+  }, [deferredText]);
+
+  return (
+    <>
+      <input value={text} onChange={(e) => setText(e.target.value)} />
+      {/* This list lags behind the input if rendering is expensive. */}
+      <ul>
+        {results.map((item) => (
+          <li key={item}>{item}</li>
+        ))}
+      </ul>
+    </>
+  );
 }
 ```
 
@@ -192,21 +228,6 @@ function Field() {
 Note: `useId` avoids ID collisions and prevents hydration mismatches in SSR. Hardcoded strings can collide across instances, and Symbols are not valid DOM `id` values.
 
 - `useSyncExternalStore` to subscribe safely to external stores (e.g., Redux, custom store) with concurrent rendering support.
-- Example:
-
-```javascript
-import { useSyncExternalStore } from 'react';
-
-function useWindowWidth() {
-  return useSyncExternalStore(
-    (onStoreChange) => {
-      window.addEventListener('resize', onStoreChange);
-      return () => window.removeEventListener('resize', onStoreChange);
-    },
-    () => window.innerWidth
-  );
-}
-```
 
 - `useInsertionEffect` for CSS-in-JS libraries to inject styles before layout (library-level, rarely used in app code). It's mainly for library authors who need to inject styles before layout to avoid flicker; most apps should use `useEffect`/`useLayoutEffect` or just static CSS. "Library-level" means it's primarily intended for CSS-in-JS tooling and third-party styling libraries.
 - Example:
@@ -252,6 +273,30 @@ Why these rules matter:
 - Only call hooks at the top level so React can rely on a stable hook call order across renders. If you call a hook inside a condition or loop, the order can change and React may attach state to the wrong hook, leading to bugs or errors like "Rendered fewer hooks than expected."
 - Only call hooks from React function components or custom hooks because hooks need React's internal render context. Calling them in regular functions or event handlers will throw "Invalid hook call" since there is no component render to associate the hook state with.
 
+Example bug from a conditional hook:
+
+```javascript
+import { useState } from 'react';
+
+function Profile({ showDetails }) {
+  const [name, setName] = useState('Ada');
+
+  if (showDetails) {
+    const [age, setAge] = useState(36);
+    return (
+      <>
+        <p>{name}</p>
+        <p>{age}</p>
+      </>
+    );
+  }
+
+  return <p>{name}</p>;
+}
+```
+
+If `showDetails` toggles between renders, React sees a different number/order of hooks and throws an error like "Rendered fewer hooks than expected."
+
 ## useState
 
 `useState` adds local state to a function component. It accepts an initial value (or initializer function) and returns `[state, setState]`.
@@ -264,6 +309,20 @@ function Toggle() {
   return <button onClick={() => setOn(v => !v)}>{String(on)}</button>;
 }
 ```
+
+Example bug: derived state goes stale
+
+```javascript
+function Profile({ user }) {
+  // Bad: `fullName` is derived from props but stored in state once.
+  const [fullName] = useState(`${user.first} ${user.last}`);
+  return <p>{fullName}</p>;
+}
+```
+
+If `user` changes, `fullName` does not update, so the UI shows stale data.
+
+Important: Although a function component re-executes on every render, useState values persist across renders and are not recomputed automatically—so storing data that can be derived from props/state leads to stale “source-of-truth” bugs.
 
 ## useEffect
 
@@ -350,6 +409,94 @@ function Counter({ step }) {
 ```
 
 Effects run after paint. Effects must be restart-safe. In React Strict Mode (dev), effects may run twice to surface side-effect issues. Strict Mode double-invokes effects to prove they are restart-safe.
+
+## useSyncExternalStore
+
+`useSyncExternalStore` is the official React hook for reading from and subscribing to external stores (Redux, Zustand, custom event emitters) in a way that is safe with concurrent rendering and hydration.
+
+### Why it exists
+
+Before concurrent rendering, subscribing in `useEffect` and reading store state directly could work most of the time. But with concurrent rendering, React may render in the background and switch between versions of the UI. If the store changes during that render, components can "tear" (render with mixed snapshots), leading to inconsistent UI or subtle bugs. `useSyncExternalStore` coordinates snapshot reads with React's render lifecycle so the snapshot is consistent and React can re-render if it changes mid-render.
+
+### How it works
+
+The signature is:
+
+```javascript
+const snapshot = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+```
+
+- `subscribe(listener)` should register the listener and return an unsubscribe function.
+- `getSnapshot()` must return the current store value (synchronously). React calls it during render, so it must be fast and deterministic.
+- `getServerSnapshot()` is optional, but required for SSR to avoid hydration mismatches. It returns the snapshot the server used to render.
+
+React compares snapshots by reference (or `Object.is`). If `getSnapshot()` returns a new object each call, React will re-render every time even if data didn't change. Store snapshots should be immutable and stable.
+
+### Example: minimal external store
+
+```javascript
+import { useSyncExternalStore } from 'react';
+
+function createStore(initialState) {
+  let state = initialState;
+  const listeners = new Set();
+
+  return {
+    getSnapshot() {
+      return state;
+    },
+    setState(next) {
+      state = typeof next === 'function' ? next(state) : next;
+      listeners.forEach((l) => l());
+    },
+    subscribe(listener) {
+      listeners.add(listener);
+      return () => listeners.delete(listener);
+    },
+  };
+}
+
+const store = createStore({ count: 0 });
+
+function Counter() {
+  const state = useSyncExternalStore(
+    store.subscribe,
+    store.getSnapshot,
+    store.getSnapshot
+  );
+
+  return (
+    <button onClick={() => store.setState((s) => ({ count: s.count + 1 }))}>
+      Count: {state.count}
+    </button>
+  );
+}
+```
+
+### Example: browser API with SSR fallback
+
+```javascript
+import { useSyncExternalStore } from 'react';
+
+function useWindowWidth() {
+  return useSyncExternalStore(
+    (onStoreChange) => {
+      window.addEventListener('resize', onStoreChange);
+      return () => window.removeEventListener('resize', onStoreChange);
+    },
+    () => window.innerWidth,
+    () => 0
+  );
+}
+```
+
+This avoids hydration warnings by returning a stable server snapshot (`0`) until the client hydrates.
+
+### When to use (and when not to)
+
+- Use it for external stores that are not React state (global state libraries, subscriptions, caches, browser APIs).
+- Do not use it as a replacement for React state or Context. Context is for passing React-managed state and dependencies through the tree; `useSyncExternalStore` is for reading external sources with subscription semantics.
+- If the data is derived from props or state, compute it directly or memoize it; don't wrap it in an external store just to read it with this hook.
 
 ## useMemo
 

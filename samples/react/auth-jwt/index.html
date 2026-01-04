@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>React Auth with JWT (CDN + JSX)</title>
+    <style>
+      :root {
+        font-family: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+        color: #1b1b1b;
+        background: radial-gradient(circle at top, #fef7e0 0%, #f4f2ef 55%, #efe7de 100%);
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      .app {
+        max-width: 920px;
+        margin: 48px auto;
+        padding: 32px;
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.12);
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 14px;
+        border-radius: 999px;
+        background: #f0f0f0;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .pill.active {
+        background: #d8f3dc;
+        color: #1b4332;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 24px;
+        margin-top: 24px;
+      }
+
+      .card {
+        padding: 20px;
+        border-radius: 16px;
+        border: 1px solid #ededed;
+        background: #fafafa;
+      }
+
+      form {
+        display: grid;
+        gap: 12px;
+      }
+
+      label {
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      input {
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid #d7d7d7;
+        font-size: 15px;
+      }
+
+      button {
+        padding: 10px 16px;
+        border-radius: 10px;
+        border: none;
+        background: #1b1b1b;
+        color: white;
+        cursor: pointer;
+        font-weight: 600;
+      }
+
+      button.ghost {
+        background: #f0f0f0;
+        color: #1b1b1b;
+      }
+
+      button.danger {
+        background: #e63946;
+      }
+
+      .hint {
+        font-size: 13px;
+        color: #5b5b5b;
+      }
+
+      .error {
+        color: #b02323;
+        font-weight: 600;
+      }
+
+      .token {
+        word-break: break-all;
+        font-family: "IBM Plex Mono", "Courier New", monospace;
+        font-size: 12px;
+        background: #1b1b1b;
+        color: #f5f5f5;
+        padding: 12px;
+        border-radius: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+      const { useEffect, useMemo, useState } = React;
+
+      const STORAGE_KEY = 'demo.jwt';
+
+      function base64UrlEncode(value) {
+        return btoa(JSON.stringify(value))
+          .replace(/=/g, '')
+          .replace(/\+/g, '-')
+          .replace(/\//g, '_');
+      }
+
+      function base64UrlDecode(value) {
+        const normalized = value.replace(/-/g, '+').replace(/_/g, '/');
+        const padded = normalized.padEnd(normalized.length + ((4 - (normalized.length % 4)) % 4), '=');
+        return JSON.parse(atob(padded));
+      }
+
+      function createFakeJwt(payload) {
+        const header = { alg: 'HS256', typ: 'JWT' };
+        const signature = 'demo-signature';
+        return `${base64UrlEncode(header)}.${base64UrlEncode(payload)}.${signature}`;
+      }
+
+      function parseJwt(token) {
+        if (!token) return null;
+        const parts = token.split('.');
+        if (parts.length < 2) return null;
+        try {
+          return base64UrlDecode(parts[1]);
+        } catch (error) {
+          return null;
+        }
+      }
+
+      function App() {
+        const [users, setUsers] = useState([]);
+        const [status, setStatus] = useState('loading');
+        const [name, setName] = useState('');
+        const [password, setPassword] = useState('');
+        const [authError, setAuthError] = useState('');
+        const [token, setToken] = useState(() => localStorage.getItem(STORAGE_KEY) || '');
+        const [tokenInfo, setTokenInfo] = useState(null);
+
+        useEffect(() => {
+          fetch('./data/users.json')
+            .then((res) => res.json())
+            .then((data) => {
+              setUsers(data);
+              setStatus('ready');
+            })
+            .catch(() => setStatus('error'));
+        }, []);
+
+        useEffect(() => {
+          const info = parseJwt(token);
+          if (!info || (info.exp && Date.now() / 1000 > info.exp)) {
+            localStorage.removeItem(STORAGE_KEY);
+            setToken('');
+            setTokenInfo(null);
+            return;
+          }
+          setTokenInfo(info);
+        }, [token]);
+
+        const isAuthed = Boolean(token && tokenInfo);
+        const userLabel = tokenInfo ? `${tokenInfo.name} (#${tokenInfo.sub})` : 'Guest';
+
+        function handleLogin(event) {
+          event.preventDefault();
+          setAuthError('');
+
+          const trimmedName = name.trim();
+          const match = users.find(
+            (user) => user.name === trimmedName && user.password === password
+          );
+
+          if (!match) {
+            setAuthError('Invalid credentials. Try luis / password.');
+            return;
+          }
+
+          const now = Math.floor(Date.now() / 1000);
+          const payload = {
+            sub: match.id,
+            name: match.name,
+            iat: now,
+            exp: now + 60 * 10,
+          };
+
+          const nextToken = createFakeJwt(payload);
+          localStorage.setItem(STORAGE_KEY, nextToken);
+          setToken(nextToken);
+          setName('');
+          setPassword('');
+        }
+
+        function handleLogout() {
+          localStorage.removeItem(STORAGE_KEY);
+          setToken('');
+          setTokenInfo(null);
+        }
+
+        return (
+          <div className="app">
+            <div className="header">
+              <div>
+                <h1>JWT Login Demo (Client-only)</h1>
+                <p className="hint">
+                  This is a learning example. The token is generated in the browser, so it is not secure.
+                </p>
+              </div>
+              <span className={`pill ${isAuthed ? 'active' : ''}`}>
+                {isAuthed ? 'Authenticated' : 'Signed out'}
+              </span>
+            </div>
+
+            <div className="grid">
+              <div className="card">
+                <h2>Login</h2>
+                {status === 'loading' && <p className="hint">Loading users...</p>}
+                {status === 'error' && <p className="error">Failed to load users.</p>}
+                {status === 'ready' && (
+                  <form onSubmit={handleLogin}>
+                    <div>
+                      <label htmlFor="name">Name</label>
+                      <input
+                        id="name"
+                        value={name}
+                        onChange={(event) => setName(event.target.value)}
+                        placeholder="luis"
+                        autoComplete="username"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="password">Password</label>
+                      <input
+                        id="password"
+                        type="password"
+                        value={password}
+                        onChange={(event) => setPassword(event.target.value)}
+                        placeholder="password"
+                        autoComplete="current-password"
+                      />
+                    </div>
+                    {authError && <p className="error">{authError}</p>}
+                    <button type="submit" disabled={!name || !password || status !== 'ready'}>
+                      Sign in
+                    </button>
+                  </form>
+                )}
+              </div>
+
+              <div className="card">
+                <h2>Session</h2>
+                <p><strong>User:</strong> {userLabel}</p>
+                <p className="hint">
+                  The token expires 10 minutes after login and is stored in localStorage.
+                </p>
+                {isAuthed ? (
+                  <>
+                    <div className="token">{token}</div>
+                    <p className="hint">Payload: {JSON.stringify(tokenInfo)}</p>
+                    <button className="danger" type="button" onClick={handleLogout}>
+                      Log out
+                    </button>
+                  </>
+                ) : (
+                  <p className="hint">Sign in to see a token and payload.</p>
+                )}
+              </div>
+
+              <div className="card">
+                <h2>How This Maps to Real Apps</h2>
+                <ul className="hint">
+                  <li>Server validates credentials and returns a signed JWT.</li>
+                  <li>Client stores the token and sends it in the Authorization header.</li>
+                  <li>Protected APIs verify the token before returning data.</li>
+                </ul>
+                <button className="ghost" type="button" disabled>
+                  Protected action (demo)
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(<App />);
+    </script>
+  </body>
+</html>

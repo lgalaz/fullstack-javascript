@@ -1,0 +1,40 @@
+:root {
+  color-scheme: light;
+  font-family: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  color: #141414;
+  background: radial-gradient(circle at top, #f5f2ff 0%, #f4f2ef 55%, #ece3f1 100%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.page-shell {
+  min-height: 100vh;
+  padding: 16px;
+}
+
+.home {
+  display: grid;
+  place-items: center;
+  min-height: calc(100vh - 96px);
+}
+
+.home-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 28px 32px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.home-card a {
+  color: #a642f2;
+  font-weight: 600;
+  text-decoration: none;
+}

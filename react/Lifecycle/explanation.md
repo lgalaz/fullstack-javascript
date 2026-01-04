@@ -95,7 +95,9 @@ This is the typical lifecycle for a render:
 3. **Commit phase**
    - React applies changes to the DOM.
 4. **Effects**
-   - `useEffect` runs after the DOM updates and paint.
+   4.1 `useLayoutEffect`
+   4.2 paint
+   4.3 `useEffect` runs after the DOM updates and paint.
 5. **Hydration (if SSR was used)**
    - On the first client render, React attaches event handlers and reuses existing HTML instead of creating it.
 

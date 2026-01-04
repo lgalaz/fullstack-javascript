@@ -118,6 +118,64 @@ function BigList({ items }) {
 
 Best practice: virtualize lists when item counts are large enough to cause slow renders or scrolling.
 
+#### React-window: What it is and how to use it
+
+`react-window` is a small library for list and grid virtualization (windowing). It renders only the visible rows and reuses DOM nodes as you scroll, keeping render cost and DOM size stable even with tens of thousands of items.
+
+Install:
+
+```bash
+npm install react-window
+```
+
+Key ideas:
+
+- You must provide a fixed `height` (viewport size).
+- For `FixedSizeList`, every row has the same `itemSize` in pixels.
+- For variable heights, use `VariableSizeList` and provide a `getItemSize(index)` function.
+- The row renderer receives `style`; it must be applied to position rows correctly.
+- `itemData` is how you pass data into rows without closing over it.
+
+Complete example (fixed row height):
+
+```javascript
+import { FixedSizeList } from 'react-window';
+
+const items = Array.from({ length: 5000 }, (_, i) => ({
+  id: i + 1,
+  name: `Item ${i + 1}`,
+}));
+
+function Row({ index, style, data }) {
+  const item = data[index];
+  return (
+    <div style={style}>
+      #{item.id} - {item.name}
+    </div>
+  );
+}
+
+export default function VirtualizedList() {
+  return (
+    <FixedSizeList
+      height={360}
+      width="100%"
+      itemCount={items.length}
+      itemSize={36}
+      itemData={items}
+      overscanCount={4}
+    >
+      {Row}
+    </FixedSizeList>
+  );
+}
+```
+
+Notes:
+
+- `overscanCount` renders a few extra rows above and below the viewport to make scrolling smoother.
+- If rows need internal state, be careful: rows are reused. Keep state in the data model, not in row components.
+
 ### 5. Overusing Memoization
 
 `useMemo` and `useCallback` add overhead. Use them when there is measurable benefit.

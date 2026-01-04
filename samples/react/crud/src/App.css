@@ -1,0 +1,124 @@
+:root {
+  color-scheme: light;
+  font-family: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  color: #1b1b1b;
+  background: #f4f2ef;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.app {
+  max-width: 840px;
+  margin: 48px auto;
+  padding: 32px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+}
+
+header h1 {
+  margin: 0 0 8px;
+  font-size: 32px;
+}
+
+header p {
+  margin: 0 0 24px;
+  color: #575757;
+}
+
+.form {
+  margin-bottom: 32px;
+}
+
+.form label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+}
+
+input {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #d7d7d7;
+  font-size: 15px;
+}
+
+button {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: none;
+  background: #1b1b1b;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button.ghost {
+  background: #f0f0f0;
+  color: #1b1b1b;
+}
+
+button.danger {
+  background: #e63946;
+}
+
+.table h2 {
+  margin: 0 0 12px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 12px 8px;
+  border-bottom: 1px solid #ececec;
+}
+
+.actions {
+  text-align: right;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.empty {
+  text-align: center;
+  color: #7b7b7b;
+  padding: 24px 0;
+}
+
+@media (max-width: 640px) {
+  .app {
+    margin: 0;
+    min-height: 100vh;
+    border-radius: 0;
+  }
+
+  .row,
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

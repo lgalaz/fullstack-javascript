@@ -4,6 +4,8 @@
 
 Next.js is a React framework that adds routing, data fetching, and rendering strategies. The key rendering modes are CSR, SSR, SSG, and ISR.
 
+Note: Props from Server Components to Client Components must be serializable because they cross a network boundary. In practice this means JSON-serializable data only — no functions, class instances, symbols, or non-data values.
+
 ## CSR (Client-Side Rendering)
 
 Meaning: the browser downloads a JS bundle and renders the UI on the client.

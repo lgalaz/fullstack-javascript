@@ -1,0 +1,120 @@
+:root {
+  font-family: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  color: #1b1b1b;
+  background: radial-gradient(circle at top, #fef7e0 0%, #f4f2ef 60%, #efe7de 100%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.page {
+  padding: 48px 16px;
+}
+
+.app {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 32px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.12);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: #f0f0f0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.pill.active {
+  background: #d8f3dc;
+  color: #1b4332;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.card {
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid #ededed;
+  background: #fafafa;
+}
+
+form {
+  display: grid;
+  gap: 12px;
+}
+
+label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+input {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #d7d7d7;
+  font-size: 15px;
+}
+
+button {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: none;
+  background: #1b1b1b;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+button.ghost {
+  background: #f0f0f0;
+  color: #1b1b1b;
+}
+
+button.danger {
+  background: #e63946;
+}
+
+.hint {
+  font-size: 13px;
+  color: #5b5b5b;
+}
+
+.error {
+  color: #b02323;
+  font-weight: 600;
+}
+
+.token {
+  word-break: break-all;
+  font-family: "IBM Plex Mono", "Courier New", monospace;
+  font-size: 12px;
+  background: #1b1b1b;
+  color: #f5f5f5;
+  padding: 12px;
+  border-radius: 12px;
+}

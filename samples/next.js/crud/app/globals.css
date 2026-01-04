@@ -1,0 +1,102 @@
+:root {
+  font-family: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  color: #1b1b1b;
+  background: radial-gradient(circle at top, #f6f0ff 0%, #f4f2ef 55%, #e9e2f0 100%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.page {
+  padding: 48px 16px;
+}
+
+.app {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.12);
+}
+
+header h1 {
+  margin-bottom: 8px;
+}
+
+.form {
+  margin-top: 28px;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+input {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #d7d7d7;
+  font-size: 15px;
+}
+
+button {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: none;
+  background: #1b1b1b;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+button.ghost {
+  background: #f0f0f0;
+  color: #1b1b1b;
+}
+
+button.danger {
+  background: #e63946;
+}
+
+.table {
+  margin-top: 28px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+ td {
+  text-align: left;
+  padding: 10px 8px;
+  border-bottom: 1px solid #ececec;
+}
+
+.actions {
+  text-align: right;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.empty {
+  text-align: center;
+  color: #7b7b7b;
+  padding: 20px 0;
+}
