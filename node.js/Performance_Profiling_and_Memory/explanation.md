@@ -12,6 +12,8 @@ Performance in Node.js is about avoiding event-loop blocking and controlling mem
 
 ## Example: Measuring Event Loop Delay
 
+`monitorEventLoopDelay` measures how long the event loop is blocked. Higher numbers mean your code (or GC) is delaying timers and I/O.
+
 ```javascript
 // loop-delay.js
 const { monitorEventLoopDelay } = require('perf_hooks');
@@ -27,6 +29,8 @@ setInterval(() => {
 ```
 
 ## Example: Basic Memory Reporting
+
+This example logs resident set size (RSS) and heap usage so you can detect leaks or unexpected growth.
 
 ```javascript
 // memory.js

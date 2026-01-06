@@ -6,6 +6,8 @@ TypeScript adds static typing, better tooling, and safer refactors. In Node.js, 
 
 ## Minimal Setup
 
+TypeScript requires a compiler and Node type definitions. `tsconfig.json` controls output module format, target JS version, and strictness.
+
 Install dependencies:
 
 ```
@@ -28,6 +30,8 @@ Create `tsconfig.json`:
 ```
 
 ## Example: Simple Server
+
+This example is a typed HTTP server. TypeScript checks your code at build time, then you run the compiled JavaScript output.
 
 ```typescript
 // src/server.ts

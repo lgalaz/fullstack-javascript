@@ -12,6 +12,8 @@ Designing APIs involves consistency, explicit contracts, and backward compatibil
 
 ## Example: Versioned HTTP API
 
+This example exposes the same resource in two versions. v1 returns an array, v2 returns a wrapper object to demonstrate a breaking response change.
+
 ```javascript
 // api-server.js
 const http = require('http');
@@ -42,6 +44,8 @@ server.listen(3000);
 ```
 
 ## Pagination Example
+
+Pagination limits response size and supports large datasets. This simple helper slices an array to show the concept.
 
 ```javascript
 // pagination.js

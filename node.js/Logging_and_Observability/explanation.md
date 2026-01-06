@@ -6,6 +6,8 @@ Observability is the ability to understand your system from the outside using lo
 
 ## Structured Logging Example
 
+Structured logs emit machine-readable fields so you can filter and aggregate them in log systems (ELK, Datadog, CloudWatch).
+
 ```javascript
 // logger.js
 function log(level, message, context = {}) {
@@ -22,6 +24,8 @@ log('info', 'server started', { port: 3000 });
 ```
 
 ## Basic Metrics Example
+
+Metrics are numeric signals you can graph. Here we count requests in memory to show the idea of a counter.
 
 ```javascript
 // metrics.js

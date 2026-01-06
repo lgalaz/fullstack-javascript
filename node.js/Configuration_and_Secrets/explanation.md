@@ -6,6 +6,8 @@ Configuration separates code from environment-specific values (ports, URLs, cred
 
 ## Example: Loading Environment Variables
 
+This example validates required environment variables at startup and exposes a typed config object to the rest of the app.
+
 ```javascript
 // config.js
 const required = ['PORT', 'DATABASE_URL'];
@@ -25,6 +27,8 @@ module.exports = { config };
 ```
 
 ## Example: Using dotenv for Local Dev
+
+`dotenv` loads variables from a `.env` file into `process.env`, which is useful for local development. Do not use it to ship secrets in production.
 
 Install dependency:
 

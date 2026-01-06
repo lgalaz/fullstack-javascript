@@ -11,6 +11,8 @@ HTTP is request/response. Real-time apps need persistent, bidirectional connecti
 
 ## Example: WebSocket Server and Client
 
+This uses the `ws` library to upgrade an HTTP connection to a WebSocket. The server accepts connections and echoes messages back to the client.
+
 Install dependency:
 
 ```

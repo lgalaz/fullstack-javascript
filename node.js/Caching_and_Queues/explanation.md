@@ -6,6 +6,8 @@ Caching improves performance by avoiding repeated work. Queues decouple work fro
 
 ## Example: Simple In-Memory TTL Cache
 
+This cache stores values with an expiration timestamp. It is per-process and will reset on restart, which is why production apps often use Redis instead.
+
 ```javascript
 // cache.js
 class Cache {
@@ -35,6 +37,8 @@ console.log(cache.get('user:1'));
 ```
 
 ## Example: In-Process Queue
+
+This queue runs tasks sequentially so you can control concurrency and avoid overloading downstream systems.
 
 ```javascript
 // queue.js

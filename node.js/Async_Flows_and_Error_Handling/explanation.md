@@ -43,6 +43,55 @@ readConfig()
 - At the top-level, handle errors and set `process.exitCode` rather than calling `process.exit()` immediately.
 - Avoid throwing inside `setTimeout` without a try/catch around the callback.
 
+These patterns are called "error boundaries" because they are the places where errors cross async boundaries. If you miss these boundaries, errors can become unhandled rejections or uncaught exceptions that crash the process.
+
+Example: try/catch inside an async function:
+
+```javascript
+// async-try-catch.js
+const fs = require('fs/promises');
+
+async function loadUser(id) {
+  try {
+    const text = await fs.readFile(`./users/${id}.json`, 'utf8');
+    return JSON.parse(text);
+  } catch (error) {
+    throw new Error(`Failed to load user ${id}: ${error.message}`);
+  }
+}
+
+loadUser('123')
+  .then(user => console.log(user))
+  .catch(error => console.error(error.message));
+```
+
+Example: top-level error handling with `process.exitCode`:
+
+```javascript
+// top-level-error.js
+async function main() {
+  throw new Error('startup failed');
+}
+
+main().catch(error => {
+  console.error('Fatal:', error.message);
+  process.exitCode = 1;
+});
+```
+
+Example: handle errors inside `setTimeout` callbacks:
+
+```javascript
+// timeout-error.js
+setTimeout(() => {
+  try {
+    throw new Error('timer failed');
+  } catch (error) {
+    console.error('Timer error:', error.message);
+  }
+}, 100);
+```
+
 ## Avoiding Unhandled Rejections
 
 Unhandled rejections can crash the process in future Node versions and are always a sign of a bug.
@@ -55,6 +104,19 @@ process.on('unhandledRejection', reason => {
 ```
 
 ## Cancellation with AbortController
+
+`AbortController` is a standard API for canceling asynchronous work. It creates an `AbortSignal` that you pass into an operation. When you call `abort()`, the signal flips to an aborted state and the operation should stop and reject with an `AbortError`.
+
+Key pieces:
+
+- `new AbortController()` creates `{ signal, abort() }`.
+- `signal.aborted` is a boolean you can check.
+- `signal.addEventListener('abort', ...)` lets you react to cancellation.
+- Many Node APIs accept `{ signal }` (fetch, timers, streams, etc.).
+- You can combine signals with `AbortSignal.any([signalA, signalB])` so any canceler stops the operation.
+- You can create timeouts with `AbortSignal.timeout(ms)` and combine them with manual aborts.
+
+Example below uses `timers/promises` to show a cancelable delay.
 
 ```javascript
 // cancelable-fetch.js

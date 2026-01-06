@@ -6,6 +6,8 @@ Testing ensures correctness and supports refactoring. Node.js includes a built-i
 
 ## Example: Unit Test with node:test
 
+Unit tests target small, pure functions. This example uses Node's built-in test runner to verify a simple add function.
+
 ```javascript
 // math.js
 function add(a, b) {
@@ -33,6 +35,8 @@ node --test
 ```
 
 ## Example: Integration Test for an HTTP Server
+
+Integration tests hit real I/O boundaries. This test starts a server, makes an HTTP request, and asserts on the response.
 
 ```javascript
 // server.js

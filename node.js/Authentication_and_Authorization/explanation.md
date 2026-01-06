@@ -12,6 +12,8 @@ Authentication answers "who are you?" Authorization answers "what can you do?" N
 
 ## Example: JWT Authentication
 
+This example issues a JWT on `/login` and protects `/admin` with a middleware that validates the token and checks the user's role.
+
 Install dependency:
 
 ```

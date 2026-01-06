@@ -12,6 +12,8 @@ Node.js runs as a single OS process. Understanding process lifecycle, environmen
 
 ## Example: Graceful Shutdown
 
+A graceful shutdown stops accepting new requests, finishes in-flight work, and then exits. This prevents dropped connections and partial writes.
+
 ```javascript
 // shutdown.js
 const http = require('http');
@@ -41,6 +43,8 @@ process.on('SIGINT', () => shutdown('SIGINT'));
 ```
 
 ## Environment Variables
+
+Environment variables are strings provided by the operating system or container runtime. Convert and validate them before use.
 
 ```javascript
 // env.js

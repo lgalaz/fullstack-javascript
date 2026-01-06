@@ -12,6 +12,8 @@ Database connections are expensive. In Node.js, you should use connection pools 
 
 ## Example: Postgres with pg Pool
 
+This example creates a shared pool, borrows a client for a query, and returns it to the pool in a `finally` block to avoid leaks.
+
 Install dependency:
 
 ```

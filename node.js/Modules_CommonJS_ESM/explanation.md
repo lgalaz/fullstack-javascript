@@ -22,6 +22,8 @@ Understanding how they load, how they interop, and how resolution works avoids s
 
 ## Example: CommonJS Module
 
+CommonJS uses `require` to load modules at runtime and `module.exports` to expose values. It is synchronous and allows conditional loading.
+
 ```javascript
 // math.cjs
 function add(a, b) {
@@ -39,6 +41,8 @@ console.log(add(2, 3));
 ```
 
 ## Example: ES Module
+
+ESM uses static `import`/`export` statements that can be analyzed by tooling and loaded asynchronously by the runtime.
 
 ```javascript
 // math.mjs
@@ -58,6 +62,8 @@ console.log(add(2, 3));
 
 ### Importing CJS from ESM
 
+When an ESM file imports a CJS module, Node treats the CJS `module.exports` as the default export.
+
 ```javascript
 // app.mjs
 import cjsModule from './math.cjs';
@@ -66,6 +72,8 @@ console.log(cjsModule.add(2, 3));
 ```
 
 ### Importing ESM from CJS
+
+CommonJS cannot use `import` at top-level. Instead, use dynamic `import()` which returns a promise.
 
 ```javascript
 // app.cjs

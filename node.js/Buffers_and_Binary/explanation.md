@@ -12,6 +12,8 @@ Node.js uses `Buffer` to handle raw binary data. Understanding how buffers work 
 
 ## Example: Encoding and Decoding
 
+This shows how a string becomes raw bytes and how the same bytes can be represented in different encodings (hex, base64).
+
 ```javascript
 // buffer-encoding.js
 const text = 'Hello Node';
@@ -23,6 +25,8 @@ console.log(buf.toString('base64'));
 ```
 
 ## Example: Building a Binary Packet
+
+Binary protocols often pack multiple values into a fixed-size buffer. This example writes a 32-bit integer and a 32-bit float into the same 8-byte buffer, then reads them back.
 
 ```javascript
 // packet.js

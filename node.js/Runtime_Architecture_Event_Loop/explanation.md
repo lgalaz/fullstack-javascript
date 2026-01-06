@@ -19,6 +19,8 @@ Node.js runs JavaScript on V8 and uses libuv to provide an event-driven, non-blo
 
 ## Example: Event Loop Order
 
+This example schedules work in multiple queues (timers, microtasks, immediates, and I/O). It shows how Node orders those queues so you can reason about timing bugs and "why did this run first?" surprises.
+
 ```javascript
 // event-loop.js
 console.log('start');

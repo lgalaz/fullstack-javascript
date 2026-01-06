@@ -11,6 +11,8 @@ Node.js provides the `fs` and `path` modules for working with the file system in
 
 ## Example: Read/Write with fs/promises
 
+This example creates a directory, writes a file, and reads it back using the promise-based API. It is safe for servers because it does not block the event loop.
+
 ```javascript
 // files.js
 const fs = require('fs/promises');
@@ -33,6 +35,8 @@ writeAndRead().catch(error => {
 ```
 
 ## Path Resolution
+
+Paths are different across operating systems, so use `path` helpers to avoid bugs. `path.resolve` returns an absolute path from the current working directory, while `path.join` safely concatenates segments.
 
 ```javascript
 const path = require('path');

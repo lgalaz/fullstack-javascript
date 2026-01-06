@@ -14,6 +14,8 @@ Node.js security is not just about code; it is about dependencies, input validat
 
 ## Example: Validate Input and Escape Output
 
+Validation happens at the boundary of your system. This example shows a simple whitelist for usernames to block unexpected input early.
+
 ```javascript
 // validate.js
 function isValidUsername(value) {
@@ -31,6 +33,8 @@ console.log(renderUser('alice_01'));
 ```
 
 ## Example: Using Helmet (HTTP Security Headers)
+
+Helmet is middleware that sets security-related HTTP headers. This example applies it manually in a low-level HTTP server.
 
 Install dependency:
 

@@ -12,6 +12,8 @@ Node's core `http` module is low-level. A common pattern is to build a router an
 
 ## Example: Minimal Router + Middleware
 
+This minimal example builds a middleware pipeline and a tiny router. It demonstrates the same control flow used by frameworks like Express: middleware runs first, then a route handler is selected.
+
 ```javascript
 // mini-framework.js
 const http = require('http');

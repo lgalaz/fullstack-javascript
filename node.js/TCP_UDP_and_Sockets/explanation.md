@@ -6,6 +6,8 @@ Node.js provides low-level networking via the `net` (TCP) and `dgram` (UDP) modu
 
 ## Example: TCP Echo Server
 
+This TCP server reads raw bytes from a socket and writes a response. TCP is stream-based, so you must design message framing in real protocols.
+
 ```javascript
 // tcp-server.js
 const net = require('net');
@@ -36,6 +38,8 @@ socket.on('data', data => {
 ```
 
 ## Example: UDP Sender/Receiver
+
+UDP is message-based and does not guarantee delivery. This example sends a single datagram and logs it on the server.
 
 ```javascript
 // udp-server.js

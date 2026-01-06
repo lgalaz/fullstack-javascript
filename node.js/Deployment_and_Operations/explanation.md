@@ -6,6 +6,8 @@ Production Node.js apps need predictable builds, health checks, and process supe
 
 ## Example: Minimal Dockerfile
 
+This Dockerfile uses a slim Node image, installs production dependencies, and starts the app. It is a baseline for containerized deployments.
+
 ```dockerfile
 # Dockerfile
 FROM node:20-alpine
@@ -18,6 +20,8 @@ CMD ["node", "server.js"]
 ```
 
 ## Example: Health Endpoint
+
+Health endpoints let orchestration systems decide if your service is alive and ready to receive traffic.
 
 ```javascript
 // server.js

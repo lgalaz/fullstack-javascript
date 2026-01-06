@@ -12,6 +12,8 @@ Node.js scales well with I/O, but real systems need horizontal scaling, stateles
 
 ## Example: Stateless Service
 
+This server returns its process ID so you can see traffic spreading across instances when used behind a load balancer or cluster.
+
 ```javascript
 // stateless.js
 const http = require('http');

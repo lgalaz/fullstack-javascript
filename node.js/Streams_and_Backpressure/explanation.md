@@ -17,6 +17,8 @@ Backpressure is how streams signal that the consumer is slower than the producer
 
 ## Example: File Copy with Pipeline
 
+`pipeline` connects streams and propagates errors correctly. It also manages backpressure automatically so the writable stream is not overwhelmed.
+
 ```javascript
 // copy-file.js
 const fs = require('fs');
@@ -36,6 +38,8 @@ pipeline(
 ```
 
 ## Example: Transform Stream
+
+A transform stream lets you modify data as it passes through. Here we convert a text file to uppercase without loading it all into memory.
 
 ```javascript
 // upper-case.js

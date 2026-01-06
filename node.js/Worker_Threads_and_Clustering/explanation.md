@@ -9,6 +9,8 @@ Node.js runs JavaScript on a single thread. For CPU-bound workloads, you need pa
 
 ## Worker Threads Example
 
+Worker threads run JavaScript in parallel. This example computes a slow Fibonacci value in a worker so the main thread stays responsive.
+
 ```javascript
 // worker.js
 const { parentPort } = require('worker_threads');
@@ -42,6 +44,8 @@ runFib(40).then(result => {
 ```
 
 ## Clustering Example
+
+Clustering starts multiple Node processes that share the same server port. The OS load balancer distributes incoming connections across workers.
 
 ```javascript
 // cluster.js

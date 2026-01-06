@@ -12,6 +12,8 @@ Node.js can spawn other processes to run system commands or isolate work. The `c
 
 ## Example: spawn
 
+`spawn` starts a process and gives you streaming access to stdout/stderr. It is best for long-running or large-output commands.
+
 ```javascript
 // list-files.js
 const { spawn } = require('child_process');
@@ -32,6 +34,8 @@ ls.on('close', code => {
 ```
 
 ## Example: fork with IPC
+
+`fork` runs another Node.js script and opens an IPC channel so the parent and child can exchange JSON messages.
 
 ```javascript
 // child.js

@@ -6,6 +6,8 @@ Node.js is excellent for developer tooling. A good CLI parses arguments, validat
 
 ## Example: Simple CLI
 
+This CLI reads arguments from `process.argv`, validates input, and returns a non-zero exit code on failure.
+
 ```javascript
 // cli.js
 const args = process.argv.slice(2);

@@ -16,11 +16,15 @@ Node.js uses npm (or pnpm/yarn) and semantic versioning (SemVer) to manage depen
 - `~1.2.3` allows patch updates only.
 - `1.2.3` is pinned to a single version.
 
+These ranges control how your dependencies float when you run `npm install`. Wider ranges reduce manual upgrades but increase the risk of unexpected behavior.
+
 ## Lockfiles
 
 Lockfiles (`package-lock.json`, `pnpm-lock.yaml`, `yarn.lock`) freeze exact dependency versions for reproducible builds.
 
 ## Example: package.json
+
+This minimal `package.json` shows pinned metadata, a dependency with a caret range, and a start script.
 
 ```json
 {

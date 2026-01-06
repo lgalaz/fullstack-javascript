@@ -6,6 +6,8 @@ Node.js includes a built-in HTTP server. Understanding request/response streamin
 
 ## Example: Basic HTTP Server
 
+This server handles two routes and writes explicit status codes and headers. The request handler runs for every connection, so keep it fast and non-blocking.
+
 ```javascript
 // server.js
 const http = require('http');
@@ -28,6 +30,8 @@ server.listen(3000, () => {
 
 ## Reading Request Bodies
 
+Incoming request bodies are streams. You need to collect chunks or stream them directly to a destination (file, parser, etc.).
+
 ```javascript
 // echo.js
 const http = require('http');
@@ -47,6 +51,8 @@ server.listen(3001);
 ```
 
 ## HTTPS (TLS)
+
+HTTPS wraps HTTP in TLS. In production you usually terminate TLS at a load balancer, but the built-in server is useful for local testing and internal services.
 
 ```javascript
 // https-server.js

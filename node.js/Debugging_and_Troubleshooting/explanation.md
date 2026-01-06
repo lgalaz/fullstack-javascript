@@ -12,6 +12,8 @@ Debugging Node.js involves stack traces, runtime flags, and tooling like the ins
 
 ## Example: Using the Inspector
 
+The inspector lets you attach Chrome DevTools to a Node process for breakpoints, profiling, and heap snapshots.
+
 Run:
 
 ```
@@ -25,6 +27,8 @@ chrome://inspect
 ```
 
 ## Example: Capture Stack Traces
+
+Stack traces show the path of function calls leading to an error. They are the first place to look when debugging crashes.
 
 ```javascript
 function risky() {
