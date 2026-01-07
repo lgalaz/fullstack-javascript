@@ -87,6 +87,11 @@ server.listen(3000);
 
 ## Practical Guidance
 
-- Use short-lived access tokens and refresh tokens when needed.
-- Store secrets securely and rotate them.
-- Always check authorization in addition to authentication.
+- Prefer short-lived access tokens and rotate refresh tokens (short-lived tokens limit damage if leaked; refresh tokens should be stored securely, rotated on use, and revoked on suspicious activity).
+- Store secrets securely and rotate them (use a secrets manager or env vars, never commit to code, and plan regular key rotation with minimal downtime).
+- Always check authorization in addition to authentication (who you are is different from what you can do; enforce roles/scopes at every protected endpoint).
+- Choose token-based auth for APIs and session cookies for browser apps (cookies can be `HttpOnly`/`Secure`/`SameSite`, while API tokens suit mobile and service-to-service calls where one backend talks to another).
+- Validate token claims on every request (issuer, audience, expiration, and required scopes/roles; reject tokens with missing or unexpected claims).
+- Implement logout and revocation (track refresh tokens or session IDs so you can revoke access when a user is disabled or a token is compromised).
+- Add rate limiting and MFA for high-risk actions (credential stuffing and account takeover are common real-world incidents; these controls reduce blast radius).
+- Log auth events (login, logout, failures, and permission denials) for auditing and incident response.

@@ -8,7 +8,7 @@ Node.js scales well with I/O, but real systems need horizontal scaling, stateles
 
 - Stateless services allow easy horizontal scaling.
 - Load balancers distribute traffic across instances.
-- Sticky sessions should be avoided unless required.
+- Sticky sessions should be avoided unless required (sticky sessions mean a user is always routed to the same server instance, which hurts load balancing and can hide stateful bugs).
 
 ## Example: Stateless Service
 
@@ -29,6 +29,6 @@ server.listen(3000);
 ## Practical Guidance
 
 - Store sessions in a shared store (Redis) if you need session state.
-- Use a reverse proxy (NGINX, ELB) for load balancing.
+- Use a reverse proxy (NGINX, ELB) for load balancing (ELB is AWS Elastic Load Balancing).
 - Implement health checks and auto-scaling rules.
 - Avoid per-instance caches unless they are strictly optional.

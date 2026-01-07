@@ -23,6 +23,7 @@ Other built-in hooks and when to use them:
   - You want predictable, testable transitions (a pure reducer).
   - The component behaves like a simple state machine (loading/success/error modes).
 - Stick with `useState` for small, local, or simple state where transitions are few.
+- It is fine to dispatch multiple actions, but if you often dispatch several in a row to represent one user event, it is a signal to group them into a single action that the reducer handles together.
 - Example:
 
 ```javascript
@@ -48,6 +49,51 @@ function Counter() {
       <button onClick={() => dispatch({ type: 'inc' })}>+</button>
     </>
   );
+}
+```
+
+Example: multiple dispatches vs. a single grouped action:
+
+```javascript
+function reducer(state, action) {
+  switch (action.type) {
+    case 'save_start':
+      return { ...state, saving: true, error: null };
+    case 'save_success':
+      return { ...state, saving: false, lastSavedAt: action.payload };
+    case 'save_failed':
+      return { ...state, saving: false, error: action.error };
+    case 'save_all':
+      return {
+        ...state,
+        saving: false,
+        error: null,
+        lastSavedAt: action.payload,
+      };
+    default:
+      return state;
+  }
+}
+
+async function onSave() {
+  dispatch({ type: 'save_start' });
+  try {
+    const time = await save();
+    dispatch({ type: 'save_success', payload: time });
+  } catch (error) {
+    dispatch({ type: 'save_failed', error: error.message });
+  }
+}
+
+// If you frequently do multiple dispatches for one user action,
+// consider a grouped action that captures the final state update.
+async function onSaveGrouped() {
+  try {
+    const time = await save();
+    dispatch({ type: 'save_all', payload: time });
+  } catch (error) {
+    dispatch({ type: 'save_failed', error: error.message });
+  }
 }
 ```
 
@@ -100,7 +146,7 @@ function Box() {
 }
 ```
 
-- `useImperativeHandle` with `forwardRef` to expose an imperative API to parent components.
+- `useImperativeHandle` with `forwardRef` to expose an imperative API to parent components (it lets the child decide what methods/fields are exposed on its ref, instead of giving full access).
 - Example:
 
 ```javascript
@@ -227,7 +273,41 @@ function Field() {
 
 Note: `useId` avoids ID collisions and prevents hydration mismatches in SSR. Hardcoded strings can collide across instances, and Symbols are not valid DOM `id` values.
 
-- `useSyncExternalStore` to subscribe safely to external stores (e.g., Redux, custom store) with concurrent rendering support.
+- `useSyncExternalStore` to subscribe safely to external stores (e.g., Redux, custom store) with concurrent rendering support. It was created to prevent “tearing” in concurrent rendering, where the UI can read inconsistent snapshots if a store changes mid-render. Use it when state lives outside React (global stores, event emitters, browser APIs). Libraries like Zustand and Redux integrate with it under the hood so React can read a consistent snapshot and re-render if it changes during a render.
+- Example:
+
+```javascript
+import { useSyncExternalStore } from 'react';
+
+const store = {
+  value: 0,
+  listeners: new Set(),
+  getSnapshot() {
+    return this.value;
+  },
+  subscribe(listener) {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  },
+  increment() {
+    this.value += 1;
+    for (const listener of this.listeners) listener();
+  },
+};
+
+function Counter() {
+  const value = useSyncExternalStore(
+    store.subscribe.bind(store),
+    store.getSnapshot.bind(store)
+  );
+
+  return (
+    <button onClick={() => store.increment()}>
+      Count: {value}
+    </button>
+  );
+}
+```
 
 - `useInsertionEffect` for CSS-in-JS libraries to inject styles before layout (library-level, rarely used in app code). It's mainly for library authors who need to inject styles before layout to avoid flicker; most apps should use `useEffect`/`useLayoutEffect` or just static CSS. "Library-level" means it's primarily intended for CSS-in-JS tooling and third-party styling libraries.
 - Example:

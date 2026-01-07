@@ -59,6 +59,50 @@ getUsers()
 
 ## Practical Guidance
 
-- Always release connections back to the pool.
-- Keep pool sizes aligned with database limits.
-- Use parameterized queries to avoid SQL injection.
+- Always release connections back to the pool (if you do not, the pool runs out of available connections and requests start to hang).
+- Keep pool sizes aligned with database limits (databases cap concurrent connections; a pool that is too large can exhaust the DB and slow everyone down).
+- Use parameterized queries to avoid SQL injection (placeholders separate data from SQL so user input cannot change the query structure).
+
+Example: always release connections:
+
+```javascript
+// release.js
+const { Pool } = require('pg');
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+
+async function getUser(id) {
+  const client = await pool.connect();
+  try {
+    const result = await client.query('SELECT id, name FROM users WHERE id = $1', [id]);
+    return result.rows[0];
+  } finally {
+    client.release();
+  }
+}
+```
+
+Example: pool size aligned with DB limits:
+
+```javascript
+// pool-size.js
+const { Pool } = require('pg');
+
+// If your DB allows 100 connections total, keep pool sizes small per service.
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  max: 10,
+});
+```
+
+Example: parameterized queries:
+
+```javascript
+// parameterized.js
+const { Pool } = require('pg');
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+
+async function searchByEmail(email) {
+  const result = await pool.query('SELECT id, email FROM users WHERE email = $1', [email]);
+  return result.rows;
+}
+```

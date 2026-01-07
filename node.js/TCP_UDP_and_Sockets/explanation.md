@@ -2,11 +2,11 @@
 
 ## Introduction
 
-Node.js provides low-level networking via the `net` (TCP) and `dgram` (UDP) modules. These are useful for custom protocols, proxies, and high-performance services.
+Node.js provides low-level networking via the `net` (TCP) and `dgram` (UDP) modules. A protocol is a set of rules for how data is formatted and transmitted over a network. TCP is connection-oriented and reliable (a connection is established and maintained per client; ordered delivery with retransmission), while UDP is connectionless and best-effort (no handshake or persistent connection; faster, but no delivery guarantees). These are useful for custom protocols, proxies, and high-performance services.
 
 ## Example: TCP Echo Server
 
-This TCP server reads raw bytes from a socket and writes a response. TCP is stream-based, so you must design message framing in real protocols.
+This TCP server reads raw bytes from a socket and writes a response. TCP is stream-based, so you must design message framing in real protocols (define how to split the byte stream into messages, e.g., length prefixes or delimiters like `\n`).
 
 ```javascript
 // tcp-server.js

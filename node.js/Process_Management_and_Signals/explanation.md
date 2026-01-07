@@ -8,7 +8,7 @@ Node.js runs as a single OS process. Understanding process lifecycle, environmen
 
 - `process.env` holds environment variables.
 - `process.exitCode` sets the exit code without forcing immediate exit.
-- Signals like `SIGTERM` and `SIGINT` let you shut down gracefully.
+- Signals like `SIGTERM` and `SIGINT` let you shut down gracefully (`SIGTERM` is a termination request from the OS or orchestrator, `SIGINT` is an interrupt from the terminal, typically Ctrl+C).
 
 ## Example: Graceful Shutdown
 
@@ -40,6 +40,18 @@ function shutdown(signal) {
 
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
+```
+
+Example: send `SIGTERM` from another terminal:
+
+```
+kill -TERM <pid>
+```
+
+Example: send `SIGINT` (Ctrl+C):
+
+```
+Ctrl+C
 ```
 
 ## Environment Variables

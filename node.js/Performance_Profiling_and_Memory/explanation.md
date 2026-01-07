@@ -16,6 +16,9 @@ Performance in Node.js is about avoiding event-loop blocking and controlling mem
 
 ```javascript
 // loop-delay.js
+// Use this in production-like environments to detect event loop stalls.
+// It is useful when requests feel slow, timers drift, or CPU spikes occur.
+// Run it on a server to spot blocking code or heavy GC pauses.
 const { monitorEventLoopDelay } = require('perf_hooks');
 
 const histogram = monitorEventLoopDelay();

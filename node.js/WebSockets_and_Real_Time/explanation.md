@@ -9,6 +9,10 @@ HTTP is request/response. Real-time apps need persistent, bidirectional connecti
 - Live dashboards, chat, notifications, multiplayer games.
 - Avoid polling when you need low latency or high frequency updates.
 
+## Server-Sent Events (One-Way Updates)
+
+If you only need server → client updates (no messages from the client), Server-Sent Events (SSE) can be simpler than WebSockets. SSE uses a single HTTP connection that stays open and streams text events to the browser via `EventSource`. It is primarily a browser feature, but any client that can consume streaming HTTP can use it.
+
 ## Example: WebSocket Server and Client
 
 This uses the `ws` library to upgrade an HTTP connection to a WebSocket. The server accepts connections and echoes messages back to the client.

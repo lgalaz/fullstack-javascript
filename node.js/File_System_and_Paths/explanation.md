@@ -52,3 +52,25 @@ console.log({ absolute, joined });
 - Use `path.join` or `path.resolve` instead of string concatenation.
 - Use `fs.promises` for cleaner `async`/`await` flow.
 - Handle `ENOENT` and permission errors explicitly.
+
+Example: handling `ENOENT` and permission errors:
+
+```javascript
+// read-safe.js
+const fs = require('fs/promises');
+
+async function readConfigFile(path) {
+  try {
+    return await fs.readFile(path, 'utf8');
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      // Treat missing files as optional; throw instead if the file is required.
+      return null;
+    }
+    if (error.code === 'EACCES') {
+      throw new Error(`Permission denied: ${path}`);
+    }
+    throw error;
+  }
+}
+```

@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Production Node.js apps need predictable builds, health checks, and process supervision. Operational maturity is a key senior-level responsibility.
+Production Node.js apps need predictable builds (reproducible outputs from the same source and lockfile), health checks (simple endpoints or probes that report if the app is alive/ready), and process supervision (tools that restart crashed processes and manage logs). Operational maturity is a key senior-level responsibility.
 
 ## Example: Minimal Dockerfile
 
@@ -21,7 +21,7 @@ CMD ["node", "server.js"]
 
 ## Example: Health Endpoint
 
-Health endpoints let orchestration systems decide if your service is alive and ready to receive traffic.
+Health endpoints let orchestration systems (tools like Kubernetes, ECS, or systemd that start, stop, and restart services) decide if your service is alive and ready to receive traffic.
 
 ```javascript
 // server.js
@@ -40,11 +40,17 @@ const server = http.createServer((req, res) => {
 server.listen(3000);
 ```
 
+Ping the endpoint:
+
+```
+curl http://localhost:3000/health
+```
+
 ## Process Supervision
 
-- Use systemd, PM2, or a container orchestrator.
+- Use systemd or PM2 for single-host process supervision, or a container orchestrator for multi-host deployments.
 - Configure restart policies and log aggregation.
-- Set memory limits to avoid noisy-neighbor issues.
+- Set memory limits to avoid noisy-neighbor issues (when one process consumes excessive resources and degrades others on the same host).
 
 ## Practical Guidance
 

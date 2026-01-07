@@ -67,7 +67,7 @@ function SignupForm() {
 What to notice:
 
 - `register` wires inputs to RHF without storing every keystroke in React state.
-- `handleSubmit` runs validation and then calls your submit handler.
+- `handleSubmit` runs validation and then calls your submit handler (in Next.js you typically send the data to a server action or API route from this handler; in other apps you can post directly to your API).
 - `formState.errors` holds field errors.
 
 ## Watching values

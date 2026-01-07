@@ -44,4 +44,4 @@ This minimal `package.json` shows pinned metadata, a dependency with a caret ran
 
 - Commit lockfiles for every app and service.
 - Review dependency updates and avoid unbounded ranges for critical code.
-- Use `npm audit` and `npm outdated` regularly.
+- Use `npm audit` and `npm outdated` regularly (`npm audit` reports known security vulnerabilities in your dependency tree; `npm outdated` shows which packages have newer versions available).

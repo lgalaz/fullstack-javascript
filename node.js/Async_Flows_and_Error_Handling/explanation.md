@@ -40,8 +40,8 @@ readConfig()
 ## Error Boundaries in Async Code
 
 - Use `try/catch` inside `async` functions.
-- At the top-level, handle errors and set `process.exitCode` rather than calling `process.exit()` immediately.
-- Avoid throwing inside `setTimeout` without a try/catch around the callback.
+- At the top-level, handle errors and set `process.exitCode` rather than calling `process.exit()` immediately (this keeps the current event loop turn alive so buffered logs flush, in-flight requests can finish, and `finally` blocks or graceful shutdown logic can run; only set it if it is still `0` so later failures do not get overwritten).
+- Avoid throwing inside `setTimeout` without a try/catch around the callback (errors thrown there are not caught by outer try/catch, become uncaught exceptions, and can crash the process; handle the error in the callback or reject a promise instead).
 
 These patterns are called "error boundaries" because they are the places where errors cross async boundaries. If you miss these boundaries, errors can become unhandled rejections or uncaught exceptions that crash the process.
 
@@ -94,7 +94,7 @@ setTimeout(() => {
 
 ## Avoiding Unhandled Rejections
 
-Unhandled rejections can crash the process in future Node versions and are always a sign of a bug.
+Unhandled rejections can terminate the process (Node has tightened this behavior over time) and are always a sign of a bug.
 
 ```javascript
 process.on('unhandledRejection', reason => {
@@ -141,5 +141,60 @@ controller.abort();
 ## Practical Guidance
 
 - Prefer promises/`async`/`await` for readability and consistent error handling.
-- Treat every async boundary as an error boundary.
-- Use timeouts and cancellation for external I/O.
+- Treat every async boundary as an error boundary (an async boundary is any handoff where work continues later, like promises, timers, or callbacks; an error boundary is the place you must catch and handle errors so they do not become unhandled).
+- Use timeouts and cancellation for external I/O (networks and databases can hang indefinitely; timeouts cap how long you wait, and cancellation stops work so your app can recover or retry).
+
+Example: timeout + cancellation with `fetch`:
+
+```javascript
+// fetch-timeout.js
+async function fetchWithTimeout(url, timeoutMs) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const res = await fetch(url, { signal: controller.signal });
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+    return await res.text();
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+fetchWithTimeout('https://example.com', 1000)
+  .then(text => console.log(text.slice(0, 50)))
+  .catch(error => {
+    console.error('Request failed:', error.name);
+  });
+```
+
+Example: timeout + cancellation with a database client pattern:
+
+```javascript
+// db-timeout.js
+const { setTimeout: delay } = require('timers/promises');
+
+async function queryWithTimeout(queryFn, timeoutMs) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    // queryFn should accept a signal and stop work if aborted.
+    return await queryFn({ signal: controller.signal });
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+// Example usage (pseudo client)
+async function fakeDbQuery({ signal }) {
+  await delay(200, null, { signal });
+  return { rows: [{ id: 1 }] };
+}
+
+queryWithTimeout(fakeDbQuery, 100)
+  .then(result => console.log(result))
+  .catch(error => console.error('DB error:', error.name));
+```

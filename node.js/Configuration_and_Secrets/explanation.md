@@ -47,5 +47,5 @@ console.log('Config:', config);
 ## Practical Guidance
 
 - Validate config at startup and fail fast on missing values.
-- Use a secrets manager in production (AWS/GCP/HashiCorp Vault).
+- Use a secrets manager in production (a managed system that stores and rotates secrets securely, controls access, and provides audit logs; examples include AWS Secrets Manager, GCP Secret Manager, and HashiCorp Vault).
 - Avoid printing secrets in logs or error messages.

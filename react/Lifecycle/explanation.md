@@ -93,13 +93,13 @@ This is the typical lifecycle for a render:
 2. **Reconciliation**
    - React compares the new tree to the previous tree.
 3. **Commit phase**
-   - React applies changes to the DOM.
-4. **Effects**
-   4.1 `useLayoutEffect`
-   4.2 paint
-   4.3 `useEffect` runs after the DOM updates and paint.
-5. **Hydration (if SSR was used)**
+   - React applies changes to the DOM (or attaches to existing DOM during hydration).
+4. **Hydration (if SSR was used)**
    - On the first client render, React attaches event handlers and reuses existing HTML instead of creating it.
+5. **Effects**
+   5.1 `useLayoutEffect`
+   5.2 paint
+   5.3 `useEffect` runs after the DOM updates and paint.
 
 ## State and Updates
 

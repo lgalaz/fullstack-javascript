@@ -10,7 +10,7 @@ Node.js security is not just about code; it is about dependencies, input validat
 - Dependency auditing
 - Secrets management
 - TLS and secure headers
-- Avoiding prototype pollution and deserialization attacks
+- Avoiding prototype pollution and deserialization attacks (prototype pollution happens when untrusted input modifies object prototypes like `__proto__`, leading to unexpected behavior; deserialization attacks occur when you parse untrusted data into objects/classes that can execute code or trigger unintended logic).
 
 ## Example: Validate Input and Escape Output
 

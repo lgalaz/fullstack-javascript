@@ -35,7 +35,7 @@ ls.on('close', code => {
 
 ## Example: fork with IPC
 
-`fork` runs another Node.js script and opens an IPC channel so the parent and child can exchange JSON messages.
+`fork` runs another Node.js script and opens an IPC (inter-process communication) channel so the parent and child can exchange JSON messages.
 
 ```javascript
 // child.js
@@ -61,3 +61,4 @@ child.send({ task: 'work' });
 - Use `spawn` for streaming output to avoid memory issues.
 - Sanitize any user input before passing it to a child process.
 - Prefer Worker Threads for CPU-bound JS work within the same process.
+- Common use case: calling system tools (image/video processing, PDF generation, git commands) where the heavy work is done by an external binary.

@@ -11,7 +11,7 @@ Understanding how they load, how they interop, and how resolution works avoids s
 ## Key Differences
 
 - CJS loads synchronously and can be conditionally required.
-- ESM loads asynchronously, supports static analysis, and enables tree-shaking.
+- ESM loads asynchronously, supports static analysis (tools can inspect imports/exports without running the code), and enables tree-shaking.
 - The module type is determined by file extension (`.mjs`, `.cjs`) or `package.json` `"type"` field.
 
 ## Choosing a Module System
