@@ -128,66 +128,86 @@ If a new variant is added, the compiler fails—this is deliberate safety.
 I: Explain how TypeScript performs type narrowing.
 
 C:
-TypeScript narrows via control-flow analysis, not runtime logic.
+Type narrowing means refining a broad type (like `unknown` or a union) into a more specific type based on checks in code. TypeScript narrows via control-flow analysis, not runtime logic.
 
 Common narrowing mechanisms:
 
-typeof
+- typeof
+- instanceof
+- equality checks
+- discriminated unions
+- user-defined type guards
+  - Note: predicates (`x is T`) are a way to tell the compiler how to narrow.
 
-instanceof
-
-equality checks
-
-discriminated unions
-
-user-defined type guards
-
+```
 function isUser(x: unknown): x is { id: string } {
   return typeof x === "object" && x !== null && "id" in x;
 }
-
+```
 
 Important nuance:
 
-Narrowing is flow-sensitive
+- Narrowing is flow-sensitive
+- Mutations can invalidate narrowings
+- Aliasing can break safety assumptions
 
-Mutations can invalidate narrowings
+Broader example (union narrowing is scoped to the condition):
 
-Aliasing can break safety assumptions
+```
+type Shape =
+  | { kind: "circle"; r: number }
+  | { kind: "square"; s: number };
+
+function area(shape: Shape) {
+  if (shape.kind === "circle") {
+    return Math.PI * shape.r ** 2; // circle only
+  }
+  return shape.s ** 2; // square only
+}
+
+function printShape(shape: Shape) {
+  if (shape.kind === "square") {
+    console.log(shape.s);
+  }
+  // shape.s is not available here; narrowing ends outside the block
+}
+```
 
 6. Generics: constraint vs inference
 
 I: When should you constrain generics, and when should you let inference work?
 
 C:
-Prefer inference first, constraints only when needed.
+Constraints limit what a generic can be (e.g., `T extends { id: string }`), while inference lets TypeScript deduce `T` from the values you pass. Prefer inference first, constraints only when needed.
 
 Bad:
 
+```
 function identity<T extends unknown>(x: T): T {
   return x;
 }
-
+```
 
 Good:
 
+```
 function identity<T>(x: T): T {
   return x;
 }
+```
 
 
 Use constraints when:
 
-You rely on specific properties
+- You rely on specific properties
+- You want better error messages
+- You need key relationships
 
-You want better error messages
-
-You need key relationships
-
+```
 function getProp<T, K extends keyof T>(obj: T, key: K): T[K] {
   return obj[key];
 }
-
+```
 
 Senior rule: constraints encode assumptions—don’t add them casually.
 
@@ -214,13 +234,10 @@ type ReadonlyUser = {
 
 This enables:
 
-DTO transformations
-
-Form modeling
-
-API response shaping
-
-Permission systems
+- DTO transformations
+- Form modeling
+- API response shaping
+- Permission systems
 
 Mapped types are compile-time loops over keys.
 
@@ -232,23 +249,57 @@ C:
 
 Conditional types:
 
+```
 type IsString<T> = T extends string ? true : false;
-
+```
 
 Distributive behavior occurs when the checked type is a naked type parameter:
 
+```
 type Result = IsString<string | number>;
 // true | false
+```
 
+Distributive behavior means a union is checked one member at a time (like mathematical distribution over a set), and the results are unioned back together.
 
-To disable distribution:
+To disable distribution (wrap in square brackets so the union is treated as a single value):
 
 type IsString<T> = [T] extends [string] ? true : false;
 
 
-This distinction is critical for utility types like Exclude, Extract, etc.
+This distinction is critical for utility types like Exclude and Extract, which rely on distribution over unions to filter members correctly.
 
-9. interface vs type (no hand-waving)
+Example:
+
+```
+type U = "a" | "b" | "c";
+type OnlyB = Extract<U, "b">;   // "b"
+type NoB = Exclude<U, "b">;     // "a" | "c"
+```
+
+Under the hood, `Extract` and `Exclude` are conditional types that rely on this distributive behavior.
+
+Under-the-hood example (distribution over a union):
+
+```
+type MyExclude<T, U> = T extends U ? never : T;
+type MyExtract<T, U> = T extends U ? T : never;
+
+type U = "a" | "b" | "c";
+type NoB = MyExclude<U, "b">;  // "a" | "c"
+type OnlyB = MyExtract<U, "b">; // "b"
+```
+
+Non-distributive variant (wrap in square brackets):
+
+```
+type NonDistributiveExtract<T, U> = [T] extends [U] ? T : never;
+
+type U = "a" | "b";
+type A = NonDistributiveExtract<U, "b">; // never
+```
+
+9. interface vs type (no hand-waving — give concrete differences, not vague “it depends”)
 
 I: When do you prefer interface vs type?
 
@@ -256,26 +307,21 @@ C:
 
 interface
 
-Object shapes
-
-Public APIs
-
-Declaration merging
-
-Extends well
+- Object shapes
+- Public APIs
+- Declaration merging
+- Extends well
 
 type
 
-Unions
-
-Intersections
-
-Primitives
-
-Mapped/conditional types
+- Unions
+- Intersections
+- Primitives
+- Mapped/conditional types
 
 Example merging:
 
+```
 interface Window {
   myProp: string;
 }
@@ -283,13 +329,11 @@ interface Window {
 interface Window {
   anotherProp: number;
 }
-
-
+```
 Senior convention:
 
-Libraries → interfaces
-
-Internal modeling → types
+- Libraries → interfaces
+- Internal modeling → types
 
 10. Declaration merging: when is it dangerous?
 
@@ -297,30 +341,44 @@ I: Declaration merging is powerful—but when is it risky?
 
 C:
 
+Declaration merging is when TypeScript combines multiple declarations with the same name (e.g., interfaces, namespaces, modules) into a single type; it does not apply to `type` aliases.
+
+Example:
+
+```
+interface User {
+  id: string;
+}
+
+// Later in another file:
+interface User {
+  name: string;
+}
+
+// Resulting type has both properties:
+const u: User = { id: "1", name: "Ada" };
+```
+
 Risks:
 
-Accidental global pollution
-
-Version conflicts in dependencies
-
-Hidden coupling
-
+- Accidental global pollution
+- Version conflicts in dependencies
+- Hidden coupling
+```
 declare global {
   interface Array<T> {
     custom(): void;
   }
 }
-
+```
 
 This affects every array—often unintentionally.
 
 Best practice:
 
-Use module augmentation narrowly
-
-Avoid global merging in app code
-
-Prefer explicit wrapper types
+- Use module augmentation narrowly (extend a specific module’s types via `declare module "pkg"` instead of changing global types)
+- Avoid global merging in app code
+- Prefer explicit wrapper types
 
 11. as const: what problem does it solve?
 
@@ -328,29 +386,43 @@ I: Why does as const exist?
 
 C:
 
-It prevents type widening.
+It prevents type widening (where literal values like `"ready"` or `42` are widened to `string` or `number`).
 
+``
 const status = "ready";
 // string
 
 const status2 = "ready" as const;
 // "ready"
-
+``
 
 Critical for:
 
-Discriminated unions
+- Discriminated unions
+- Configuration objects
+- Redux-style reducers
 
-Configuration objects
-
-Redux-style reducers
-
+```
 const actions = {
   ADD: "add",
   REMOVE: "remove",
 } as const;
 
 type Action = typeof actions[keyof typeof actions];
+// Action is "add" | "remove"
+```
+
+Without `as const`:
+
+```
+const actions = {
+  ADD: "add",
+  REMOVE: "remove",
+};
+
+type Action = typeof actions[keyof typeof actions];
+// Action is string
+```
 
 12. TS compile-time vs runtime: common senior pitfall
 
@@ -360,21 +432,37 @@ C:
 
 Assuming types exist at runtime.
 
+```
 type User = { id: string };
 
 if (value instanceof User) { // ❌
 }
+```
 
-
-Types are erased.
+Types are erased, so `User` is not a runtime constructor and `instanceof` cannot work on it.
 
 Correct approach:
 
-Runtime validation (Zod, Yup)
+- Runtime validation (Zod, Yup) to check incoming data at runtime and fail fast.
+- Type predicates (user-defined type guards) to narrow `unknown` values after checks; the annotation is compile-time, but it must be backed by real runtime checks.
+- Explicit schemas to define what valid data looks like and reuse it across runtime and type layers.
 
-Type predicates
+Example (schema shared by runtime + types):
 
-Explicit schemas
+```
+import { z } from "zod";
+
+const UserSchema = z.object({
+  id: z.string(),
+  email: z.string().email(),
+});
+
+type User = z.infer<typeof UserSchema>;
+
+function parseUser(input: unknown): User {
+  return UserSchema.parse(input);
+}
+```
 
 Senior engineers design runtime validation consciously.
 
@@ -386,21 +474,14 @@ C:
 
 Key practices:
 
-strict: true (non-negotiable)
-
-No implicit any
-
-Lint rules for unsafe casts
-
-Boundary typing (unknown at edges)
-
-Avoid as except in narrow, audited places
-
-Centralize shared types
-
-Version types alongside APIs
-
-TypeScript debt compounds silently—discipline matters.
+- strict: true (non-negotiable)
+- No implicit any
+- Lint rules for unsafe casts
+- Boundary typing (unknown at edges)
+- Avoid as except in narrow, audited places
+- Centralize shared types
+- Version types alongside APIs
+- TypeScript debt compounds silently—discipline matters.
 
 14. Final meta question
 
