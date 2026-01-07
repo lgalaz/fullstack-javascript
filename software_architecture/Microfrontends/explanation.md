@@ -22,6 +22,14 @@ Microfrontends apply microservices ideas to the frontend. A UI is split into ind
 - Can introduce inconsistent UX and performance issues.
 - Complex shared state and routing if not designed carefully.
 
+## Common Use Cases
+
+- Large organizations with multiple frontend teams owning separate domains (account, billing, admin), needing independent release cycles.
+- Products with distinct surfaces (marketing site + app + embedded widgets) that still share some UI parts.
+- Gradual migrations where a legacy frontend is incrementally replaced by new apps.
+
+Note: microfrontends are often chosen for organizational scalability (team autonomy) rather than pure technical necessity; they do add complexity and can introduce security and performance risks if not managed carefully.
+
 ## Example (Runtime Composition)
 
 ```text
@@ -39,3 +47,5 @@ renderShell([
   loadRemote('orders'),
 ]);
 ```
+
+Note: a shell/container app orchestrates loading and mounting the microfrontends. It can do this at build time (compose bundles) or at runtime (module federation/import maps). A single framework is simplest, but mixed frameworks are possible via Web Components or iframes at the cost of more complexity.

@@ -1,0 +1,51 @@
+# Enums and Match
+
+## Enums
+
+An enum (short for enumeration) defines a fixed set of values.
+PHP 8.1 supports backed enums, where each case has a scalar value (a single primitive like int or string).
+
+Note: enums are safer than strings for domain values because they prevent invalid states at runtime.
+
+```php
+<?php
+
+declare(strict_types=1);
+
+enum Status: string {
+    case Draft = 'draft';
+    case Published = 'published';
+}
+
+function canEdit(Status $status): bool {
+    return $status === Status::Draft;
+}
+
+echo Status::Published->value;
+```
+
+## Match Expressions
+
+A match expression is like a switch but is exhaustive and returns a value.
+Exhaustive means all possible inputs must be handled.
+If no case matches and there is no `default`, PHP throws an `UnhandledMatchError`.
+
+```php
+<?php
+
+declare(strict_types=1);
+
+enum Status: string {
+    case Draft = 'draft';
+    case Published = 'published';
+}
+
+function labelForStatus(Status $status): string {
+    return match ($status) {
+        Status::Draft => 'Draft',
+        Status::Published => 'Published',
+    };
+}
+
+echo labelForStatus(Status::Draft);
+```

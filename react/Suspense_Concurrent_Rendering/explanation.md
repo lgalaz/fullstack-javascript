@@ -4,6 +4,12 @@
 
 Suspense lets you show fallback UI while a component or data is loading. Concurrent features let React pause, interrupt, and resume rendering work so urgent updates (like typing) stay responsive during expensive updates.
 
+## React.StrictMode
+
+`<React.StrictMode>` is a development-only wrapper that enables extra checks and warnings. It intentionally double-invokes certain lifecycle methods and renders in development to surface side effects and unsafe patterns. It does not affect production behavior or performance.
+
+Note: many frameworks and templates enable Strict Mode by default in development (for example, Next.js and Create React App), so you may already be running under it even if you did not add the wrapper yourself. You can usually configure this in the framework's settings.
+
 ## React Scheduler (Overview)
 
 The scheduler is React's internal priority system for rendering work. Urgent updates (like input) are handled first, while low-priority updates (like transitions or deferred values) can be paused and resumed so the UI stays responsive. It does not run on multiple threads; it yields back to the browser between chunks of work.

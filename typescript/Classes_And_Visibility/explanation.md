@@ -51,7 +51,7 @@ class Secret {
 
 `#` fields are enforced by the JavaScript runtime: they cannot be accessed outside the class, even via bracket notation.
 
-## Parameter Properties
+## Parameter Properties (Constructor Property Promotion)
 
 ```typescript
 class Product {

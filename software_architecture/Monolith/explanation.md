@@ -22,6 +22,12 @@ A monolith is a single deployable application that contains all business capabil
 - Overkill to split into services before you have clear scaling or ownership needs.
 - Common misuse is turning it into a "big ball of mud" with no domain boundaries.
 
+## Monolith vs. Modular Monolith
+
+- A monolith can be organized well or poorly; a modular monolith explicitly enforces module boundaries and ownership rules.
+- Both are single deployables, but modular monoliths prevent cross-module access except through defined interfaces.
+- The difference is architectural discipline, not deployment style.
+
 ## Example (Modularized Monolith Structure)
 
 ```text

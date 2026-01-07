@@ -2,7 +2,8 @@
 
 ## Introduction
 
-BFF is an architecture where each frontend (web, mobile, TV) gets a tailored backend that aggregates and shapes data for that client.
+BFF is an architecture where each frontend (web, mobile, TV) gets a tailored backend that aggregates and shapes data for that client (aggregates = combines data from multiple services into one response; shapes = formats and trims data to match the UI’s exact needs).
+Note: Next.js often acts as a BFF because it can host server routes or server components that fetch from multiple backend services and tailor responses for the specific UI.
 
 ## What It Is
 

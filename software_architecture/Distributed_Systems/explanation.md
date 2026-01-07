@@ -2,7 +2,7 @@
 
 ## Introduction
 
-A distributed system is a set of components running on multiple machines that coordinate over a network to achieve a shared goal. It enables scale and fault isolation but introduces network complexity and partial failure.
+A distributed system is a set of components running on multiple machines that coordinate over a network to achieve a shared goal. It enables scale and fault isolation but introduces network complexity and partial failure. Note: “distributed” implies a network boundary (components communicate over the network, even if they run on the same host in separate processes or containers); separate projects in one codebase without network calls are not distributed.
 
 ## What It Is
 

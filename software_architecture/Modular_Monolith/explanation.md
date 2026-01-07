@@ -22,6 +22,14 @@ A modular monolith is a single deployable application with strict internal modul
 - Misuse when modules leak data or call each other directly.
 - Not a free path to microservices; you still need real domain separation.
 
+## Common Examples
+
+- Large .NET or Java enterprise apps that keep multiple domains in one deployable unit, often with separate assemblies/modules per domain.
+- Monorepo web apps where domains like billing, users, and search are separated by module boundaries but share one runtime.
+- Products that need strong internal boundaries today but want the option to split services later.
+
+Note: modular monoliths are often built in monorepos. Modern tooling (Nx, Turborepo, Bazel, pnpm workspaces) makes large monorepos practical by enabling fast builds, caching, and dependency-aware testing.
+
 ## Example (Module Boundary)
 
 ```javascript

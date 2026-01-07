@@ -1,0 +1,42 @@
+# Exceptions and Error Handling
+
+## Introduction
+
+Python uses exceptions to signal errors. Senior developers treat exception handling as control of failure paths, not normal flow.
+
+## Key Concepts
+
+- Raise specific exceptions.
+- Catch only what you can handle.
+- Use `finally` or context managers for cleanup.
+
+## Example: Specific Exception Handling
+
+```python
+# exceptions.py
+def load_config(path):
+    try:
+        with open(path, 'r', encoding='utf8') as f:
+            return f.read()
+    except FileNotFoundError:
+        return None
+    except PermissionError as exc:
+        raise RuntimeError(f"Access denied: {path}") from exc
+```
+
+## Example: Custom Exception
+
+```python
+class ValidationError(Exception):
+    pass
+
+def validate_age(age):
+    if age < 0:
+        raise ValidationError("age must be positive")
+```
+
+## Practical Guidance
+
+- Do not catch `Exception` unless you re-raise or log with context.
+- Avoid using exceptions for normal control flow.
+- Include actionable context in error messages.

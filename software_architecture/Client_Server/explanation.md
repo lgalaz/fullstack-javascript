@@ -19,8 +19,8 @@ Client-server architecture splits a system into clients that request services an
 ## Misuse and When It Is Overkill
 
 - Overkill for local scripts or single-process tools.
-- Misuse when the server becomes a thin proxy with no domain logic.
-- Overuse of chatty client-server interactions can create latency issues.
+- Misuse when the server becomes a thin proxy with no domain logic (a proxy forwards requests to another service without doing much itself; it adds hops without adding business validation, orchestration, or security).
+- Overuse of chatty client-server interactions can create latency issues (many small round trips amplify network delay). Best practice: batch or aggregate requests (BFF, GraphQL, or tailored endpoints) and return data in fewer calls.
 
 ## Example (Request/Response Flow)
 

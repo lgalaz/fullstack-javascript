@@ -2,9 +2,51 @@
 
 ## Introduction
 
-Next.js is a React framework that adds routing, data fetching, and rendering strategies. The key rendering modes are CSR, SSR, SSG, and ISR.
+Next.js is a meta-framework (a framework over a framework) built on React. It adds routing, data fetching, and rendering strategies. The key rendering modes are CSR, SSR, SSG, and ISR.
+
+Meta-frameworks add architecture by defining where and when code runs, conventions by enforcing file-based structure and implicit behavior, and runtime capabilities like SSR, streaming, and caching. If you don’t need those capabilities, the added constraints can outweigh the benefits.
+
+In Next.js, rendering strategy is an emergent property of your data-fetching and caching choices, not a global switch.
 
 Note: Props from Server Components to Client Components must be serializable because they cross a network boundary. In practice this means JSON-serializable data only — no functions, class instances, symbols, or non-data values.
+
+## React Server Components (RSC)
+
+React Server Components are React components that run only on the server. They are rendered on the server, and their result is streamed to the browser as a lightweight description of the UI, not as executable JavaScript for those components. This reduces the amount of JavaScript the browser needs to download and run.
+
+Key ideas, from first principles:
+- A component is a reusable function that returns UI.
+- "Server" means code runs on the machine that hosts your app, not in the user's browser.
+- "Client" means code runs in the user's browser and can handle clicks, form input, and other interactions.
+
+What this means in practice:
+- Server Components can read from databases, files, or private APIs directly because they run on the server.
+- Server Components cannot use browser-only APIs like `window` or `document`, and they cannot attach event handlers.
+- For interactivity (clicks, input), you use Client Components, which run in the browser.
+- A page can mix Server and Client Components; the server renders the non-interactive parts, and the client hydrates the interactive parts.
+
+RSC is a React capability, and frameworks like Next.js provide the tooling and defaults that make it practical to use.
+
+Example (a simple Server Component):
+
+```jsx
+// app/products/page.jsx
+import { db } from "@/lib/db";
+
+export default async function ProductsPage() {
+  const products = await db.products.findMany();
+
+  return (
+    <ul>
+      {products.map((p) => (
+        <li key={p.id}>{p.name}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+Note: Server Components can be `async` so they can `await` data on the server before rendering, and Next.js can stream the HTML as data resolves (often with `Suspense` boundaries).
 
 ## CSR (Client-Side Rendering)
 
