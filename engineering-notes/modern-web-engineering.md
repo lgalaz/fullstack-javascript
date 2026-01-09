@@ -38,6 +38,25 @@ I also keep abstractions small and reversible, starting with thin wrappers inste
 
 Duplication is often cheaper than the wrong abstraction.
 
+## Why do architectures drift toward DDD-style boundaries?
+
+Many systems don’t start as Domain-Driven Design, but they often evolve toward DDD-like boundaries as complexity grows. This is a normal trend, not a mandate: when a codebase gets large, teams naturally separate core domain logic from persistence and infrastructure, and that separation looks a lot like DDD.
+
+A common evolution path:
+
+- Early stage: Active Record is convenient and fast to ship.
+- Growth stage: schemas and behaviors expand, and Active Record models become too large.
+- Maturing stage: teams extract domain logic into services, entities, and value objects, then move toward data mappers or repositories to keep persistence separate.
+
+This happens because the incentives change. Once the model is complex, teams want:
+
+- Clear boundaries around business rules.
+- Testable logic without database dependencies.
+- A shared language for the domain.
+- Fewer cascading changes when schema or infrastructure shifts.
+
+The result is DDD-like structure even if it wasn’t planned. You see aggregates, value objects, and bounded contexts emerge because they are practical ways to manage complexity, not just academic patterns.
+
 ## What major shift has happened in web engineering over the last few years?
 
 The biggest shift is a return to fundamentals with better primitives — and the community moved there because the cost of over-abstraction became undeniable.
