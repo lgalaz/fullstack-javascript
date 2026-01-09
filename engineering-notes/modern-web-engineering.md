@@ -263,6 +263,10 @@ A strong interview closing line you can reuse
 
 “Recent web trends show a shift toward leveraging the platform more fully—using modern HTML, CSS, and browser APIs to reduce unnecessary JavaScript, improve performance, and simplify systems. The focus isn’t on abandoning frameworks, but on being more intentional about when and why we use them.”
 
+## Why are functional principles so common in modern web architecture?
+
+Over the last decade, functional principles have consistently proven to scale better across frontend, backend, and infrastructure. They reduce cognitive load, make systems more predictable, and handle concurrency and team growth more gracefully. React leans into this by modeling UI as pure functions of state, which aligns with broader industry trends toward declarative, immutable, and composable systems. In practice, the most successful architectures use a functional core with imperative edges.
+
 ## Modular monolith vs microservices (today’s default stance)
 
 Interviewer: If you’re starting a ski.com-like platform today, what architecture do you choose and why?
