@@ -114,6 +114,7 @@ That changed with:
 
 Container queries enabling component-scoped responsiveness
 
+- will-change
 - align-content
 - round(), rem(), mod()
 - light-dark

@@ -69,6 +69,15 @@ Notes:
 - Supporting legacy class components.
 - Library patterns that need a wrapper component.
 
+Common examples in apps:
+
+- Route guards and redirects (require auth, verify email).
+- Feature flags and A/B variants (swap UI based on flags).
+- Permissions and roles (hide or disable admin-only actions).
+- Data fetching state wrappers (loading, empty, error states).
+- Event instrumentation (page views, click tracking).
+- Theming or layout shells (inject layout props or wrappers).
+
 Custom hooks are often simpler for new function components, but HOCs are still useful in shared libraries and cross-cutting concerns.
 
 ## Pure Functions

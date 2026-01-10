@@ -2,7 +2,7 @@
 
 ## Introduction
 
-React does not require decorators, but you can use them in JavaScript or TypeScript if your toolchain enables them. Historically, some React codebases used decorators for higher-order components or state libraries, but today hooks and explicit composition are the common patterns.
+React does not require decorators, but you can use them in JavaScript or TypeScript if your build tooling enables the decorator transform (for example, Babel or TypeScript configured by Webpack, Vite, or similar). Historically, some React codebases used decorators for higher-order components or state libraries, but today hooks and explicit composition are the common patterns.
 
 ## Example: Decorator-Style HOC (Legacy Pattern)
 

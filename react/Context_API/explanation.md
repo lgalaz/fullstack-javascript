@@ -170,6 +170,32 @@ function UserProvider({ userId, children }) {
 }
 ```
 
+## useContextSelector
+
+`useContextSelector` (from the `use-context-selector` package or React experimental APIs) lets a component subscribe to only a slice of context. This is useful when a context value is an object with many fields, and you want to avoid re-rendering consumers when unrelated fields change.
+
+Example with a selector to reduce re-renders:
+
+```javascript
+import { createContext } from 'react';
+import { useContextSelector } from 'use-context-selector';
+
+const ThemeContext = createContext({ theme: 'light', setTheme: () => {} });
+
+function ThemeStatus() {
+  const theme = useContextSelector(ThemeContext, (value) => value.theme);
+  console.log('ThemeStatus render');
+  return <p>Theme is {theme}</p>;
+}
+
+function ThemeToggleButton() {
+  const setTheme = useContextSelector(ThemeContext, (value) => value.setTheme);
+  return <button onClick={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}>Toggle</button>;
+}
+```
+
+By selecting only what you need, updates to other fields won't trigger renders for this component, which can help keep large trees responsive.
+
 ## Interview Questions and Answers
 
 ### 1. What problem does Context solve?

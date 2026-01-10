@@ -20,7 +20,7 @@ Other built-in hooks and when to use them:
 - Use it when:
   - Multiple related fields update together (forms, wizards, editors).
   - Many different actions can change the state (add/edit/remove/reset/toggle).
-  - You want predictable, testable transitions (a pure reducer).
+  - You want predictable, testable transitions (a pure reducer function, conceptually like `Array.prototype.reduce` but for state transitions instead of array accumulation).
   - The component behaves like a simple state machine (loading/success/error modes).
 - Stick with `useState` for small, local, or simple state where transitions are few.
 - It is fine to dispatch multiple actions, but if you often dispatch several in a row to represent one user event, it is a signal to group them into a single action that the reducer handles together.
@@ -198,26 +198,34 @@ In React DevTools, the hook will show a label like:
 useStatus: idle
 ```
 
-- `useTransition` to mark updates as non-urgent (keep the UI responsive during expensive renders).
+- `useTransition` to mark updates as non-urgent (keep the UI responsive during expensive renders). `startTransition` wraps a callback; any state updates scheduled inside are treated as low priority.
 - Example:
 
 ```javascript
 import { useState, useTransition } from 'react';
 
 function Search() {
+  const [input, setInput] = useState('');
   const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [filters, setFilters] = useState({ sort: 'relevance', q: '' });
   const [isPending, startTransition] = useTransition();
 
   function onChange(e) {
     const next = e.target.value;
-    startTransition(() => setQuery(next));
+    setInput(next); // urgent update for the text field
+    startTransition(() => {
+      setQuery(next);
+      setPage(1);
+      setFilters((f) => ({ ...f, q: next }));
+    });
   }
 
-  return <input value={query} onChange={onChange} aria-busy={isPending} />;
+  return <input value={input} onChange={onChange} aria-busy={isPending} />;
 }
 ```
 
-How transitions work: they are not like `React.lazy`. `React.lazy` splits code and defers loading a component. `useTransition` marks a state update as low priority so React can keep urgent updates (like typing and clicks) responsive. React will render the urgent update first, then finish the transition update when time is available, which can mean showing the previous UI briefly while the new result renders. This scheduling is handled by React's scheduler, which yields to higher-priority work and resumes low-priority rendering in idle slices. `isPending` lets you show a spinner or subtle loading state while the transition work completes.
+How transitions work: they are not like `React.lazy`. `React.lazy` splits code and defers loading a component. `useTransition` marks a state update as low priority so React can keep urgent updates (like typing and clicks) responsive. React will render the urgent update first, then finish the transition update when time is available, which can mean showing the previous UI briefly while the new result renders. This scheduling is handled by React's scheduler, which yields to higher-priority work and resumes low-priority rendering in idle slices. Higher priority work usually means user input and direct feedback (typing, clicks, pointer moves, focus/blur, animations). Lower priority work usually means non-urgent updates like search results, filtering large lists, rendering expensive content, or preloading data for the next view. `isPending` lets you show a spinner or subtle loading state while the transition work completes.
 
 - `useDeferredValue` to let a value lag behind so expensive rendering can be deferred.
 - Example:
@@ -252,7 +260,7 @@ function Filter() {
 }
 ```
 
-Note: the deferral is managed by React's scheduler, which prioritizes urgent input updates and lets the deferred value update catch up in idle time.
+Note: the deferral is managed by React's scheduler, which prioritizes urgent input updates (discrete events like clicks and typing) over normal async work, and treats updates marked with `startTransition` or `useDeferredValue` as low priority so they catch up in idle time.
 
 - `useId` to generate stable IDs for accessibility attributes.
 - Example:
@@ -264,6 +272,7 @@ function Field() {
   const id = useId();
   return (
     <>
+      {/* Example id: "r0-1" (shape varies, but is stable for this component) */}
       <label htmlFor={id}>Email</label>
       <input id={id} type="email" />
     </>
@@ -271,15 +280,14 @@ function Field() {
 }
 ```
 
-Note: `useId` avoids ID collisions and prevents hydration mismatches in SSR. Hardcoded strings can collide across instances, and Symbols are not valid DOM `id` values.
+Note: `useId` generates stable, unique IDs per component instance to avoid collisions and prevent hydration mismatches in SSR. Hardcoded strings can collide across instances, and Symbols are not valid DOM `id` values.
 
-- `useSyncExternalStore` to subscribe safely to external stores (e.g., Redux, custom store) with concurrent rendering support. It was created to prevent “tearing” in concurrent rendering, where the UI can read inconsistent snapshots if a store changes mid-render. Use it when state lives outside React (global stores, event emitters, browser APIs). Libraries like Zustand and Redux integrate with it under the hood so React can read a consistent snapshot and re-render if it changes during a render.
-- Example:
+- `useSyncExternalStore` to subscribe safely to external stores (e.g., Redux, custom store) with concurrent rendering support. It was created to prevent “tearing” in concurrent rendering, where the UI can read inconsistent snapshots if a store changes mid-render. Use it when state lives outside React (global stores, event emitters, browser APIs). It also helps share state across multiple React roots/trees (e.g., separate widgets on a page) without wiring context between them, since all trees can read from the same external store. Libraries like Zustand and Redux integrate with it under the hood so React can read a consistent snapshot and re-render if it changes during a render.
+- Example (store in a separate file):
 
 ```javascript
-import { useSyncExternalStore } from 'react';
-
-const store = {
+// store.js
+export const store = {
   value: 0,
   listeners: new Set(),
   getSnapshot() {
@@ -294,6 +302,11 @@ const store = {
     for (const listener of this.listeners) listener();
   },
 };
+```
+
+```javascript
+import { useSyncExternalStore } from 'react';
+import { store } from './store';
 
 function Counter() {
   const value = useSyncExternalStore(
@@ -307,7 +320,17 @@ function Counter() {
     </button>
   );
 }
+
+function AnotherWidget() {
+  const value = useSyncExternalStore(
+    store.subscribe.bind(store),
+    store.getSnapshot.bind(store)
+  );
+  return <p>Shared value: {value}</p>;
+}
 ```
+
+Note: if you are not using a global state library, you create the external store yourself (as above). Any React tree that imports this store can subscribe to it, even if it is rendered in a separate root.
 
 - `useInsertionEffect` for CSS-in-JS libraries to inject styles before layout (library-level, rarely used in app code). It's mainly for library authors who need to inject styles before layout to avoid flicker; most apps should use `useEffect`/`useLayoutEffect` or just static CSS. "Library-level" means it's primarily intended for CSS-in-JS tooling and third-party styling libraries.
 - Example:
@@ -342,6 +365,30 @@ function Badge({ tone }) {
   return <span className="badge">New</span>;
 }
 ```
+
+Good vs. bad usage:
+
+```javascript
+// Good: library-level hook uses useInsertionEffect internally.
+function Badge({ tone }) {
+  const css = `.badge { background: ${tone}; }`;
+  useInjectedStyles(css);
+  return <span className="badge">New</span>;
+}
+
+// Bad: app code calling useInsertionEffect directly to add ad-hoc styles.
+function BadBadge({ tone }) {
+  useInsertionEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `.badge { background: ${tone}; }`;
+    document.head.appendChild(style);
+    return () => document.head.removeChild(style);
+  }, [tone]);
+  return <span className="badge">New</span>;
+}
+```
+
+Note: if you find yourself injecting CSS from components, it's usually better to use static CSS, CSS modules, or a standard CSS-in-JS solution rather than ad-hoc DOM style injection.
 
 ## Rules of Hooks
 

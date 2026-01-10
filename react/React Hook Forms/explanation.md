@@ -19,8 +19,9 @@ function SignupForm() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting, isValid, isDirty },
   } = useForm({
+    mode: 'onChange',
     defaultValues: {
       email: '',
       age: '',
@@ -58,7 +59,9 @@ function SignupForm() {
       </label>
       {errors.age && <p>{errors.age.message}</p>}
 
-      <button type="submit">Submit</button>
+      <button type="submit" disabled={!isDirty || !isValid || isSubmitting}>
+        {isSubmitting ? 'Submitting...' : 'Submit'}
+      </button>
     </form>
   );
 }
@@ -68,7 +71,7 @@ What to notice:
 
 - `register` wires inputs to RHF without storing every keystroke in React state.
 - `handleSubmit` runs validation and then calls your submit handler (in Next.js you typically send the data to a server action or API route from this handler; in other apps you can post directly to your API).
-- `formState.errors` holds field errors.
+- `formState` holds field errors and status flags like `isDirty`, `isValid`, and `isSubmitting`.
 
 ## Watching values
 
