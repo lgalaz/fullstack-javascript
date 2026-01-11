@@ -17,9 +17,11 @@ Python security is about safe dependencies, input validation, and safe defaults.
 # validate.py
 import re
 
+# Allow letters, numbers, and underscore, 3-20 chars.
 username_re = re.compile(r'^[a-z0-9_]{3,20}$', re.I)
 
 def validate_username(value):
+    # Reject values that do not match the whitelist.
     if not username_re.match(value):
         raise ValueError('invalid username')
 ```

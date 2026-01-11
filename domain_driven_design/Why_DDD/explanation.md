@@ -2,6 +2,8 @@
 
 ## Introduction
 
+DDD aims to isolate the domain model from persistence concerns, so changes in database schema or infrastructure don’t cascade through the business logic. Persistence becomes an implementation detail rather than the source of truth for the domain.
+In DDD, the database adapts to the domain, not the domain to the database.
 DDD reduces long-term complexity by aligning code with the business domain. It helps teams scale by keeping the model consistent and resilient to change.
 
 ## Benefits

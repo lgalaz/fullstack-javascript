@@ -77,9 +77,9 @@ Complete example:
 
 ```javascript
 // app/users/[id]/page.js
-export async function generateStaticParams() {
-  return [{ id: '1' }, { id: '2' }];
-}
+  export async function generateStaticParams() {
+    return [{ id: '1' }, { id: '2' }];
+  }
 
 export const revalidate = 60; // refresh at most once per minute
 

@@ -6,7 +6,7 @@ Hydration is the process of attaching React's event handlers and internal state 
 
 ## Phases (SSR + Hydration vs Client-Only)
 
-Hydration is a special first mount that reuses server HTML. The render and commit phases are the same high-level phases React always uses: render builds the next virtual tree and decides what should happen, and commit applies those decisions to the host environment (the DOM). The difference is in the commit work: during hydration, React mostly attaches event handlers and refs and "claims" existing DOM nodes instead of creating them. On a client-only first render, React must create all DOM nodes from scratch.
+Hydration is a special first mount that reuses server HTML. The render and commit phases are the same high-level phases React always uses: render builds the next virtual tree and decides what should happen, and commit applies those decisions to the host environment (the DOM on web; in React Native, the native UI layer via Fabric/UIManager). The difference is in the commit work: during hydration, React mostly attaches event handlers and refs and "claims" existing DOM nodes instead of creating them. On a client-only first render, React must create all DOM nodes from scratch.
 
 ### SSR + Hydration (first client render only)
 
@@ -16,7 +16,7 @@ Render phase (hydrating render):
 - React renders components.
 - It reconciles the current fiber tree with new elements and marks effects for the commit.
 
-Note: the "fiber tree" is React's internal data structure for the component tree. Each "fiber" is a unit of work that stores a component's state, props, and links to parent/child/sibling fibers. It is a tree represented by linked nodes (often a linked list of siblings), not a single linear linked list. React uses fibers to schedule work, compare previous output to new output, and decide what changes to commit.
+Note: the "fiber tree" is React's internal data structure for the component tree. Each "fiber" is a unit of work that stores a component's state, props, and links to parent/child/sibling fibers. It is a tree represented by linked nodes (often a linked list of siblings), not a single linear linked list. React uses fibers to schedule work, compare previous output to new output, and decide what changes to commit. On the client, the fiber tree is created during the render phase (including the initial hydration render).
 
 Commit phase (hydration commit):
 - Attach event listeners.

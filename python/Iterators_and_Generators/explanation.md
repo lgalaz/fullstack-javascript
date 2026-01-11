@@ -15,12 +15,14 @@ Iterators and generators provide lazy iteration, which is critical for large dat
 ```python
 # generator.py
 def read_lines(path):
+    # Stream file lines one at a time.
     with open(path, 'r', encoding='utf8') as f:
         for line in f:
             yield line.strip()
 
 for line in read_lines('logs.txt'):
     print(line)
+    # Prints each line from logs.txt without loading the whole file.
 ```
 
 ## Example: Custom Iterator
@@ -32,9 +34,11 @@ class Countdown:
         self.current = start
 
     def __iter__(self):
+        # The iterator is the object itself.
         return self
 
     def __next__(self):
+        # Stop when we reach zero.
         if self.current <= 0:
             raise StopIteration
         value = self.current
@@ -43,6 +47,7 @@ class Countdown:
 
 for n in Countdown(3):
     print(n)
+    # 3, then 2, then 1 on separate iterations.
 ```
 
 ## Practical Guidance

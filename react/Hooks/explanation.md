@@ -52,6 +52,47 @@ function Counter() {
 }
 ```
 
+Example: "function-like" actions via action creators + reducer helpers:
+
+```javascript
+function increment(state, amount) {
+  return { ...state, count: state.count + amount };
+}
+
+function reset(state) {
+  return { ...state, count: 0 };
+}
+
+function reducer(state, action) {
+  switch (action.type) {
+    case 'inc':
+      return increment(state, action.amount ?? 1);
+    case 'reset':
+      return reset(state);
+    default:
+      return state;
+  }
+}
+
+const actions = {
+  inc: (amount) => ({ type: 'inc', amount }),
+  reset: () => ({ type: 'reset' }),
+};
+
+function Counter() {
+  const [state, dispatch] = useReducer(reducer, { count: 0 });
+  return (
+    <>
+      <button onClick={() => dispatch(actions.inc(5))}>+5</button>
+      <span>{state.count}</span>
+      <button onClick={() => dispatch(actions.reset())}>Reset</button>
+    </>
+  );
+}
+```
+
+Note: the reducer must stay pure, so action creators can assemble data but should not do side effects.
+
 Example: multiple dispatches vs. a single grouped action:
 
 ```javascript
@@ -97,8 +138,13 @@ async function onSaveGrouped() {
 }
 ```
 
+Why no "functional state update" here: the reducer always receives the latest state as its first argument, and React applies actions in order. Batching does not break this; it just defers when the updates are processed. If your next state depends on previous state, keep that logic inside the reducer.
+
 - `useContext` to read values from React context without prop drilling.
-- Example:
+- `createContext` returns an object with `Provider` and `Consumer` components:
+  - `Provider` sets the value for its subtree via a `value` prop.
+  - `Consumer` is the legacy render-prop way to read the value (still supported for class components or when hooks are unavailable).
+- Example (`useContext`):
 
 ```javascript
 import { createContext, useContext } from 'react';
@@ -108,6 +154,40 @@ const ThemeContext = createContext('light');
 function Button() {
   const theme = useContext(ThemeContext);
   return <button className={`btn-${theme}`}>OK</button>;
+}
+```
+
+Example (`Provider`):
+
+```javascript
+import { createContext } from 'react';
+
+const ThemeContext = createContext('light');
+
+function App() {
+  return (
+    <ThemeContext.Provider value="dark">
+      <Toolbar />
+    </ThemeContext.Provider>
+  );
+}
+```
+
+Note: `Provider` makes `value` available to all descendant components via context, not via explicit props.
+
+Example (`Consumer`):
+
+```javascript
+import { createContext } from 'react';
+
+const ThemeContext = createContext('light');
+
+function Button() {
+  return (
+    <ThemeContext.Consumer>
+      {(theme) => <button className={`btn-${theme}`}>OK</button>}
+    </ThemeContext.Consumer>
+  );
 }
 ```
 
@@ -129,6 +209,7 @@ function SearchInput() {
 ```
 
 - `useLayoutEffect` for measurements or DOM mutations that must happen before the browser paints (use sparingly, because it runs synchronously after DOM updates and before paint, which can block rendering and cause visible jank if it does heavy work).
+- Use it for layout-critical work: measuring sizes/positions or synchronously applying style changes that affect layout (top/left, width/height, scroll position) to avoid visible flicker.
 - Example:
 
 ```javascript
@@ -180,6 +261,7 @@ function Form() {
 ```
 
 - `useDebugValue` to label custom hooks in React DevTools.
+- It only affects how hooks appear in DevTools; it does not change runtime behavior or UI.
 - Example:
 
 ```javascript
@@ -615,6 +697,11 @@ function useWindowWidth() {
     () => 0
   );
 }
+
+function WindowWidth() {
+  const width = useWindowWidth();
+  return <p>Window width: {width}</p>;
+}
 ```
 
 This avoids hydration warnings by returning a stable server snapshot (`0`) until the client hydrates.
@@ -624,6 +711,7 @@ This avoids hydration warnings by returning a stable server snapshot (`0`) until
 - Use it for external stores that are not React state (global state libraries, subscriptions, caches, browser APIs).
 - Do not use it as a replacement for React state or Context. Context is for passing React-managed state and dependencies through the tree; `useSyncExternalStore` is for reading external sources with subscription semantics.
 - If the data is derived from props or state, compute it directly or memoize it; don't wrap it in an external store just to read it with this hook.
+- It is fine to share state across distant trees via a store if the source is truly external (e.g., Redux/Zustand), but avoid introducing a custom store just to bypass Context/props.
 
 ## useMemo
 
@@ -720,6 +808,29 @@ useCallback can cascade into dependency hell, where stabilizing one function for
 
 useEvent gives you stable handlers with fresh logic, solving the closure problem cleanly. useEvent is the future solution, not stable yet.
 Note: As of Dec 2025 status is experimental/proposed (available in React Canary, not in stable releases), so the API may change.
+It returns a stable function reference, but that function always sees the latest props/state without needing dependency arrays.
+Use it when you need a stable callback (for event handlers, subscriptions) and want to avoid stale closures.
+
+Example:
+
+```javascript
+import { useEvent, useState } from 'react';
+
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  const handleClick = useEvent(() => {
+    setCount(count + 1);
+  });
+
+  return <button onClick={handleClick}>Clicked {count}</button>;
+}
+```
+
+Note: `useEvent` sees the latest `count`, so the functional updater form (`setCount(c => c + 1)`) is not required to avoid stale closures.
+Compared to `useCallback`, `useEvent` returns a stable function reference that always reads the latest props/state, without a dependency array.
+- useCallback closes over the values from the render when the callback was created (controlled by the deps array).
+- useEvent returns a stable function that reads the latest callback logic from an internal ref, so it doesn’t get stuck with old values. Conceptually it closes over athe internal ref that React updates every render with the latest callback.
 
 ## Choosing the right hook
 

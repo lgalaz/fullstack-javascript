@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <h2>Admin Login</h2>
+    <p class="muted">Use admin / django to continue.</p>
+    {% if error %}<div class="error">{{ error }}</div>{% endif %}
+    <form method="post">
+      {% csrf_token %}
+      <label>
+        Username
+        <input type="text" name="username" required />
+      </label>
+      <label>
+        Password
+        <input type="password" name="password" required />
+      </label>
+      <div style="margin-top: 16px;">
+        <button class="btn" type="submit">Sign in</button>
+      </div>
+    </form>
+  </div>
+{% endblock %}

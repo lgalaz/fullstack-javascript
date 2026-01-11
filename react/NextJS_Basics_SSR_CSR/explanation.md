@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Next.js is a meta-framework (a framework over a framework) built on React. It adds routing, data fetching, and rendering strategies. The key rendering modes are CSR, SSR, SSG, and ISR.
+Next.js is a meta-framework (a framework over a framework) built on React. It adds routing, data fetching, and rendering strategies. The key rendering modes are CSR, SSR, SSG, and ISR. The first things that jump out are faster initial loads, SEO-friendly pages, and file-based routing. At a senior level, you also value the unified full-stack model (UI + server logic in one codebase for BFF‑style needs: form handlers, lightweight CRUD, auth/session plumbing, and app‑specific endpoints close to the UI), built-in caching and streaming, strong conventions that scale teams, and production-ready tooling that standardizes performance and deployment.
 
 Meta-frameworks add architecture by defining where and when code runs, conventions by enforcing file-based structure and implicit behavior, and runtime capabilities like SSR, streaming, and caching. If you don’t need those capabilities, the added constraints can outweigh the benefits.
 
@@ -63,6 +63,14 @@ Pros: better SEO, faster first contentful paint.
 Cons: more server load, slower TTFB if data is slow.
 
 SSR still hydrates on the client. The server sends HTML, and the client attaches event handlers during hydration (React matches the server-rendered HTML to its virtual tree and makes it interactive without re-rendering everything).
+
+## Streams, Streaming SSR, and Suspense
+
+Streaming means the server sends HTML in chunks as soon as each part is ready, instead of waiting for the full page. In React, streaming SSR is enabled with `renderToPipeableStream` (Node) or `renderToReadableStream` (Web Streams), which progressively flush HTML to the client.
+
+Suspense ties directly into streaming: a `Suspense` boundary tells React where it can pause and send a fallback while the real content is still loading. As data resolves, the server streams the completed HTML for that boundary without blocking the rest of the page.
+
+This pairs naturally with partial hydration in frameworks like Next.js: the server streams HTML for fast first paint, and the client hydrates only interactive islands or Client Components when their code is ready. Suspense coordinates both the server streaming and the client hydration timing.
 
 ## SSG (Static Site Generation)
 

@@ -138,6 +138,7 @@ This is the typical flow for a page request in the App Router. The `/about` path
 
 1. **Request arrives**
    - A browser asks for `/about`.
+   - run middleware here if there is any
 2. **Route match**
    - Next.js maps `/about` to `app/about/page.js`.
 3. **Load server components**

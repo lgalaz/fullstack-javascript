@@ -48,13 +48,16 @@ import requests
 from bs4 import BeautifulSoup
 
 url = "https://example.com"
+# Fetch HTML with a timeout to avoid hanging.
 html = requests.get(url, timeout=10).text
 
+# Parse the HTML and extract all <h2> text.
 soup = BeautifulSoup(html, "html.parser")
 titles = [h2.get_text(strip=True) for h2 in soup.select("h2")]
 
 for t in titles:
     print(t)
+    # Prints each heading title found on the page.
 ```
 
 ## Why use Python over Node.js (senior web-engineering view)

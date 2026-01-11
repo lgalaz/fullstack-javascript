@@ -4,7 +4,7 @@
 
 React encourages composition over inheritance. You build complex UIs by combining small components.
 
-Composition is preferred because it keeps components flexible and decoupled, avoids deep inheritance hierarchies, and makes behavior easier to reuse by composing components and passing props/children instead of extending base classes.
+Composition is preferred because it keeps components flexible and decoupled by letting each component focus on one concern (visuals, layout, or behavior) and be assembled in different combinations without sharing internal state or implementation details, avoids deep inheritance hierarchies, and makes behavior easier to reuse by composing components and passing props/children instead of extending base classes.
 
 Example contrast (inheritance vs composition):
 

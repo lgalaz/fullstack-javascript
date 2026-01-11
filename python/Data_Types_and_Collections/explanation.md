@@ -15,13 +15,19 @@ Python's core types (list, dict, set, tuple) are powerful and flexible. Understa
 
 ```python
 # collections.py
-users = ["ada", "grace", "linus"]  # order matters
-ids = {"u1", "u2", "u3"}            # uniqueness matters
-user_by_id = {"u1": "ada", "u2": "grace"}  # key lookup matters
+users = ["ada", "grace", "linus"]  # list: ordered, allows duplicates
+ids = {"u1", "u2", "u3"}           # set: unique, unordered
+user_by_id = {"u1": "ada", "u2": "grace"}  # dict: key -> value lookup
+point = (10, 20)                   # tuple: ordered, immutable
 
 print(users[0])
+# "ada" (index access from list)
 print("u2" in ids)
+# True (fast membership check in set)
 print(user_by_id.get("u1"))
+# "ada" (dict lookup by key)
+print(point)
+# (10, 20) (tuple value)
 ```
 
 ## Performance Notes

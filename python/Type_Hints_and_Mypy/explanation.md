@@ -15,6 +15,7 @@ Type hints improve readability and tooling without changing runtime behavior. My
 ```python
 from typing import Iterable
 
+# Accept any iterable of ints and return an int.
 def total(nums: Iterable[int]) -> int:
     return sum(nums)
 ```
@@ -25,6 +26,7 @@ def total(nums: Iterable[int]) -> int:
 def greet(name: str) -> str:
     return "Hello " + name
 
+# Type checkers will flag this as invalid.
 greet(42)  # mypy will flag this
 ```
 

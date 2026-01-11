@@ -58,7 +58,7 @@ export default function SaveButton() {
 
 ## App Router vs Legacy Pages Router
 
-The legacy Pages Router (`pages/`) is the original Next.js routing model. It still works and is maintained, but it has a flatter mental model and fewer built-in primitives compared to the App Router, which means you often have to assemble features manually (shared layouts, route-level loading and error states, nested composition) and coordinate more app-wide wiring in `_app.js` or custom wrappers instead of relying on first-class routing conventions.
+The legacy Pages Router (`pages/`) is the original Next.js routing model. It still works and is maintained, but it has a flatter mental model and fewer built-in primitives compared to the App Router. In practice, that means Pages Router apps usually assemble features manually: shared layouts live in `_app.js` or page-level wrappers, route-level loading and error UI are handled by custom patterns or component state, and nested composition is achieved with wrapper components or layout HOCs rather than segment-based `layout.js` files. The App Router makes those ideas first-class with nested layouts, `loading.js`, `error.js`, and segment conventions like `template.js`, `not-found.js`, route groups `(marketing)`, and parallel routes `@sidebar`.
 
 The Pages Router is the older `pages/`-directory system (also file-based routing) that uses data-fetching functions like `getServerSideProps` and `getStaticProps`. The App Router is the newer `app/`-directory system with layouts, server components, and more granular loading/error UI. Both map files to routes; the App Router adds new conventions and rendering features.
 
@@ -70,7 +70,7 @@ At a glance:
 
 Key differences:
 
-- Rendering model: App Router defaults to Server Components with explicit `'use client'` boundaries; Pages Router renders client components by default and uses data-fetching hooks for server work (for example, `getServerSideProps`, `getStaticProps`, `getInitialProps`).
+- Rendering model: App Router defaults to Server Components with explicit `'use client'` boundaries; Pages Router renders client components by default and uses data-fetching hooks for server work (for example, `getServerSideProps` for per-request data, `getStaticProps` for build-time/static generation, and `getInitialProps` for legacy per-page data in older Next.js).
 - Layouts and nesting: App Router supports nested layouts per route segment; Pages Router relies on patterns like `_app.js` (global layout wrapper) and per-page wrapper components (for example, `Page.getLayout` or layout HOCs) to simulate nesting.
 - Data fetching: App Router uses `fetch` in Server Components and route handlers; Pages Router uses `getServerSideProps`, `getStaticProps`, and `getInitialProps`.
 - Loading and error UI: App Router has `loading.js`, `error.js`, and `not-found.js`; Pages Router uses custom patterns or page-level checks.
@@ -248,6 +248,7 @@ Notes:
 - The slot name comes from the `@` folder (`@auth` -> `auth` prop in the layout). The URL still includes the inner route (for example `/login` maps to `app/@auth/login/page.js`).
 - Next.js decides which slot page to render based on the current URL and the slot's route tree; the layout just receives the slot props.
 - If a slot does not match the current URL, Next.js renders the slot's `default.js` if it exists (for example, `app/@auth/default.js`); otherwise that slot renders nothing (visiting `/` renders `children` from `app/page.js` and `@auth/default.js` if present).
+- The `children` prop is the primary route for the current URL (the non-`@` tree), so `/` renders `app/page.js`, `/login` renders `app/login/page.js` if it exists, and `/dashboard` renders `app/dashboard/page.js`.
 
 ## Intercepting Routes
 

@@ -48,6 +48,25 @@ fetch(..., { next: { tags: ['post:123'] } })
 
 Later revalidateTag('post:123') in a server action/route handler after publishing.
 
+Interviewer: How do you "precache" a subset of dynamic routes like blog posts?
+
+Candidate:
+Use generateStaticParams in the dynamic segment to pre-render specific entries at build time, then layer ISR/revalidation for freshness.
+Example (app/posts/[id]/page.tsx):
+```tsx
+export async function generateStaticParams() {
+  const posts = await fetch('https://example.com/api/posts').then((res) => res.json());
+  return posts.slice(0, 20).map((post: { id: number }) => ({
+    id: post.id.toString(),
+  }));
+}
+
+export default async function PostPage({ params }: { params: { id: string } }) {
+  const post = await fetch(`https://example.com/api/posts/${params.id}`).then((res) => res.json());
+  return <article>{post.title}</article>;
+}
+```
+
 4) Dynamic rendering triggers
 
 Interviewer: What are the most common reasons a route unexpectedly becomes dynamic, and how do you debug it?
@@ -55,23 +74,17 @@ Interviewer: What are the most common reasons a route unexpectedly becomes dynam
 Candidate:
 Triggers:
 
-Reading cookies(), headers(), draftMode()
-
-Using searchParams in certain ways (often forces dynamic rendering depending on usage)
-
-fetch with cache: 'no-store'
-
-Using export const dynamic = 'force-dynamic' explicitly (or a dependency doing dynamic things)
+- Reading cookies(), headers(), draftMode()
+- Using searchParams in certain ways (often forces dynamic rendering depending on usage)
+- fetch with cache: 'no-store'
+- Using export const dynamic = 'force-dynamic' explicitly (or a dependency doing dynamic things)
 
 Debug:
 
-Inspect route output in build logs (static vs dynamic)
-
-Search for cookies(), headers(), no-store
-
-Confirm fetch settings
-
-Use minimal reproduction: comment out suspected code and see if it becomes static again
+- Inspect route output in build logs (static vs dynamic)
+- Search for cookies(), headers(), no-store
+- Confirm fetch settings
+- Use minimal reproduction: comment out suspected code and see if it becomes static again
 
 Verify segment configs (dynamic, revalidate) and middleware effects
 
@@ -92,6 +105,22 @@ Candidate:
 not-found.tsx: for 404s — either returned by notFound() or unmatched routes. It’s not a “crash,” it’s a deliberate “resource missing.”
 
 error.tsx: per-segment error boundary UI for runtime errors thrown during rendering/data fetching in that segment. It resets with reset() typically.
+Example:
+```tsx
+'use client';
+
+export default function Error({ error, reset }: { error: Error; reset: () => void }) {
+  return (
+    <div>
+      <h2>Something went wrong</h2>
+      <p>{error.message}</p>
+      <button type="button" onClick={() => reset()}>
+        Try again
+      </button>
+    </div>
+  );
+}
+```
 
 global-error.tsx: last-resort top-level error UI (e.g. root layout issues). Use sparingly; prefer segment error.tsx so failures are isolated.
 
@@ -114,32 +143,30 @@ Interviewer: What do you use middleware for, and what are the footguns?
 Candidate:
 Good for:
 
-Authentication/authorization gates (lightweight)
+- Authentication/authorization gates (lightweight)
+- Redirects/rewrites, locale handling, A/B routing
+- Setting headers/cookies (careful)
 
-Redirects/rewrites, locale handling, A/B routing
-
-Setting headers/cookies (careful)
 Footguns:
 
-It runs on many requests; keep it fast.
-
-Limited runtime APIs (edge constraints depending on setup).
-
-Over-fetching in middleware can kill performance.
+- It runs on many requests; keep it fast.
+- Limited runtime APIs (edge constraints depending on setup).
+- Over-fetching in middleware can kill performance.
 
 Middleware can inadvertently make routes dynamic or complicate caching assumptions.
 
 9) Images, fonts, scripts
 
-Interviewer: Give me a senior-level overview of next/image, next/font, and next/script—what problems they solve.
+Interviewer: Give me an overview of next/image, next/font, and next/script—what problems they solve.
 
 Candidate:
 
-next/image: automatic responsive sizing, lazy loading, optimization pipeline, helps CLS/LCP when used correctly (width/height or fill with proper container sizing).
-
-next/font: self-hosts fonts by default, avoids layout shift from late font loading, generates optimized CSS, integrates with build for consistent preloading behavior.
-
-next/script: controls script loading strategy (beforeInteractive, afterInteractive, lazyOnload) so you don’t nuke performance or block rendering.
+- next/image: automatic responsive sizing, lazy loading, optimization pipeline, helps CLS/LCP when used correctly (width/height or fill with proper container sizing).
+- next/font: self-hosts fonts by default, avoids layout shift from late font loading, generates optimized CSS, integrates with build for consistent preloading behavior.
+- next/script: controls script loading strategy (beforeInteractive, afterInteractive, lazyOnload) so you don’t nuke performance or block rendering.
+  - beforeInteractive: runs before hydration; only for must-run early scripts (rare).
+  - afterInteractive: default; loads once the page is interactive and hydration has begun.
+  - lazyOnload: waits until window load; lowest priority (analytics/widgets).
 
 10) SEO and Metadata API
 
@@ -147,7 +174,7 @@ Interviewer: How do you handle metadata in App Router for dynamic routes? What�
 
 Candidate:
 Use export const metadata for static metadata. For dynamic, implement generateMetadata({ params }) and fetch the resource title/description server-side.
-The key is: metadata generation runs on server, and should align with caching/revalidation strategy so you don’t fetch on every request unnecessarily. Also: handle not-found cases (if post doesn’t exist) and avoid leaking private data into metadata.
+The key is: metadata generation runs on server, and should align with caching/revalidation strategy so you don’t fetch on every request unnecessarily. Also: handle not-found cases (if post doesn’t exist) by calling notFound() in generateMetadata or returning safe fallback metadata, and avoid leaking private data into metadata.
 
 11) Authentication in Next.js
 
@@ -163,21 +190,31 @@ Interviewer: Next.js-specific performance levers—what do you actually do in pr
 
 Candidate:
 
-Prefer Server Components for data-heavy pages to reduce client JS.
+- Prefer Server Components for data-heavy pages to reduce client JS.
+- Stream with segment boundaries (loading.tsx) for perceived performance.
+- Use caching + tags correctly to avoid re-fetching on every request.
+- Use next/image and correct sizing to reduce CLS/LCP regressions.
+  Example next.config.js:
+  ```js
+  /** @type {import('next').NextConfig} */
+  const nextConfig = {
+    images: {
+      deviceSizes: [360, 768, 1024, 1440, 1920],
+      imageSizes: [40, 48, 64, 80, 96, 128],
+      // Pair with <Image sizes="(max-width: 768px) 40px, (max-width: 1024px) 64px, 96px" /> for avatar breakpoints.
+      formats: ['image/avif', 'image/webp'],
+      remotePatterns: [
+        { protocol: 'https', hostname: 'images.example.com' },
+      ],
+    },
+  };
 
-Stream with segment boundaries (loading.tsx) for perceived performance.
-
-Use caching + tags correctly to avoid re-fetching on every request.
-
-Use next/image and correct sizing to reduce CLS/LCP regressions.
-
-Control third-party scripts with next/script strategies.
-
-Avoid accidental dynamic routes when static would do.
-
-Check bundle output (route-level JS), watch for a single "use client" pulling big deps.
-
-Instrument: Web Vitals (LCP/INP/CLS), server timings, and Next logs for cache hits/misses.
+  module.exports = nextConfig;
+  ```
+- Control third-party scripts with next/script strategies.
+- Avoid accidental dynamic routes when static would do.
+- Check bundle output (route-level JS), watch for a single "use client" pulling big deps.
+- Instrument: Web Vitals (LCP/INP/CLS), server timings, and Next logs for cache hits/misses.
 
 13) Deployment and runtime choices
 
@@ -194,14 +231,11 @@ Interviewer: You have a big Pages Router app. What’s your migration plan that 
 Candidate:
 Incremental:
 
-Keep Pages Router running, add App Router alongside where possible.
+- Keep Pages Router running, add App Router alongside where possible.
+- Start with non-critical routes and shared layouts.
+- Identify data fetching patterns (GSSP/GSP) and map to server fetch + revalidate.
+- Create a consistent auth pattern (middleware + server enforcement).
+- Audit client bundles to avoid ballooning with "use client".
+- Ensure analytics, error reporting, and caching behavior are correct before moving high-traffic routes.
+- Note: if the same route exists in both /app and /pages, App Router wins. To A/B test, create a parallel path (e.g., /new or /app-variant) and use rewrites/middleware flags or a subdomain to split traffic, then cut over once stable.
 
-Start with non-critical routes and shared layouts.
-
-Identify data fetching patterns (GSSP/GSP) and map to server fetch + revalidate.
-
-Create a consistent auth pattern (middleware + server enforcement).
-
-Audit client bundles to avoid ballooning with "use client".
-
-Ensure analytics, error reporting, and caching behavior are correct before moving high-traffic routes.

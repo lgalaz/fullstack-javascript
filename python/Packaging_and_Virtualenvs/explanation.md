@@ -13,8 +13,11 @@ Python packaging controls dependencies and reproducibility. Virtual environments
 ## Example: Create and Use a venv
 
 ```bash
+# Create an isolated environment in .venv/
 python -m venv .venv
+# Activate it (bash/zsh).
 source .venv/bin/activate
+# Install a dependency into the venv.
 pip install requests
 ```
 

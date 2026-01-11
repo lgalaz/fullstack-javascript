@@ -2,7 +2,7 @@
 
 I: Walk me through what happens when React re-renders a component. What does “reconciliation” mean, and why do keys matter?
 
-C: When state/props/context change, React schedules a render for the affected subtree. The component function is called again to produce a new React element tree (virtual representation). Then React performs reconciliation: it diffs the new element tree with the previous one to decide what needs to change in the host environment (DOM/native).
+C: When state/props/context change, React schedules a render for the affected subtree. The component function is called again to produce a new React element tree (virtual representation). Then React performs reconciliation: it diffs the new element tree with the previous one to decide what needs to change in the host environment (DOM/native-Fabric).
 
 Reconciliation is heuristic-based (not a perfect deep diff). The main rule is: if element type changes at a position, React tears down the old subtree and mounts a new one. If the type matches, React updates props and continues.
 
@@ -14,9 +14,8 @@ I: In a large app, what are your rules of thumb for state placement and avoiding
 
 C: I try to keep state:
 
-As low as possible (closest common ancestor of consumers) to reduce rerender blast radius.
-
-But not lower than necessary if multiple distant consumers need it; then I use context or a state library.
+- As low as possible (closest common ancestor of consumers) to reduce rerender blast radius.
+- But not lower than necessary if multiple distant consumers need it; then I use context or a state library.
 
 For derived state: if something can be computed from props/state, I usually don’t store it. Example: const filtered = items.filter(...) instead of const [filtered, setFiltered]. Storing derived data leads to sync bugs (“source of truth” drift).
 
@@ -454,23 +453,17 @@ I: How do you think in React when designing systems?
 C:
 I think in terms of:
 
-Data flow, not DOM mutations
-
-Reactivity boundaries
-
-Identity and lifecycle, not instances
-
-User intent priority (urgent vs non-urgent)
+- Data flow, not DOM mutations
+- Reactivity boundaries
+- Identity and lifecycle, not instances
+- User intent priority (urgent vs non-urgent)
 
 Good React systems:
 
-Make invalid states impossible
-
-Are resilient to re-renders
-
-Degrade gracefully
-
-Optimize last, not first
+- Make invalid states impossible
+- Are resilient to re-renders
+- Degrade gracefully
+- Optimize last, not first
 
 React is less about “components” and more about predictable state transitions.
 

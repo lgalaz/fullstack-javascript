@@ -16,9 +16,11 @@ Logging is essential for debugging and production operations. Python's `logging`
 # logging_example.py
 import logging
 
+# Configure root logging once at app startup.
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Attach structured context with extra fields.
 logger.info("server started", extra={"port": 3000})
 ```
 
@@ -31,6 +33,7 @@ import logging
 
 class JsonFormatter(logging.Formatter):
     def format(self, record):
+        # Convert LogRecord fields into JSON text.
         data = {
             "level": record.levelname,
             "message": record.getMessage(),
@@ -45,6 +48,7 @@ logger.addHandler(handler)
 logger.setLevel(logging.INFO)
 
 logger.info("user logged in")
+# {"level": "INFO", "message": "user logged in"}
 ```
 
 ## Practical Guidance

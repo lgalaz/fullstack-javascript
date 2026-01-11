@@ -17,13 +17,18 @@ Python threads share memory but are limited by the Global Interpreter Lock (GIL)
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 
 def work(x):
+    # CPU-bound toy function.
     return x * x
 
 with ThreadPoolExecutor() as t:
+    # Runs tasks on threads (shared memory, GIL applies).
     print(list(t.map(work, range(5))))
+    # [0, 1, 4, 9, 16]
 
 with ProcessPoolExecutor() as p:
+    # Runs tasks in separate processes (true parallelism).
     print(list(p.map(work, range(5))))
+    # [0, 1, 4, 9, 16]
 ```
 
 ## Practical Guidance

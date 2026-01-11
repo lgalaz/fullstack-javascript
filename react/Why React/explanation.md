@@ -169,14 +169,15 @@ Neither is “better” — they optimize for different failure modes.
 At the platform level, the web is:
 
 - Event-driven
-- click, input, scroll, resize
+  - click, input, scroll, resize
 - Mutable
-- DOM nodes mutate
+  - DOM nodes mutate
 - State lives in many places
 - Observer-based
     - MutationObserver
     - ResizeObserver
     - IntersectionObserver
+    - PerformanceObserver
 
 - Imperative: “When X happens, do Y”
 
@@ -231,12 +232,12 @@ That’s very close to how the web feels.
 
 Because Vue mirrors:
 
-Web Concept	Vue Concept
-Events	@click, @input
-Observers	watch, watchEffect
-Mutable state	reactive, ref
+Web Concept	      Vue Concept
+Events	          @click, @input
+Observers	        watch, watchEffect
+Mutable state	    reactive, ref
 DOM-driven logic	Directives
-Two-way binding	v-model
+Two-way binding	  v-model
 
 You’re essentially writing coordinated observers over state, which matches decades of DOM programming.
 
@@ -360,3 +361,16 @@ Interview-grade takeaway
 If asked this in an interview, you could say:
 
 “Vue’s reactivity model maps closely to the browser’s event-and-observer model, which makes it feel more natural and HTML-centric. React deliberately abstracts that away in favor of a functional, explicit data-flow model that trades immediacy for predictability and scalability. I’m comfortable with both — the choice depends on team size, complexity, and long-term evolution.”
+
+## Functional concepts React emphasizes
+
+- Composition over inheritance
+- Immutability (treat state as immutable)
+- Pure render functions (render = UI for a given state)
+- Side effects are isolated (in `useEffect`/event handlers, not during render)
+- Declarative style (describe what the UI should be, not how to mutate the DOM)
+- One-way data flow
+- Deterministic rendering (same state ⇒ same UI. Predictability)
+- Idempotent renders (safe to re-run)
+- Local reasoning (component isolation)
+- Explicit data dependencies (hooks deps)

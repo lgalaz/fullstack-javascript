@@ -14,6 +14,7 @@ pytest is the de facto testing framework in Python. It provides simple test disc
 
 ```python
 # math.py
+# Simple function under test.
 def add(a, b):
     return a + b
 ```
@@ -23,6 +24,7 @@ def add(a, b):
 from math import add
 
 def test_add():
+    # pytest will fail the test if this is False.
     assert add(2, 3) == 5
 ```
 
@@ -34,9 +36,11 @@ import pytest
 
 @pytest.fixture
 def user():
+    # Provide shared setup data to tests.
     return {"id": 1, "name": "Ada"}
 
 def test_user_name(user):
+    # Fixture value is injected by pytest.
     assert user["name"] == "Ada"
 ```
 

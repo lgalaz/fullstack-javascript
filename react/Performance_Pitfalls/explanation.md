@@ -251,6 +251,7 @@ Best practice: use `React.memo` for components with stable props and expensive r
 Use the React Profiler to identify actual hotspots before optimizing.
 
 Note: `React.Profiler` is a built-in component provided by React. You do not implement it yourself.
+You can also send `onRender` timings to an observability tool (e.g., OpenTelemetry) for production profiling.
 
 ```javascript
 // Bad: Optimize based on guesses
@@ -258,7 +259,35 @@ const value = useMemo(() => computeSomething(), [data]);
 ```
 
 ```javascript
-// Good: Measure first, then optimize
+// Good: Measure first, then optimize (and optionally export metrics)
+import React from 'react';
+import { metrics, trace } from '@opentelemetry/api';
+
+const meter = metrics.getMeter('react-profiler');
+const renderDuration = meter.createHistogram('react.render.duration.ms');
+const tracer = trace.getTracer('react-profiler');
+
+function logProfiler(
+  id,
+  phase,
+  actualDuration,
+  baseDuration,
+  startTime,
+  commitTime,
+  interactions
+) {
+  const span = tracer.startSpan('react.render', {
+    attributes: {
+      id,
+      phase,
+      baseDuration,
+    },
+  });
+  renderDuration.record(actualDuration, { id, phase });
+  span.setAttribute('actualDuration', actualDuration);
+  span.end();
+}
+
 <React.Profiler id="List" onRender={logProfiler}>
   <BigList items={items} />
 </React.Profiler>

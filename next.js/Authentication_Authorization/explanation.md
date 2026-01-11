@@ -6,7 +6,7 @@ Next.js can handle auth with server components, middleware, and route handlers. 
 
 Authentication proves who a user is. Authorization decides what that user can access.
 
-Auth.js (formerly NextAuth) is a popular, batteries-included authentication library for Next.js. It handles OAuth providers (GitHub, Google), session management (JWT or database sessions), and helpers for server components and route handlers.
+Auth.js (formerly NextAuth) is a popular, batteries-included authentication library for Next.js. It handles OAuth/OpenID Connect providers (GitHub, Google), session management (JWT or database sessions), and helpers for server components and route handlers. OAuth by itself is primarily for delegated authorization and returns tokens (for example, access tokens, sometimes refresh tokens) plus the granted authorization scope (what the app is allowed to do), not user identity data. OpenID Connect (OIDC) is the identity layer on top of OAuth that returns user identity data via an ID token (claims like name, email, avatar). Auth.js supports OIDC providers under the hood, so user profile data usually comes from OIDC claims or provider userinfo endpoints rather than OAuth alone.
 
 ## Auth.js (NextAuth) Example
 

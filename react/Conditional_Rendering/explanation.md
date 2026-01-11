@@ -31,7 +31,7 @@ function Banner({ message }) {
 }
 ```
 
-Be careful: `0 && <Component />` renders `0`. Use boolean checks when needed.
+Be careful: `0 && <Component />` renders `0`. Use boolean checks when needed (e.g., `!!message && <p>{message}</p>` or `message ? <p>{message}</p> : null`).
 
 ## Switch Pattern
 

@@ -17,13 +17,17 @@
 import asyncio
 
 async def fetch(n):
+    # Simulate an I/O-bound call (e.g., HTTP request) without blocking the event loop.
     await asyncio.sleep(0.5)
     return f"done {n}"
 
 async def main():
+    # Schedule three fetch coroutines concurrently, like Promise.all in Node.js.
+    # Each sleeps for 0.5s, and gather waits for all three before returning results.
     results = await asyncio.gather(fetch(1), fetch(2), fetch(3))
     print(results)
 
+    # Kick off the event loop and run main() to completion.
 asyncio.run(main())
 ```
 

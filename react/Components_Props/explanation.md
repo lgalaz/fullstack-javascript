@@ -115,6 +115,14 @@ In this example, `App` owns the data and behavior (`label`, `onClick`). `Button`
 ## Referential stability
 
 ```javascript
+function Button({ label, onClick, style }) {
+  return (
+    <button onClick={onClick} style={style}>
+      {label}
+    </button>
+  );
+}
+
 const MemoButton = React.memo(Button);
 
 function App() {
@@ -153,6 +161,7 @@ function App() {
   return (
     <div>
       {Array.from({ length: 100 }).map((_, i) => (
+        // Prefer stable keys from data, not array indexes.
         <MemoButton key={i} label={`Save ${i}`} onClick={onSave} style={style} />
       ))}
     </div>
@@ -186,6 +195,7 @@ Renders to:
 ```
 
 Children can also be a render function for advanced composition.
+This is useful when you want to share state/logic but give the consumer full control over the rendered markup and layout.
 
 ```javascript
 function DataFetcher({ children }) {

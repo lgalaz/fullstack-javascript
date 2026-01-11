@@ -17,11 +17,13 @@ Python performance issues typically come from CPU-bound loops or excessive I/O w
 import cProfile
 
 def work():
+    # Simulate a CPU-bound loop.
     total = 0
     for i in range(1000000):
         total += i
     return total
 
+# Run the function under the profiler and print timing stats.
 cProfile.run('work()')
 ```
 
@@ -31,7 +33,9 @@ cProfile.run('work()')
 # timeit_example.py
 import timeit
 
+# Time how long 1000 runs of sum(range(1000)) take.
 print(timeit.timeit('sum(range(1000))', number=1000))
+# e.g. 0.02 (varies by machine)
 ```
 
 ## Practical Guidance

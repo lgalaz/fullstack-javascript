@@ -29,6 +29,14 @@ Bad practice: using plain `<img>` for large or responsive images misses Next.js 
 <img src="/avatar.png" alt="Avatar" />
 ```
 
+Image optimizations available:
+
+- Automatic resizing per device and layout (responsive `srcset`).
+- Modern format conversion when supported by the browser (for example, WebP/AVIF).
+- Lazy loading by default for offscreen images.
+- Placeholder support (blur-up) to reduce perceived loading time.
+- On-demand optimization and caching on the server/edge.
+
 ## Fonts
 
 Use `next/font` for self-hosted, optimized fonts.
@@ -50,6 +58,14 @@ Bad practice: loading fonts via a remote stylesheet causes extra network hops an
 ```html
 <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet" />
 ```
+
+Font optimizations available:
+
+- Self-hosting with automatic download and bundling.
+- Subsetting to reduce font file size.
+- Automatic preload of critical font files.
+- CSS inlining to avoid additional render-blocking requests.
+- Controlled `font-display` behavior to reduce layout shifts.
 
 ## Scripts
 
@@ -81,9 +97,19 @@ If a script can run `afterInteractive` but you want to reduce its load time, a `
 
 Example of a specific need: preloading a critical third-party script that must be ready immediately after first paint (like a payment SDK on a checkout page) to avoid visible delays when the user interacts. This is a good fit for `beforeInteractive` because it runs before hydration, ensuring the SDK is ready for immediate user actions.
 
+Script optimizations available:
+
+- Precise loading strategy (`beforeInteractive`, `afterInteractive`, `lazyOnload`).
+- Non-blocking loading by default for non-critical scripts.
+- Optional preloading when early execution is required.
+
 ## Public Assets
 
 Files in `public/` are served at the root path.
+
+Public asset optimizations available:
+
+- None by default; files are served as-is. Use `next/image` or other tooling for optimization.
 
 ## Interview Questions and Answers
 

@@ -16,6 +16,7 @@ Python supports object-oriented programming with classes, inheritance, and compo
 # user.py
 class User:
     def __init__(self, user_id, name):
+        # Store instance state.
         self.user_id = user_id
         self.name = name
 
@@ -24,6 +25,7 @@ class User:
 
 u = User("u1", "Ada")
 print(u.greet())
+# Hello Ada
 ```
 
 ## Example: Composition
@@ -32,10 +34,12 @@ print(u.greet())
 # emailer.py
 class EmailService:
     def send(self, to, message):
+        # In real code, this would talk to an email API.
         print(f"Sending to {to}: {message}")
 
 class Notifier:
     def __init__(self, email_service):
+        # Compose behavior by injecting a dependency.
         self.email = email_service
 
     def notify(self, user, message):
@@ -43,6 +47,7 @@ class Notifier:
 
 notifier = Notifier(EmailService())
 notifier.notify("ada@example.com", "Welcome")
+# Sending to ada@example.com: Welcome
 ```
 
 ## Practical Guidance

@@ -23,9 +23,11 @@ app/
 
 ```python
 # main.py
+# Import a function from a package module.
 from services.users import get_user
 
 print(get_user("u1"))
+# e.g. {"id": "u1", "name": "Ada"} depending on get_user implementation
 ```
 
 ## Practical Guidance

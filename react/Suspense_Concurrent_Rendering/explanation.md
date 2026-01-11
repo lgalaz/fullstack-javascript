@@ -14,9 +14,7 @@ Note: many frameworks and templates enable Strict Mode by default in development
 
 The scheduler is React's internal priority system for rendering work. Urgent updates (like input) are handled first, while low-priority updates (like transitions or deferred values) can be paused and resumed so the UI stays responsive. It does not run on multiple threads; it yields back to the browser between chunks of work.
 
-React decides when to pause by checking time spent, browser signals, and whether higher-priority updates are pending. It resumes low-priority work when the main thread is free and no urgent updates are waiting. "Browser signals" here means frame deadlines and input/paint timing that tell React whether it should yield to keep the page responsive.
-
-Browser signals here means hints from the browser event loop, like pending user input, rendering work, or other tasks queued on the main thread.
+React decides when to pause by checking time spent, browser signals, and whether higher-priority updates are pending. It resumes low-priority work when the main thread is free and no urgent updates are waiting. "Browser signals" here means frame deadlines and input/paint timing that tell React whether it should yield to keep the page responsive, or:  "hints from the browser event loop, like pending user input, rendering work, or other tasks queued on the main thread."
 
 React is a deterministic UI state machine with a non-deterministic scheduler.
 

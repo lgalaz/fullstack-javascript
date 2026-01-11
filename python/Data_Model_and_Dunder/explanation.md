@@ -17,21 +17,28 @@ Python's data model is defined by special "dunder" methods (double underscore). 
 # inventory.py
 class Inventory:
     def __init__(self, items):
+        # Store items as a list so length and iteration are predictable.
         self._items = list(items)
 
     def __len__(self):
+        # len(inv) uses this.
         return len(self._items)
 
     def __iter__(self):
+        # list(inv) uses this to iterate.
         return iter(self._items)
 
     def __repr__(self):
+        # print(inv) falls back to __repr__ when __str__ is not defined.
         return f"Inventory({self._items!r})"
 
 inv = Inventory(["apple", "banana"])
 print(len(inv))
+ # 2
 print(list(inv))
+ # ["apple", "banana"]
 print(inv)
+ # Inventory(['apple', 'banana'])
 ```
 
 ## Practical Guidance
