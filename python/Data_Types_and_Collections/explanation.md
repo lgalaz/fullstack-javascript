@@ -33,11 +33,72 @@ print(point)
 ## Performance Notes
 
 - List membership (`x in list`) is O(n).
+- Example:
+
+```python
+names = ["ada", "grace", "linus"]
+print("ada" in names)  # O(n) scan
+```
+
 - Set and dict membership are O(1) on average.
+- Example:
+
+```python
+name_set = {"ada", "grace", "linus"}
+name_map = {"ada": 1, "grace": 2, "linus": 3}
+print("ada" in name_set) # O(1) average
+print("ada" in name_map) # O(1) average (checks keys)
+```
+
 - Use tuples as dict keys when you need composite keys.
+- Example:
+
+```python
+conversion_table = {
+    ("usd", "eur"): 0.92,
+    ("usd", "jpy"): 157.4,
+}
+
+print(conversion_table[("usd", "eur")])
+# 0.92
+
+for (from_ccy, to_ccy), rate in conversion_table.items():
+    if "usd" in (from_ccy, to_ccy):
+        print(from_ccy, "->", to_ccy, rate)
+```
 
 ## Practical Guidance
 
 - Prefer dicts for lookup-heavy workloads.
+- Example:
+
+```python
+user_by_id = {"u1": "ada", "u2": "grace"}
+print(user_by_id["u1"])  # dict lookup by key
+```
+
 - Use sets to dedupe and test membership.
+- Example:
+
+```python
+ids = ["u1", "u2", "u1"]
+unique_ids = set(ids)
+print(unique_ids)  # {'u1', 'u2'}
+print("u2" in unique_ids)
+```
+
 - Use tuples for fixed-size, immutable data.
+- Example:
+
+```python
+point = (10, 20)
+print(point[0], point[1])
+```
+
+- A one-element tuple needs a trailing comma: `(1,)`, not `(1)`.
+- Example:
+
+```python
+single = (1,)
+print(single, len(single))
+```

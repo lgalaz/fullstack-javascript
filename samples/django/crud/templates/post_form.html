@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}{% if mode == "edit" %}Edit{% else %}Add{% endif %} Post{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <h2>{% if mode == "edit" %}Edit{% else %}Add{% endif %} Post</h2>
+    {% if error %}<div class="error">{{ error }}</div>{% endif %}
+    <form method="post">
+      {% csrf_token %}
+      <label>
+        Title
+        <input type="text" name="title" value="{{ post.title|default_if_none:'' }}" required />
+      </label>
+      <label>
+        Body
+        <textarea name="body" rows="6" required>{{ post.body|default_if_none:'' }}</textarea>
+      </label>
+      {% if is_admin %}
+        <label>
+          Author
+          <select name="author_id" required>
+            <option value="">Select an author</option>
+            {% for user in users %}
+              <option value="{{ user.id }}" {% if post and post.author.id == user.id %}selected{% endif %}>
+                {{ user.display_name }} ({{ user.user.username }})
+              </option>
+            {% endfor %}
+          </select>
+        </label>
+      {% endif %}
+      <div style="margin-top: 16px;">
+        <button class="btn" type="submit">
+          {% if mode == "edit" %}Save Changes{% else %}Create Post{% endif %}
+        </button>
+        <a class="btn secondary" href="{% url 'post_list' %}">Cancel</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}

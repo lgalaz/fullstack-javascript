@@ -55,3 +55,18 @@ for n in Countdown(3):
 - Use generators for large files or infinite streams.
 - Prefer generator expressions for simple transformations.
 - Be explicit when a function returns an iterator vs. a list.
+- Iterators (including generators) only advance when `next()` is called, typically by a `for` loop or a consumer like `list()` or `sum()`.
+
+Example: Manual `next()`:
+
+```python
+def countdown(n):
+    while n > 0:
+        yield n
+        n -= 1
+
+it = countdown(3)
+print(next(it))  # 3
+print(next(it))  # 2
+print(next(it))  # 1
+```

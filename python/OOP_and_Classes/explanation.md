@@ -53,5 +53,11 @@ notifier.notify("ada@example.com", "Welcome")
 ## Practical Guidance
 
 - Use `@dataclass` for data-heavy classes.
+  Explanation: `@dataclass` is a standard library decorator that generates boilerplate like `__init__`, `__repr__`, and `__eq__` from type-annotated fields.
+  The `@` symbol applies a decorator to the class, which transforms it at definition time.
+
 - Keep inheritance shallow and purposeful.
+  Explanation: deep inheritance trees are hard to reason about and increase coupling.
+
 - Favor clear, small classes over massive hierarchies.
+  Explanation: smaller classes are easier to test, reuse, and maintain.

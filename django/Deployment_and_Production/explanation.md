@@ -21,6 +21,8 @@
 - Postgres as the database
 - Redis for cache and sessions (optional)
 
+The reverse proxy terminates TLS, serves static files, and forwards dynamic requests to the running WSGI/ASGI server.
+
 ## Logging
 
 Configure `LOGGING` to emit structured logs and errors to your observability stack.

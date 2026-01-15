@@ -27,6 +27,35 @@ def work():
 cProfile.run('work()')
 ```
 
+## Example: Redirect Stats to Logging or Sentry
+
+```python
+import cProfile
+import io
+import logging
+import pstats
+
+logger = logging.getLogger(__name__)
+
+prof = cProfile.Profile()
+prof.enable()
+work()
+prof.disable()
+
+buf = io.StringIO()
+stats = pstats.Stats(prof, stream=buf).sort_stats("tottime")
+stats.print_stats(10)
+
+# Send to logs (could be picked up by ELK/cloud logging).
+logger.info("profile stats:\n%s", buf.getvalue())
+
+# Or send to Sentry as an attachment (requires sentry_sdk).
+# import sentry_sdk
+# sentry_sdk.capture_message("profile stats", attachments=[
+#     {"filename": "profile.txt", "data": buf.getvalue()}
+# ])
+```
+
 ## Example: timeit
 
 ```python
@@ -41,5 +70,8 @@ print(timeit.timeit('sum(range(1000))', number=1000))
 ## Practical Guidance
 
 - Optimize hot paths only after measuring.
+  Explanation: profile first so you focus on the code that actually dominates runtime.
 - Use built-in functions and vectorized libraries when possible.
+  Explanation: built-ins and vectorized libraries (e.g., NumPy) run fast loops in C instead of Python.
 - Offload CPU-heavy work to native code or multiprocessing.
+  Explanation: native code (C/Cython/Rust extensions) bypasses Python overhead (interpreter overhead like dynamic dispatch and type checks); multiprocessing uses multiple OS processes to parallelize CPU-bound tasks.

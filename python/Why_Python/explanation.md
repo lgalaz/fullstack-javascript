@@ -45,6 +45,7 @@ Teams often use pandas to clean and normalize scraped data into a database-ready
 ```python
 # quick-scrape.py
 import requests
+# BeautifulSoup is a Python library for parsing HTML/XML. It lets you traverse and extract data from HTML pages easily, often used with requests for web scraping.
 from bs4 import BeautifulSoup
 
 url = "https://example.com"

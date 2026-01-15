@@ -30,3 +30,15 @@ for _ in range(args.times):
 - Keep CLIs small and focused.
 - Use subcommands for complex tools.
 - Print helpful error messages.
+
+## Why Use Click
+
+Use `click` when you want a more ergonomic, declarative CLI with less boilerplate. It is especially useful when:
+
+- You have multiple commands or subcommands and want a clean structure.
+- You want automatic help text, type conversion, and validation.
+- You need prompts, confirmations, or colored output.
+
+Stick with `argparse` for small, dependency-free scripts or when you want to avoid third-party packages.
+
+In this context, "ergonomic" means the API is more pleasant to use: fewer lines of code, clearer structure, and less manual wiring for common features.

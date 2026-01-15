@@ -9,12 +9,28 @@
     <form method="post">
       {% csrf_token %}
       <label>
-        Name
-        <input type="text" name="name" value="{% if user %}{{ user.name }}{% endif %}" required />
+        Username
+        <input type="text" name="username" value="{% if user %}{{ user.user.username }}{% endif %}" required />
       </label>
       <label>
-        Password
-        <input type="password" name="password" value="{% if user %}{{ user.password }}{% endif %}" required />
+        Email
+        <input type="text" name="email" value="{% if user and user.user %}{{ user.user.email }}{% endif %}" />
+      </label>
+      <label>
+        Display name
+        <input type="text" name="display_name" value="{% if user %}{{ user.display_name }}{% endif %}" required />
+      </label>
+      <label>
+        Age
+        <input type="text" name="age" value="{% if user and user.age %}{{ user.age }}{% endif %}" />
+      </label>
+      <label>
+        City
+        <input type="text" name="city" value="{% if user %}{{ user.city }}{% endif %}" />
+      </label>
+      <label>
+        Password{% if mode == "edit" %} (leave blank to keep){% endif %}
+        <input type="password" name="password" value="" {% if mode == "create" %}required{% endif %} />
       </label>
       <div style="margin-top: 16px;">
         <button class="btn" type="submit">Save</button>

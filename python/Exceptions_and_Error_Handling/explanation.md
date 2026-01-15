@@ -40,3 +40,27 @@ def validate_age(age):
 - Do not catch `Exception` unless you re-raise or log with context.
 - Avoid using exceptions for normal control flow.
 - Include actionable context in error messages.
+- Distinguish user errors (invalid input) from system errors (IO, network, dependencies) and handle or surface them differently.
+
+Example:
+
+```python
+class UserInputError(ValueError):
+    pass
+
+def parse_age(text):
+    try:
+        age = int(text)
+    except ValueError as exc:
+        raise UserInputError("age must be a number") from exc
+    if age < 0:
+        raise UserInputError("age must be non-negative")
+    return age
+
+def load_profile(path):
+    try:
+        with open(path, "r", encoding="utf8") as f:
+            return f.read()
+    except OSError as exc:
+        raise RuntimeError("system error reading profile") from exc
+```

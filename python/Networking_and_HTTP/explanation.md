@@ -10,6 +10,8 @@ Python has solid HTTP client support through `requests` and async libraries like
 - Use retries with backoff for transient errors.
 - Separate transport errors from application errors.
 
+Transport errors are failures to reach or complete the HTTP request (DNS issues, timeouts, connection resets). Application errors are valid HTTP responses that indicate a problem at the app level (4xx/5xx with an error body).
+
 ## Example: HTTP Request with Timeout
 
 ```python
@@ -45,5 +47,8 @@ for attempt in range(3):
 ## Practical Guidance
 
 - Use session objects for connection reuse.
+  Explanation: sessions keep TCP connections alive and reuse them across requests for better performance.
 - Log failed requests with enough context.
+  Explanation: include URL, method, status code, and a correlation ID to debug failures quickly (a correlation ID is a unique request ID used to trace logs across services).
 - Avoid blocking calls in async contexts.
+  Explanation: in async code, use async HTTP clients to avoid blocking the event loop.

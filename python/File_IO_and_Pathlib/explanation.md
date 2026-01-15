@@ -34,3 +34,5 @@ print(text)
 - Avoid string path concatenation.
 - Catch `FileNotFoundError` when needed.
 - Use binary mode for images or PDFs.
+- Build paths with `Path` instead of hardcoding full paths to stay portable across OSes and user environments.
+- `Path` abstracts OS-specific separators and drive semantics, keeping code portable.

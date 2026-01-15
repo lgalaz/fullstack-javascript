@@ -16,6 +16,23 @@ Browser and CDN caching mostly cache HTTP responses, while origin caching often 
 
 I don’t avoid technologies outright; I avoid misusing them. Most tools exist to solve real problems, but they become harmful when applied outside their context—before the problem exists, without sufficient leverage, or beyond the team’s ability to operate them. I’m especially cautious with technologies that increase coupling, hide runtime costs, or add irreversible complexity without clear benefit.
 
+## What is the iterative process and what are iterative development practices in Agile?
+
+An iterative process is a disciplined loop of plan, build, validate, and refine. Instead of treating software as a single linear project with a fixed design up front, you treat it as a sequence of small, testable hypotheses. Each iteration delivers a usable increment, collects feedback from real users or real usage, and then adjusts the next iteration based on what was learned. The goal is to reduce risk early by exposing assumptions to reality, and to keep the product aligned with actual needs rather than a frozen spec.
+
+Iterative development in Agile emphasizes both cadence and learning. You timebox work into short cycles, ship something meaningful each cycle, and then re-plan. The value is not just smaller batches, but tighter feedback loops that catch misunderstandings, technical risks, and UX issues before they compound.
+
+Typical iterative practices in Agile include:
+
+- Working in short iterations (often 1 to 3 weeks) with a clear goal and a demoable outcome.
+- Slicing work vertically so each iteration includes design, code, test, and integration, not just a partial layer.
+- Using backlog refinement to keep scope small and adjustable based on learning.
+- Running reviews or demos to get stakeholder (end users, product owners, business sponsors, or other decision-makers) feedback on real software, not slides.
+- Running retrospectives to improve the team's process, not just the product.
+- Replanning based on evidence: metrics, user feedback, defects, and deployment data.
+
+Iterative does not mean "no plan." It means planning at the right level of detail for the current iteration, and keeping longer-term plans flexible. The practical effect is that you always have a shippable product, you validate assumptions frequently, and you adapt without throwing away months of work. That makes the approach resilient to changing requirements, new market information, or unknown technical risks.
+
 ## Common mistakes with modern frameworks?
 
 - Modern frameworks make advanced capabilities easy to use — which tempts teams to use them everywhere.
@@ -412,6 +429,40 @@ Partial failures and slowness:
 - retries with jitter + caps (jitter adds randomness to backoff timing, caps limit max delay/attempts; both reduce retry storms where many clients retry at once; pattern: Exponential Backoff)
 - circuit breakers for flaky vendors (pattern: Circuit Breaker). If a dependency starts failing, stop calling it for a cool-down window and fail fast with a fallback; this protects your system from cascading timeouts and keeps overall latency predictable.
 - clear fallbacks: “show page without X” vs “hard fail” (pattern: Graceful Degradation / Fallback)
+
+One common implementation for idempotency keys is a dedicated table that stores the request hash and response, so repeats can return the same outcome without duplicate writes:
+
+```sql
+CREATE TABLE idempotency_keys (
+  id               BIGSERIAL PRIMARY KEY,
+  tenant_id         BIGINT NOT NULL,
+  endpoint          TEXT NOT NULL,     -- e.g. "posts.create", "payments.create"
+  idempotency_key   TEXT NOT NULL,
+  request_hash      TEXT NOT NULL,
+
+  status            TEXT NOT NULL CHECK (status IN ('in_progress','completed','failed')),
+  response_status   INT,
+  response_body     JSONB,
+
+  resource_type     TEXT NULL,         -- e.g. "post", "payment", "booking"
+  resource_id       BIGINT NULL,        -- the id in the corresponding table
+
+  created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
+  expires_at        TIMESTAMPTZ NOT NULL
+);
+```
+
+To relate idempotency records to created resources, you can use a polymorphic link (`resource_type`, `resource_id`) or a dedicated join table per model (e.g., `idempotency_post(idempotency_id, post_id)`), depending on how strict you want referential integrity to be.
+
+## Retries, Idempotency, and Dead Letters (async safety)
+
+Retries are not just “try again”; they are a controlled policy. The goal is to recover from transient failures without causing overload or duplicate side effects.
+
+- Retry policies: define exponential backoff, max retries, and which errors are retriable. Transient errors (timeouts, 429s, brief network failures) are good candidates; permanent errors (validation failures, 4xx with clear user action required) should not be retried. Backoff with jitter prevents retry storms when many clients fail together.
+
+- Avoid “exactly-once” assumptions: in distributed systems, retries, timeouts, and duplicate deliveries happen. “Exactly once” is rarely guaranteed end-to-end. Instead, design operations to be idempotent (repeating a request yields the same result) and store a dedupe key so a repeated message can return the original outcome instead of re-running side effects.
+
+- Dead letters: a dead-letter queue (DLQ) stores messages or jobs that repeatedly fail. This prevents infinite retry loops and lets teams inspect, fix, and replay problematic messages later. DLQs are useful when you want durability and operational visibility instead of silent data loss.
 
 ## Event-driven architecture, but only for side effects
 

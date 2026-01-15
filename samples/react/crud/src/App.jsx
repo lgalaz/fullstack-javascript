@@ -15,6 +15,11 @@ export default function App() {
     setName('');
   }
 
+  function handleAddUser(event) {
+    event.preventDefault();
+    addUser();
+  }
+
   function startEdit(index) {
     setEditingIndex(index);
     setEditName(users[index].name);
@@ -53,7 +58,7 @@ export default function App() {
         <p>Simple create, read, update, delete for a local list.</p>
       </header>
 
-      <section className="form">
+      <form className="form" onSubmit={handleAddUser}>
         <label htmlFor="name">Name</label>
         <div className="row">
           <input
@@ -62,11 +67,11 @@ export default function App() {
             onChange={(e) => setName(e.target.value)}
             placeholder="Add a user name"
           />
-          <button type="button" onClick={addUser} disabled={!name.trim()}>
+          <button type="submit" disabled={!name.trim()}>
             Add
           </button>
         </div>
-      </section>
+      </form>
 
       <section className="table">
         <h2>Users</h2>

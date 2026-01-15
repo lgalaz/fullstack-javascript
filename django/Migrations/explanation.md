@@ -13,9 +13,33 @@ python manage.py migrate
 python manage.py showmigrations
 ```
 
+## Rollbacks and Resets
+
+You can migrate an app back to a previous migration:
+
+```bash
+python manage.py migrate app_name 0003
+```
+
+To reset an app to zero (drop its tables), migrate to `zero`:
+
+```bash
+python manage.py migrate app_name zero
+```
+
+There is no single "reset database" command, but a common workflow is:
+
+```bash
+python manage.py flush
+```
+
+`flush` removes all data and re-runs initial data migrations without dropping tables.
+
 ## Data Migrations
 
 Use `RunPython` for data changes:
+
+`RunPython` is a migration operation that runs Python code inside the migration system. It integrates with Django's ORM and migration graph, so data changes are versioned, repeatable, and run in the right order with your schema changes.
 
 ```python
 from django.db import migrations
@@ -26,6 +50,23 @@ def forwards(apps, schema_editor):
 
 class Migration(migrations.Migration):
     operations = [migrations.RunPython(forwards)]
+```
+
+You can also define a reverse function for rollbacks:
+
+```python
+def backwards(apps, schema_editor):
+    Post = apps.get_model('blog', 'Post')
+    Post.objects.update(status='draft')
+
+class Migration(migrations.Migration):
+    operations = [migrations.RunPython(forwards, backwards)]
+```
+
+To run data migrations, use the normal migrate command:
+
+```bash
+python manage.py migrate
 ```
 
 ## Squashing

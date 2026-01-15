@@ -37,6 +37,28 @@ with Timer():
     sum(range(1_000_000))
 ```
 
+## Example: TypeScript using with Symbol.dispose
+
+```ts
+class Resource {
+  constructor(private name: string) {}
+
+  doWork() {
+    console.log(`using ${this.name}`);
+  }
+
+  [Symbol.dispose]() {
+    console.log(`disposed ${this.name}`);
+  }
+}
+
+{
+  using res = new Resource("file-handle");
+  res.doWork();
+}
+// res[Symbol.dispose]() called automatically at end of block
+```
+
 ## Practical Guidance
 
 - Use context managers for any resource that must be closed.

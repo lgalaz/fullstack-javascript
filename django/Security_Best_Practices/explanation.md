@@ -28,6 +28,28 @@ Never trust raw `request.POST` or query params.
 - Enable MFA if possible.
 - Protect login endpoints with rate limiting.
 
+## Rate Limiting (Non-DRF)
+
+Django does not ship a built-in rate limiter. Common options:
+
+- `django-ratelimit` for per-view throttling
+- `django-axes` for login abuse protection
+- Edge limits via Nginx/Cloudflare
+
+Minimal example with `django-ratelimit`:
+
+```python
+# app_name/views.py
+from django.http import HttpResponse
+from ratelimit.decorators import ratelimit
+
+@ratelimit(key="ip", rate="10/m", block=True)
+def signup(request):
+    return HttpResponse("ok")
+```
+
+With block=True, django-ratelimit returns a 403 Forbidden by default. You can customize the response by handling the Ratelimited exception or using a custom view/handler.
+
 ## Secrets
 
 Never commit secrets. Use env vars or a secrets manager.

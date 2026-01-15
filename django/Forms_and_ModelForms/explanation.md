@@ -32,6 +32,26 @@ class PostForm(ModelForm):
         fields = ['title', 'body']
 ```
 
+`ModelForm` reads the `Post` model and auto-creates form fields that match the model fields listed in `fields`. When you call `form.save()`, it creates or updates a `Post` instance using the validated form data.
+
+End-to-end flow example (request → validation → save):
+
+```python
+# app_name/views.py
+from django.shortcuts import render, redirect
+from .forms import PostForm
+
+def create_post(request):
+    if request.method == "POST":
+        form = PostForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("post_list")
+    else:
+        form = PostForm()
+    return render(request, "post_form.html", {"form": form})
+```
+
 ## Validation Hooks
 
 - `clean_fieldname`
@@ -60,3 +80,13 @@ Always include CSRF tokens in POST forms:
 ```html
 {% csrf_token %}
 ```
+
+## Forms vs Serializers
+
+Use Django Forms/ModelForms for **HTML form handling** (server-rendered pages). They validate user input, render form fields, and integrate with templates.
+
+Use DRF serializers for **API input/output** (JSON). They validate JSON payloads and serialize models for API responses.
+
+Both solve validation and data cleaning, but they live in different layers:
+- Forms = HTML/UI layer.
+- Serializers = API/JSON layer.

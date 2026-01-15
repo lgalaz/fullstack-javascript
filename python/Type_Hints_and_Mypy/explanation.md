@@ -33,5 +33,43 @@ greet(42)  # mypy will flag this
 ## Practical Guidance
 
 - Use hints at module boundaries and core APIs first.
+  Explanation: start where types give the most leverage for consumers and integrations.
 - Enable strict mode gradually.
+  Explanation: tighten rules in stages to avoid blocking adoption with a huge error list.
 - Document complex types with `TypedDict` or `Protocol`.
+  Explanation: `TypedDict` describes dict shapes; `Protocol` describes structural interfaces.
+  Example (TypedDict):
+
+```python
+from typing import TypedDict
+
+class User(TypedDict):
+    id: int
+    name: str
+
+def get_name(user: User) -> str:
+    return user["name"]
+
+get_name({"id": 1, "name": "Ada"})  # OK
+get_name({"id": "x", "name": "Ada"})  # type checker error: id should be int
+```
+
+  Example (Protocol):
+
+```python
+from typing import Protocol
+
+class SupportsClose(Protocol):
+    def close(self) -> None:
+        ...
+
+def shutdown(resource: SupportsClose) -> None:
+    resource.close()
+
+class FileLike:
+    def close(self) -> None:
+        print("closed")
+
+shutdown(FileLike())  # OK (structural match)
+shutdown(object())  # type checker error: no close()
+```

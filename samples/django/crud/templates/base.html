@@ -25,6 +25,17 @@
         border-bottom: 1px solid var(--border);
         background: var(--panel);
       }
+      nav {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-top: 8px;
+      }
+      nav a {
+        color: var(--accent);
+        text-decoration: none;
+        font-size: 14px;
+      }
       .container {
         max-width: 900px;
         margin: 24px auto;
@@ -63,12 +74,13 @@
       .muted { color: var(--muted); }
       .error { color: #a11212; margin-bottom: 12px; }
       form.inline { display: inline; }
-      input[type="text"], input[type="password"] {
+      input[type="text"], input[type="password"], textarea, select {
         width: 100%;
         padding: 8px;
         margin-top: 6px;
         border: 1px solid var(--border);
         border-radius: 6px;
+        font-family: inherit;
       }
       label { display: block; margin-top: 12px; }
     </style>
@@ -76,9 +88,13 @@
   <body>
     <header>
       <strong>Django CRUD Sample</strong>
-      {% if request.session.username %}
-        <span class="muted">Signed in as {{ request.session.username }}</span>
+      {% if request.user.is_authenticated %}
+        <span class="muted">Signed in as {{ request.user.username }}</span>
         <a class="btn secondary" href="{% url 'logout' %}">Logout</a>
+        <nav>
+          <a href="{% url 'user_list' %}">Users</a>
+          <a href="{% url 'post_list' %}">Posts</a>
+        </nav>
       {% endif %}
     </header>
     <div class="container">

@@ -1,5 +1,11 @@
 # Templates and Context
 
+## Django Template Language (DTL)
+
+Django uses the Django Template Language (DTL), a safe, HTML-first templating system.
+It uses `{{ ... }}` for variable output and `{% ... %}` for control flow (loops, conditionals, includes, extends).
+DTL is intentionally limited so template logic stays simple and security defaults (like auto-escaping) stay intact.
+
 ## Template Basics
 
 Django templates are HTML with template tags:
