@@ -38,8 +38,10 @@ def validate_age(age):
 ## Practical Guidance
 
 - Do not catch `Exception` unless you re-raise or log with context.
+- Prefer catching specific exception types so you only handle expected failures.
 - Avoid using exceptions for normal control flow.
 - Include actionable context in error messages.
+- Classify exceptions by origin: user/input errors (validation) vs system/runtime errors (I/O, network, dependencies), and handle them differently.
 - Distinguish user errors (invalid input) from system errors (IO, network, dependencies) and handle or surface them differently.
 
 Example:

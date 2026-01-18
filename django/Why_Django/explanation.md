@@ -2,7 +2,7 @@
 
 ## Overview
 
-Django is a full-stack web framework that optimizes for building database-backed web apps quickly without giving up correctness. It is opinionated, secure by default, and comes with a mature ecosystem that covers the boring (but critical) parts of web apps: auth, admin, migrations, forms, and reliable routing. If you want a cohesive stack rather than assembling a dozen libraries, Django is a strong choice.
+Django is a full-stack web framework that optimizes for building database-backed web apps quickly without giving up correctness. It is opinionated, secure by default, and comes with a mature ecosystem that covers the critical parts of web apps: auth, admin, migrations, forms, and reliable routing. If you want a cohesive stack rather than assembling a dozen libraries, Django is a strong choice.
 
 ## What Django Optimizes For
 
@@ -85,3 +85,9 @@ Django is about treating your app as a durable system:
 - Middleware enforces policy.
 
 If you prefer a framework that gives you these layers with minimal assembly, Django feels like a force multiplier.
+
+## Logging System
+
+Django uses Python's built-in `logging` module. You configure it with a `LOGGING` dict in settings (handlers, formatters, filters, and loggers). There is no separate "logging driver" system like cache backends; you wire handlers (console, file, email, syslog, etc.) and can plug in third-party handlers if needed.
+
+Common loggers include `django`, `django.request` (500s and bad requests), and `django.server` (runserver). You can control levels per logger and set `propagate` to bubble logs up to root handlers.

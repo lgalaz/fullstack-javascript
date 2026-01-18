@@ -10,6 +10,171 @@ The admin is a management UI for those models. You opt models into the admin by 
 
 The admin UI itself comes from Django's built-in `django.contrib.admin` app. You typically only register models and optionally define `ModelAdmin` classes to control how each model is displayed and managed.
 
+## Other Built-In `django.contrib` Apps (with examples)
+
+Below are common contrib apps you can enable and use alongside admin. Each example is minimal and focused on the core API.
+
+### Auth (`django.contrib.auth`)
+
+Provides users, permissions, and authentication helpers.
+
+```python
+# views.py
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login
+
+def login_view(request):
+    user = authenticate(request, username="alice", password="secret")
+    if user:
+        login(request, user)
+
+@login_required
+def account(request):
+    return render(request, "account.html")
+```
+
+### Content Types (`django.contrib.contenttypes`)
+
+Enables generic relations (attach objects to any model).
+
+```python
+# models.py
+from django.db import models
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
+
+class Activity(models.Model):
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    target = GenericForeignKey("content_type", "object_id")
+    verb = models.CharField(max_length=120)
+```
+
+### Sessions (`django.contrib.sessions`)
+
+Server-side session storage keyed by a cookie.
+
+```python
+# views.py
+def add_to_cart(request, product_id):
+    cart = request.session.get("cart", [])
+    cart.append(product_id)
+    request.session["cart"] = cart
+```
+
+### Messages (`django.contrib.messages`)
+
+One-off notifications across redirects.
+
+```python
+# views.py
+from django.contrib import messages
+
+def save_profile(request):
+    messages.success(request, "Profile updated.")
+    return redirect("profile")
+```
+
+### Sites (`django.contrib.sites`)
+
+Multi-site support inside one project.
+
+```python
+# views.py
+from django.contrib.sites.shortcuts import get_current_site
+
+def homepage(request):
+    site = get_current_site(request)
+    return render(request, "home.html", {"site_name": site.name})
+```
+
+### Postgres Helpers (`django.contrib.postgres`)
+
+PostgreSQL-only fields and tools.
+
+```python
+# models.py
+from django.db import models
+from django.contrib.postgres.fields import ArrayField
+
+class Article(models.Model):
+    title = models.CharField(max_length=200)
+    tags = ArrayField(models.CharField(max_length=50), blank=True, default=list)
+```
+
+### Humanize (`django.contrib.humanize`)
+
+Friendly template filters.
+
+```html+django
+{% load humanize %}
+{{ 1234567|intcomma }}  {# 1,234,567 #}
+{{ post.published_at|naturaltime }}
+```
+
+### Sitemaps (`django.contrib.sitemaps`)
+
+Generate `sitemap.xml` for SEO.
+
+```python
+# sitemaps.py
+from django.contrib.sitemaps import Sitemap
+from .models import Post
+
+class PostSitemap(Sitemap):
+    def items(self):
+        return Post.objects.all()
+```
+
+### Static Files (`django.contrib.staticfiles`)
+
+Collect and serve static assets in development.
+
+```html+django
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/app.css' %}">
+```
+
+### Flatpages (`django.contrib.flatpages`)
+
+Simple CMS pages stored in the database.
+
+```python
+# urls.py
+from django.contrib.flatpages import views
+
+urlpatterns = [
+    path("about/", views.flatpage, {"url": "/about/"}),
+]
+```
+
+### Redirects (`django.contrib.redirects`)
+
+Database-driven redirects for moved pages.
+
+```python
+# settings.py
+MIDDLEWARE = [
+    "django.contrib.redirects.middleware.RedirectFallbackMiddleware",
+    # ...
+]
+```
+
+### Admin Docs (`django.contrib.admindocs`)
+
+Auto-generated documentation pages inside the admin.
+
+```python
+# urls.py
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path("admin/doc/", include("django.contrib.admindocs.urls")),
+    path("admin/", admin.site.urls),
+]
+```
+
 ## Registering Models
 
 The leading dot in `from .models` means "import from the current app package".

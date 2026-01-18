@@ -20,6 +20,14 @@ CSS in JS means authoring styles inside JavaScript (or TypeScript) and scoping t
 
 Mitigations: enable the library's SSR extraction/injection, keep style generation deterministic, and avoid using values like `Date.now()` or `Math.random()` in style props.
 
+## Best Practices
+
+- Prefer static CSS (CSS Modules or build-time extraction) for most styles to avoid runtime overhead.
+- Keep dynamic styling to class toggles; predefine variants instead of inline style objects.
+- Ensure SSR extracts styles into the initial HTML to prevent FOUC.
+- Avoid non-deterministic values in render (random IDs, timestamps) that change between server and client.
+- Use stable theming tokens and keep style insertion order consistent.
+
 ## Emotion example
 
 ```javascript
@@ -86,3 +94,60 @@ function Profile() {
 ## When to consider alternatives
 
 If bundle size or runtime overhead is a major concern, consider static extraction tools (like vanilla-extract or Linaria) or CSS Modules, which avoid runtime style generation and reduce hydration risk.
+
+## Build-time CSS (Static Extraction)
+
+Build-time CSS means styles are compiled to real `.css` files during the build step, so the browser loads them like normal stylesheets. The JavaScript still lets you write styles near components, but the CSS is extracted ahead of time, avoiding runtime style injection and reducing hydration/FOUC risk. This is not server-rendered "dynamic CSS" per request; it is generated once at build time.
+
+Example with `vanilla-extract` (build-time extraction):
+
+```javascript
+// styles.css.ts
+import { style } from '@vanilla-extract/css';
+import { themeTokens } from './themeTokens';
+
+const borderColor = themeTokens.mode === 'light' ? '#e2e8f0' : '#334155';
+
+export const card = style({
+  padding: themeTokens.spacing.md,
+  borderRadius: themeTokens.radius.md,
+  border: `1px solid ${borderColor}`,
+});
+
+// themeTokens.ts (build-time constants, not runtime fetch)
+export const themeTokens = {
+  mode: 'light',
+  spacing: { md: 16 },
+  radius: { md: 10 },
+};
+
+// Card.tsx
+import { card } from './styles.css';
+
+export function Card({ title }) {
+  return <div className={card}>{title}</div>;
+}
+```
+
+If you need runtime-driven styles (e.g., after a fetch), keep them separate from build-time extraction:
+
+```javascript
+import { useEffect, useState } from 'react';
+import { card } from './styles.css';
+
+export function Card({ title }) {
+  const [accent, setAccent] = useState('#0ea5e9');
+
+  useEffect(() => {
+    fetch('/api/theme')
+      .then((res) => res.json())
+      .then((data) => setAccent(data.accent));
+  }, []);
+
+  return (
+    <div className={card} style={{ borderColor: accent }}>
+      {title}
+    </div>
+  );
+}
+```

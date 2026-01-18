@@ -44,7 +44,7 @@ When to use it:
 Pool modes matter:
 
 - `session`: one client holds one server connection for the entire session.
-- `transaction`: server connections are assigned per transaction; lower DB load but some features (like server-side cursors) are incompatible.
+- `transaction`: server connections are assigned per transaction; lower DB load but some features (like server-side cursors that stream large result sets and require a stable connection) are incompatible.
 
 Django settings for PgBouncer (transaction pooling):
 
@@ -85,6 +85,7 @@ A common, practical setup looks like:
 - **Test runner**: `pytest` with `pytest-django` (or Django's built-in test runner for smaller projects).
 - **Factories**: `factory_boy` for model instances with sensible defaults.
 - **API tests**: Django REST Framework's `APIClient` or `APIRequestFactory` if you're building APIs.
+- **View tests**: Django's `TestCase` (class) + test client (`self.client.get/post`) to assert status, templates, redirects, and context.
 - **External HTTP**: `pytest-httpserver` for predictable upstream responses when your app calls other services.
 - **Async/browser tests**: `playwright` or `selenium` for full-page flows and JS-heavy UI.
 - **Coverage**: `coverage.py` or `pytest-cov`.
@@ -94,8 +95,8 @@ Django adds helpful testing utilities on top of plain Python:
 
 - `TestCase` with database isolation and automatic migrations.
 - The test client for views and forms (`self.client.get/post`).
-- URL reversing (`reverse`) and test helpers for middleware/auth.
-- DRF's (Django REST Framework) API test helpers when building JSON APIs.
+- URL reversing (`reverse`, like Laravel route helper for named routes)  and test helpers for middleware/auth.
+- DRF's (Django REST Framework) API test helpers when building JSON APIs. (APIClient and APIRequestFactory). APIRequestFactory builds mock HTTP requests for views.
 
 ## URL Reversing
 

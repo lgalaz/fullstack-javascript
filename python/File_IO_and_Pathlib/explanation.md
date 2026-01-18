@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Python's `pathlib` provides a clean, cross-platform way to work with file paths. Use it with standard file I/O for readability and safety.
+Python's `pathlib` provides a clean, cross-platform way to work with file paths. It abstracts filesystem path handling and offers a consistent API across OSes. Use it with standard file I/O for readability and safety.
 
 ## Key Concepts
 

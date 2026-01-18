@@ -14,6 +14,18 @@ urlpatterns = [
 ]
 ```
 
+You can organize views across multiple modules and import them in `urls.py`:
+
+```python
+# mysite/urls.py
+from users.views import post_views
+# or: from users.views.post_views import post_list
+
+urlpatterns = [
+    path("posts/", post_views.post_list),
+]
+```
+
 ## Path Converters
 
 ```python
@@ -22,6 +34,10 @@ path('users/<slug:username>/', views.profile)
 ```
 
 Common converters: `int`, `slug`, `uuid`, `str`, `path`.
+
+You can define custom converters (with `regex`, `to_python`, and `to_url`) and register them via `register_converter()` in `urls.py`.
+
+Django does not have automatic "route model binding" like Laravel; you usually fetch models in the view (`get_object_or_404`) or use class-based views like `DetailView` that look up by `pk`/`slug`.
 
 ## App URLs and Namespacing
 
@@ -32,6 +48,17 @@ urlpatterns = [
     path('posts/<int:id>/', views.post_detail, name='detail'),
 ]
 ```
+
+```python
+# project/urls.py
+from django.urls import include, path
+
+urlpatterns = [
+    path("blog/", include("blog.urls")),
+]
+```
+
+This defines `blog/posts/<id>/`.
 
 Then reverse with `reverse('blog:detail', args=[id])`.
 

@@ -4,7 +4,7 @@
 
 - `DEBUG = False`
 - Set `ALLOWED_HOSTS`
-- Configure `SECRET_KEY` via env
+- Configure `SECRET_KEY` via env (same as APP_KEY in laravel)
 - Set up static/media hosting
 - Run migrations
 - Set secure headers

@@ -38,9 +38,9 @@ urlpatterns = [
 ]
 ```
 
-`ListView` renders the template with a `post_list` context variable by default, so the HTML is produced by `posts/list.html`.
+`ListView` is a generic "list" view: it automatically queries the model (`Post.objects.all()` by default), puts the results in `post_list`, and renders a template so common wiring is handled for you.
 
-If you omit `template_name`, Django will look for the conventional template name `post_list.html` inside your app's templates directory.
+If you omit `template_name`, Django uses a convention based on the model: `app_label/post_list.html` (for example `blog/post_list.html`).
 
 You set `template_name` as a class attribute on the view:
 
@@ -53,6 +53,8 @@ class PostListView(ListView):
     model = Post
     template_name = "posts/list.html"
 ```
+
+In short: you map a data source (the model/queryset) to a conventional template, and `urls.py` just wires the class with `PostListView.as_view()`.
 
 ## When to Use Which
 

@@ -77,6 +77,31 @@ Squash older migrations to reduce startup time:
 python manage.py squashmigrations blog 0001 0020
 ```
 
+## Advanced Migrations
+
+### Dependencies and Conflicts
+
+When two branches add migrations, Django may generate a merge migration. Resolve conflicts by creating a new migration that depends on both heads.
+
+### RunSQL and SeparateDatabaseAndState
+
+Use `RunSQL` for custom SQL and `SeparateDatabaseAndState` when the DB change does not match the Django model state.
+
+```python
+from django.db import migrations
+
+class Migration(migrations.Migration):
+    operations = [
+        migrations.RunSQL("CREATE INDEX CONCURRENTLY idx_post_title ON blog_post(title);"),
+    ]
+```
+
+### Large Table Changes
+
+- Add nullable columns first, backfill in batches, then add `NOT NULL`.
+- Avoid long locks by using `CREATE INDEX CONCURRENTLY` (Postgres) via `RunSQL`.
+- Prefer data migrations with idempotent logic.
+
 ## Gotchas
 
 - Merge conflicts in migration files are common.

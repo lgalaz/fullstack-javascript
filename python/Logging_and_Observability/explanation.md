@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Logging is essential for debugging and production operations. Python's `logging` module supports structured logs and log levels.
+Logging is essential for debugging and production operations. Python's `logging` module supports structured logs and log levels. Observability tools (logs, metrics, traces) provide visibility into performance, regressions, and refactor impact.
 
 ## Key Concepts
 
@@ -124,4 +124,26 @@ def handle_request():
         # work...
     finally:
         LATENCY.observe(time.perf_counter() - start)
+```
+
+Example: OpenTelemetry tracing
+
+```python
+from opentelemetry import trace
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+
+resource = Resource.create({"service.name": "api"})
+provider = TracerProvider(resource=resource)
+processor = BatchSpanProcessor(OTLPSpanExporter())
+provider.add_span_processor(processor)
+trace.set_tracer_provider(provider)
+
+tracer = trace.get_tracer(__name__)
+
+with tracer.start_as_current_span("process_request") as span:
+    span.set_attribute("user_id", 123)
+    # work...
 ```

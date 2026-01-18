@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "django-crud-sample"
+version = "0.1.0"
+dependencies = [
+  "Django>=5.0,<6.0",
+  "mysqlclient>=2.2",
+  "python-dotenv>=1.0",
+  "gunicorn>=21.2",
+  "uvicorn>=0.30",
+]
+
+[tool.setuptools]
+packages = ["crud_project", "users"]

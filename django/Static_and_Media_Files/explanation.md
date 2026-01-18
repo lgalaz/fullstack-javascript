@@ -7,8 +7,8 @@ Static assets (CSS, JS, images) are collected with `collectstatic`.
 Settings:
 
 ```python
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_URL = '/static/'  # Public URL prefix, e.g. https://example.com/static/app.css
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # Filesystem path, e.g. /var/www/project/staticfiles/
 ```
 
 In production, a CDN or web server serves these files.

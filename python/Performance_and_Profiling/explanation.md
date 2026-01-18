@@ -62,8 +62,9 @@ logger.info("profile stats:\n%s", buf.getvalue())
 # timeit_example.py
 import timeit
 
-# Time how long 1000 runs of sum(range(1000)) take.
-print(timeit.timeit('sum(range(1000))', number=1000))
+# Time how long 1000 runs of sum(range(10000)) take.
+# number=1000 controls how many repeats; the range size controls the work per run.
+print(timeit.timeit('sum(range(10000))', number=1000))
 # e.g. 0.02 (varies by machine)
 ```
 
@@ -72,6 +73,6 @@ print(timeit.timeit('sum(range(1000))', number=1000))
 - Optimize hot paths only after measuring.
   Explanation: profile first so you focus on the code that actually dominates runtime.
 - Use built-in functions and vectorized libraries when possible.
-  Explanation: built-ins and vectorized libraries (e.g., NumPy) run fast loops in C instead of Python.
+  Explanation: built-ins and vectorized libraries (e.g., NumPy) operate on whole arrays and run fast loops in native code (C/Fortran), avoiding slow Python-level loops.
 - Offload CPU-heavy work to native code or multiprocessing.
   Explanation: native code (C/Cython/Rust extensions) bypasses Python overhead (interpreter overhead like dynamic dispatch and type checks); multiprocessing uses multiple OS processes to parallelize CPU-bound tasks.

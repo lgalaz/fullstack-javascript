@@ -11,6 +11,7 @@ Serialization is converting objects to a storable or transferable format (JSON, 
 - Define explicit schemas for stability.
 
 `pickle` is Python's binary serialization format. It can serialize many Python objects, but it is unsafe to load data from untrusted sources because it can execute arbitrary code during unpickling.
+`__reduce__` is the special method pickle uses to define how objects are serialized and reconstructed.
 
 Example: pickle (do not use with untrusted input):
 
@@ -83,4 +84,18 @@ Example:
 with open("data.pickle", "rb") as f:
     safe_data = f.read()
     obj = pickle.loads(safe_data)
+```
+
+Bad example (do not run; demonstrates arbitrary code execution via unpickling):
+
+```python
+import os
+import pickle
+
+class Exploit:
+    def __reduce__(self):
+        return (os.system, ("echo MALICIOUS_CODE_EXECUTED",))
+
+payload = pickle.dumps(Exploit())
+pickle.loads(payload)  # would execute os.system(...) on unpickle
 ```

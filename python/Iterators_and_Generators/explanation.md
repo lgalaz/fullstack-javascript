@@ -7,7 +7,7 @@ Iterators and generators provide lazy iteration, which is critical for large dat
 ## Key Concepts
 
 - An iterator implements `__iter__` and `__next__`.
-- A generator is a function that yields values lazily.
+- A generator is a function that yields values lazily and is itself an iterator.
 - Generators save memory by not building full lists.
 
 ## Example: Generator
@@ -69,4 +69,19 @@ it = countdown(3)
 print(next(it))  # 3
 print(next(it))  # 2
 print(next(it))  # 1
+```
+
+Example: Infinite generator (only advances when you call `next()`, so it does not block unless you keep consuming it in a loop).
+Useful for streams, paginated APIs, log tailing, or any “produce values on demand” workflow:
+
+```python
+def countdown(n):
+    while True:
+        yield n
+        n += 1
+
+it = countdown(3)
+print(next(it))  # 3
+print(next(it))  # 4
+print(next(it))  # 5
 ```

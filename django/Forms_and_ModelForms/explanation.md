@@ -13,9 +13,40 @@ class SignupForm(forms.Form):
 ```
 
 ```python
-form = SignupForm(request.POST)
-if form.is_valid():
-    data = form.cleaned_data
+# app_name/views.py
+from django.shortcuts import render, redirect
+from .forms import SignupForm
+
+def signup(request):
+    if request.method == "POST":
+        form = SignupForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            # use data (create user, send email, etc.)
+            return redirect("signup_done")
+    else:
+        form = SignupForm()
+    return render(request, "signup.html", {"form": form})
+```
+
+```html+django
+<!-- templates/signup.html -->
+<!-- No action set, so the POST goes to the same URL that rendered the form. -->
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Sign up</button>
+</form>
+```
+
+```python
+# app_name/urls.py
+from django.urls import path
+from .views import signup
+
+urlpatterns = [
+    path("signup/", signup, name="signup"),
+]
 ```
 
 ## ModelForms

@@ -8,7 +8,8 @@ Context managers guarantee setup and cleanup around a block of code. They are es
 
 - `with` ensures cleanup even if errors occur.
 - Implement `__enter__` and `__exit__` for custom managers.
-- Use `contextlib` for lightweight managers.
+- Use `contextlib` for lightweight managers (e.g., `@contextmanager`, `closing`, `ExitStack`) without writing a full class.
+- `contextlib` is part of the Python standard library; import it with `import contextlib` or `from contextlib import contextmanager`.
 
 ## Example: File Handling
 
@@ -35,6 +36,26 @@ class Timer:
 
 with Timer():
     sum(range(1_000_000))
+```
+
+## Example: contextlib @contextmanager
+
+```python
+# temp-cwd.py
+import os
+from contextlib import contextmanager
+
+@contextmanager
+def temporary_cwd(path):
+    prev = os.getcwd()
+    os.chdir(path)
+    try:
+        yield
+    finally:
+        os.chdir(prev)
+
+with temporary_cwd("/tmp"):
+    print(os.getcwd())
 ```
 
 ## Example: TypeScript using with Symbol.dispose

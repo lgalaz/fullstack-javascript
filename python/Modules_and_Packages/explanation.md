@@ -16,6 +16,20 @@ def add(a, b):
 ```
 
 - A package is a directory with an `__init__.py` (implicit namespace packages are also possible).
+
+`__init__.py` makes a directory a regular package and gives you a place to define the package's public API or lightweight initialization (it can be empty).
+Example:
+
+```python
+# pkg/__init__.py
+from .helpers import add, subtract
+
+__all__ = ["add", "subtract"]
+```
+
+`__init__.py` is just a module that runs at import time to define package-level exports or initialization.
+`__all__` only affects `from package import *`. It does not auto-import names for `import package` or `import package.module1`.
+`__init__.py` is just a module that runs at import time.
 - Example:
 
 ```text
@@ -36,8 +50,10 @@ from pkg import helpers
 ```
 
 `sys.path` typically includes the script directory (or current working directory), the standard library, `site-packages`, and any `PYTHONPATH` entries.
+`PYTHONPATH` is an environment variable that adds extra directories to the module search path.
 
-Implicit namespace packages are package directories without an `__init__.py`. Python can merge multiple directories with the same package name into a single logical package (PEP 420).
+Implicit namespace packages are package directories without an `__init__.py`. Python can merge multiple directories with the same package name into a single logical package (PythonEnhancementProposal 420).
+When importing, Python scans each entry in `sys.path` and combines all matching package directories into one namespace, so `from acme import utils, api` can resolve modules spread across different locations.
 Example:
 
 ```text
@@ -53,20 +69,6 @@ src2/
 ```python
 from acme import utils, api
 ```
-
-`__init__.py` makes a directory a regular package and gives you a place to define the package's public API or lightweight initialization (it can be empty).
-Example:
-
-```python
-# pkg/__init__.py
-from .helpers import add, subtract
-
-__all__ = ["add", "subtract"]
-```
-
-`__init__.py` is just a module that runs at import time to define package-level exports or initialization.
-`__all__` only affects `from package import *`. It does not auto-import names for `import package` or `import package.module1`.
-`__init__.py` is just a module that runs at import time.
 
 ## Example: Package Layout
 

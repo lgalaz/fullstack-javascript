@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Python is a general-purpose language known for readability, a large standard library, and a massive ecosystem. Senior engineers choose it when developer speed, clarity, and ecosystem leverage matter more than raw runtime speed.
+Python is a general-purpose language known for readability, a large standard library, and a massive ecosystem. Choose it when developer speed, clarity, and ecosystem leverage matter more than raw runtime speed.
 
 ## Why Teams Choose Python
 
@@ -26,7 +26,7 @@ Python is a general-purpose language known for readability, a large standard lib
 
 ## Data Ecosystem 
 
-DataFrames are 2D, table-like data structures with labeled rows and columns.
+Note: DataFrames are 2D, table-like data structures with labeled rows and columns.
 
 - NumPy: core n-dimensional arrays and vectorized math.
 - pandas: default DataFrame library for analysis and ETL (extract, transform, load).

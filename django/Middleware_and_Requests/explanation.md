@@ -53,13 +53,28 @@ class ExampleMiddleware:
         return response
 
     def process_response(self, request, response):
-        # Runs after the view; can modify the response
+        # Old-style middleware hook; runs after the view and can modify the response.
         response["X-Example"] = "true"
         return response
 
     def process_exception(self, request, exception):
-        # Runs if the view raises an exception; return a response to handle it
+        # Old-style middleware hook; runs if the view raises an exception.
         return None
+```
+
+New-style exception handling uses `try/except` around `get_response`:
+
+```python
+class ExceptionMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        try:
+            return self.get_response(request)
+        except Exception:
+            # handle or re-raise
+            raise
 ```
 
 Because middleware wraps `get_response`, the same middleware is invoked on the way in and out. The request hits `__call__` top-to-bottom, the response returns through those same `__call__` frames bottom-to-top.

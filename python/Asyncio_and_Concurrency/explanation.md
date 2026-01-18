@@ -3,6 +3,7 @@
 ## Introduction
 
 `asyncio` provides cooperative concurrency for I/O-bound tasks. It enables many tasks to run without blocking the event loop.
+When a coroutine awaits I/O, the OS performs the I/O in the background while the event loop runs other awaiting tasks. Once the I/O is ready, the event loop resumes the coroutine. CPU-bound work does not yield, so it blocks the loop unless you offload it to a thread or process.
 
 ## Key Concepts
 

@@ -9,6 +9,7 @@ Type hints improve readability and tooling without changing runtime behavior. My
 - Hints use `typing` annotations.
 - Static checkers enforce type consistency.
 - Type hints are optional but powerful at scale.
+- Similar to TypeScript: optional static types checked by tools, not enforced at runtime.
 
 ## Example: Function Annotations
 

@@ -8,7 +8,7 @@ pytest is the de facto testing framework in Python. It provides simple test disc
 
 - Tests are functions named `test_*`.
 - `assert` is used directly.
-- Fixtures provide reusable setup.
+- Fixtures provide reusable setup (functions that return data or resources injected into tests).
 
 ## Example: Unit Test
 
@@ -44,6 +44,54 @@ def test_user_name(user):
     assert user["name"] == "Ada"
 ```
 
+## Example: Fixture with Teardown
+
+```python
+import pytest
+
+@pytest.fixture
+def temp_dir(tmp_path):
+    # tmp_path is a built-in pytest fixture injected by name.
+    # Use a temporary directory provided by pytest.
+    return tmp_path
+
+def test_writes_file(temp_dir):
+    file_path = temp_dir / "note.txt"
+    file_path.write_text("hello", encoding="utf8")
+    assert file_path.read_text(encoding="utf8") == "hello"
+```
+
+## Example: Custom Fixture
+
+```python
+import pytest
+
+@pytest.fixture
+def api_client():
+    # Create a simple test client with shared config.
+    return {"base_url": "https://example.test", "token": "test-token"}
+
+def test_builds_url(api_client):
+    url = f"{api_client['base_url']}/health"
+    assert url.endswith("/health")
+```
+
+## Example: Property Test (Hypothesis)
+
+```python
+from hypothesis import given, settings
+from hypothesis.strategies import integers
+
+@settings(max_examples=200)
+@given(integers(), integers())
+def test_add_commutative(a, b):
+    assert a + b == b + a
+```
+
+Note: Hypothesis explores many inputs (including edge cases) and shrinks failures to minimal examples. Faker is better for realistic data generation, not property-based testing.
+You can configure settings per environment using profiles (e.g., set `HYPOTHESIS_PROFILE=ci`), or pass `@settings(...)` directly on specific tests.
+By default Hypothesis runs many examples per test (default max_examples is 100), not just one. It will stop early on a failure, and may run fewer if data generation is rejected or filtered.
+
 ## Practical Guidance
 
 - Keep tests fast and deterministic.
@@ -55,7 +103,7 @@ def test_user_name(user):
 - Unit tests: pytest
 - API tests: pytest + requests/httpx or framework test clients (FastAPI/Django)
 - Async tests: pytest-asyncio
-- Property tests: hypothesis
+- Property tests: hypothesis (tests general properties across many generated inputs, not single examples)
 - Coverage: pytest-cov (coverage.py)
 - Test envs: tox or nox
 - Mocks: unittest.mock or pytest-mock
