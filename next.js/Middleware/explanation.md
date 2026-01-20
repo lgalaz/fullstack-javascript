@@ -32,15 +32,32 @@ src/middleware/auth.ts
 src/middleware/headers.ts
 ```
 
+Example: apply different middleware to different segments.
+
 ```javascript
 // src/middleware.ts
 import { withAuth } from './middleware/auth';
 import { withHeaders } from './middleware/headers';
+import { NextResponse } from 'next/server';
 
 export function middleware(request) {
-  const response = withAuth(request);
-  return withHeaders(request, response);
+  const { pathname } = request.nextUrl;
+
+  if (pathname.startsWith('/dashboard')) {
+    const authResponse = withAuth(request);
+    if (authResponse) return authResponse;
+  }
+
+  if (pathname.startsWith('/docs')) {
+    return withHeaders(request);
+  }
+
+  return NextResponse.next();
 }
+
+export const config = {
+  matcher: ['/dashboard/:path*', '/docs/:path*']
+};
 ```
 
 ```javascript
@@ -99,75 +116,7 @@ export const config = {
 };
 ```
 
-Example: set a security header only for `/dashboard` routes.
-
-```javascript
-import { NextResponse } from 'next/server';
-
-export function middleware() {
-  const response = NextResponse.next();
-  response.headers.set('X-Frame-Options', 'DENY');
-  return response;
-}
-
-export const config = {
-  matcher: ['/dashboard/:path*']
-};
-```
-
-Example: one middleware, different helpers per route segment.
-
-```javascript
-// src/middleware.ts
-import { withAuth } from './middleware/auth';
-import { withHeaders } from './middleware/headers';
-
-export function middleware(request) {
-  const { pathname } = request.nextUrl;
-
-  if (pathname.startsWith('/dashboard')) {
-    const authResponse = withAuth(request);
-    if (authResponse) return authResponse;
-  }
-
-  if (pathname.startsWith('/docs')) {
-    return withHeaders(request);
-  }
-
-  return null;
-}
-
-export const config = {
-  matcher: ['/dashboard/:path*', '/docs/:path*']
-};
-```
-
-Example: separate middleware per matcher (one global middleware file).
-
-```javascript
-// src/middleware.ts
-import { withAuth } from './middleware/auth';
-import { withDocsHeaders } from './middleware/docs-headers';
-import { NextResponse } from 'next/server';
-
-export function middleware(request) {
-  const { pathname } = request.nextUrl;
-
-  if (pathname.startsWith('/dashboard')) {
-    return withAuth(request) ?? NextResponse.next();
-  }
-
-  if (pathname.startsWith('/docs')) {
-    return withDocsHeaders(request);
-  }
-
-  return NextResponse.next();
-}
-
-export const config = {
-  matcher: ['/dashboard/:path*', '/docs/:path*']
-};
-```
+Note: middleware does not run on `_next` assets and static files by default. Use matchers carefully to avoid unnecessary work.
 
 ## Interview Questions and Answers
 

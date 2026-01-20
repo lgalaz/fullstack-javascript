@@ -28,6 +28,8 @@ Templates are like layouts but reset state on navigation.
 
 Templates are useful when you need to re-run client component state on each navigation within a segment.
 
+Example scenario: a multi-step wizard or search filter panel should reset when moving between sub-routes (e.g., `/dashboard/reports` to `/dashboard/settings`). Use a template so the form state doesn't leak across pages.
+
 ```javascript
 // app/dashboard/template.js
 export default function Template({ children }) {
@@ -125,6 +127,10 @@ export default function NotFound() {
   return <h1>Not Found</h1>;
 }
 ```
+
+Notes:
+- `error.js` must be a client component because it uses React error boundaries.
+- Use `app/global-error.js` for a root-level error boundary that catches errors in the root layout.
 
 ## Interview Questions and Answers
 

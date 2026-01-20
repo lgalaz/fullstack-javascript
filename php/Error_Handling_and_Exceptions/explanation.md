@@ -62,5 +62,10 @@ try {
 
 // Error suppression example (not recommended):
 @$data = file_get_contents('missing.txt');
+
+// With @, the warning is suppressed and you get false instead of a visible warning.
+if ($data === false) {
+    echo "Read failed, but the warning was hidden.\n";
+}
 ```
 ```

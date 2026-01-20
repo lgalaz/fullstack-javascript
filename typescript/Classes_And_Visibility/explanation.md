@@ -36,7 +36,9 @@ class Account {
 }
 ```
 
-`public` is the default. `private` restricts access to the class itself, while `protected` allows access from subclasses.
+`public` is the default. 
+`private` restricts access to the class itself.
+`protected` allows access from subclasses.
 
 TypeScript `private` is a compile-time check. If you need runtime privacy, use JavaScript `#` private fields.
 
@@ -82,6 +84,13 @@ class Config {
 
 `readonly` prevents reassignment of a field after construction.
 
+Example:
+
+```typescript
+const cfg = new Config();
+cfg.env = 'dev'; // Error: cannot assign to 'env' because it is a read-only property
+```
+
 ## Abstract classes and implements
 
 ```typescript
@@ -115,6 +124,26 @@ class Session {
 
 `!` is the definite assignment assertion: it tells the compiler "this property will be assigned before it is used," even if it is not assigned in the constructor.
 
+Example:
+
+```typescript
+class Session {
+  public token!: string;
+  private propA: string;
+
+  constructor(propA: string) {
+    this.propA = propA;
+  }
+  init(token: string) {
+    this.token = token;
+  }
+}
+
+const s = new Session();
+s.init('abc');
+console.log(s.token);
+```
+
 ## Structural typing vs nominal behavior
 
 Classes are structurally typed, but `private`/`protected` members make them nominal-like: only instances from the same declaration are compatible.
@@ -131,6 +160,8 @@ class B {
 ```
 
 ## this typing and fluent APIs
+
+Fluent APIs are APIs designed for method chaining, where each method returns the same object (or `this`) so calls can be chained together.
 
 Use `this` return types to preserve subclass types in fluent APIs.
 
@@ -180,6 +211,7 @@ class Counter {
 ## Accessors and invariants
 
 Getters and setters let you enforce invariants without changing callers.
+You might define only a setter when a write-only input updates multiple internal fields or enforces rules without exposing the stored representation. Or only a getter when its like a computed property
 
 ```typescript
 class BankAccount {
@@ -218,4 +250,4 @@ Classes are structurally typed, but `private`/`protected` members create nominal
 
 ### 6. What is the risk of relying on `private` in TS?
 
-It is compile-time only; at runtime the property is still accessible unless you use `#` private fields.
+It is compile-time only; at runtime the property is still accessible unless you use javascripts `#` private fields.

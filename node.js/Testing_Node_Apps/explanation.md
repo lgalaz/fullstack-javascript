@@ -82,3 +82,5 @@ test('server responds with ok', async () => {
 - Cover core logic with unit tests and use integration tests for I/O.
 - Keep tests deterministic and avoid real network calls when possible.
 - Use test doubles (stubs/mocks) for external services.
+- see json server: https://www.npmjs.com/package/json-server
+- See StrykerJS for Mutation tests.

@@ -41,6 +41,20 @@ namespace parse {
 
 Namespaces are mainly for global (non-module) code. In modern TypeScript with ES modules, prefer regular `export`/`import` across files instead of namespaces.
 
+Example:
+
+```typescript
+namespace Utils {
+  export function trim(input: string) {
+    return input.trim();
+  }
+  export const version = '1.0';
+}
+
+const name = Utils.trim(' Ada ');
+Utils.version;
+```
+
 ## Function and Namespace Merging
 
 You can merge a function with a namespace to attach "static" helpers to the function value.
@@ -171,6 +185,23 @@ They let you ship type information alongside JavaScript so consumers get static 
 ### 2. When would you prefer module declarations over ambient globals?
 
 When typing imports (including non-TS assets) to avoid polluting the global namespace.
+
+Ambient declarations are worth it when the runtime truly provides a global (e.g., build-time injected constants, browser/Node globals not covered by your `lib`, or framework-injected hooks) and you need a clean way to type-check those usages without imports.
+
+Project-level types are commonly placed in `src/types/*.d.ts` or `types/*.d.ts` (referenced via `typeRoots`), or defined as normal exported types in `.ts` modules and imported where needed. A `globals.d.ts` file is a common pattern for truly global types.
+
+Example with `declare global`:
+
+```typescript
+// globals.d.ts
+export {};
+
+declare global {
+  interface Window {
+    __APP_VERSION__: string;
+  }
+}
+```
 
 ### 3. What are common failure modes with `.d.ts` files?
 

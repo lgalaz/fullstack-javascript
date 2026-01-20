@@ -10,6 +10,17 @@ Caching strategy impacts performance and cost.
 
 - Node runtime for server rendering and route handlers
 - Edge runtime for low-latency middleware and handlers
+- Static export for fully static sites (`next export`)
+
+Example (static export workflow):
+
+```bash
+npm run build
+npx next export
+# Output goes to the `out/` folder for static hosting.
+```
+
+Note: static export writes pre-rendered HTML for routes, plus JS/CSS bundles and assets (including `public/`), not just the `public/` folder.
 
 Node runtime runs on a traditional Node.js server, giving full access to Node APIs (filesystem, native modules). Native modules are Node add-ons compiled for the host OS/CPU (for example, `bcrypt`, `sharp`, `sqlite3`, `canvas`), and the Node runtime is best for heavier server-side work. Edge runtime runs on distributed edge locations with the Web API surface, offering lower latency but fewer APIs and stricter limits, ideal for lightweight middleware and fast request handling.
 
@@ -77,6 +88,23 @@ const nextConfig = {
 
 module.exports = nextConfig;
 ```
+
+## Standalone output (self-hosting)
+
+For Docker or minimal Node deployments, use `output: 'standalone'`:
+
+```javascript
+// next.config.js
+module.exports = {
+  output: 'standalone'
+};
+```
+
+This creates a minimal `.next/standalone` bundle with only the files the server needs.
+
+## Image optimization note
+
+`next/image` optimization requires a server runtime. If you deploy fully static (`next export`), use a CDN image loader or disable optimization.
 
 ## Interview Questions and Answers
 

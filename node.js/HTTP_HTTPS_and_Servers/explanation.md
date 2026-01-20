@@ -50,6 +50,28 @@ const server = http.createServer((req, res) => {
 server.listen(3001);
 ```
 
+## HTTP Early Hints (103)
+
+Early Hints is an interim response that sends `Link` headers (preload/preconnect) before the final response. This lets the browser start fetching critical CSS/JS while your server is still rendering or querying the database, improving perceived load times.
+
+Node supports this in core with `res.writeEarlyHints()`:
+
+```javascript
+const http = require('http');
+
+http.createServer((req, res) => {
+  res.writeEarlyHints({
+    link: [
+      '</assets/app.css>; rel=preload; as=style',
+      '</assets/app.js>; rel=preload; as=script',
+    ],
+  });
+
+  res.writeHead(200, { 'Content-Type': 'text/html' });
+  res.end('<html>...</html>');
+}).listen(3000);
+```
+
 ## HTTPS (TLS)
 
 HTTPS wraps HTTP in TLS. In production you usually terminate TLS at a load balancer, but the built-in server is useful for local testing and internal services.

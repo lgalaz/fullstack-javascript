@@ -76,6 +76,8 @@ Notes:
 - `getServerSession` runs on the server, so it can safely read cookies and validate the session.
 - If you want database sessions, configure an adapter and set `session: { strategy: 'database' }`.
 
+Auth.js v5 also exposes an `auth()` helper for server components and route handlers so you can read the session with one call.
+
 ## Middleware Guard
 
 ```javascript
@@ -145,6 +147,7 @@ export async function getAdminData(userId) {
 }
 ```
 
+Bad practice: assuming `getAdminData(user.id)` enforces authorization internally. If it doesn't, this leaks admin data.
 ```javascript
 // app/api/admin/route.js
 import { getAdminData } from '@/lib/users';
@@ -155,6 +158,7 @@ export async function GET(request) {
 }
 ```
 
+Good practice: enforce authorization explicitly in the handler (or in the data layer) before returning admin data
 ```javascript
 export async function GET(request) {
   // getSessionUser returns the authenticated user from the request.
@@ -166,6 +170,10 @@ export async function GET(request) {
   return Response.json(await getAdminData());
 }
 ```
+
+## CSRF and cookie security
+
+Use `HttpOnly`, `Secure`, and `SameSite` cookies for sessions, and enable CSRF protection for state-changing requests (Auth.js includes built-in CSRF for credentials flows).
 
 ## Interview Questions and Answers
 

@@ -20,14 +20,7 @@ function debounce(func, delay) {
   };
 }
 ```
-
-### Use Cases
-
-- Search input: Wait for user to stop typing before making API call
-- Window resize: Avoid excessive recalculations during resize
-- Button clicks: Prevent double-clicks
-
-### Example
+**Note**: The wrapper captures `this` in `context` so the delayed `setTimeout` callback can call `func` with the original call-site `this`. If you used `func.apply(this, args)` inside the timeout, `this` would refer to the timer context (or `undefined` in strict mode), not the original caller.
 
 ```javascript
 const debouncedSearch = debounce((query) => {
@@ -39,9 +32,16 @@ input.addEventListener('input', (e) => {
 });
 ```
 
+### Use Cases
+
+- Search input: Wait for user to stop typing before making API call
+- Window resize: Avoid excessive recalculations during resize
+- Button clicks: Prevent double-clicks
+
 ## Throttle
 
-Throttle limits the execution of a function to once per specified time interval. It's useful when you want to ensure a function runs at most once in a given time frame.
+Throttle limits the execution of a function to once per specified time interval. It's useful when you want to ensure a function runs at most once in a given time frame. Throttle enforces a minimum time gap between executions.
+The returned function closes over inThrottle, so every call sees and updates the same flag. The first call flips it to true, later calls see true and skip, and the timer flips it back to false after the limit.
 
 ### Implementation
 
@@ -75,6 +75,34 @@ const throttledScroll = throttle(() => {
 window.addEventListener('scroll', throttledScroll);
 ```
 
+**Note**: The limit is a fixed time window, not a counter. The first call runs immediately and starts a timer. While `inThrottle` is true, additional calls are ignored. After `limit` ms, the timer flips `inThrottle` back to false, allowing the next call to run.
+**Note**: Some throttles support a trailing call, which runs once at the end of the window with the latest arguments so you do not miss the final state in a burst.
+
+```javascript
+function throttleTrailing(func, limit) {
+  let inThrottle = false;
+  let lastArgs;
+  let lastContext;
+
+  return function(...args) {
+    lastArgs = args;
+    lastContext = this;
+
+    if (!inThrottle) {
+      func.apply(lastContext, lastArgs);
+      inThrottle = true;
+
+      setTimeout(() => {
+        inThrottle = false;
+        if (lastArgs !== args) {
+          func.apply(lastContext, lastArgs);
+        }
+      }, limit);
+    }
+  };
+}
+```
+
 ## Key Differences
 
 | Aspect | Debounce | Throttle |
@@ -88,6 +116,8 @@ window.addEventListener('scroll', throttledScroll);
 ### Leading Edge Throttle
 
 Executes immediately, then throttles subsequent calls.
+
+**Use cases**: Trigger an immediate UI response (e.g., start a drag, open a tooltip, first scroll update) while still limiting how often updates happen during the burst.
 
 ```javascript
 function throttle(func, limit) {
@@ -112,6 +142,8 @@ function throttle(func, limit) {
 ```
 
 ### Debounce with Immediate Execution
+
+**Use cases**: Run the action on the first event (e.g., instant search hint, immediate validation feedback) but suppress repeated calls until the user pauses.
 
 ```javascript
 function debounce(func, delay, immediate = false) {
@@ -146,7 +178,7 @@ const throttledFunc = throttle(func, 100);
 ### React Hooks
 
 ```javascript
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 function useDebounce(value, delay) {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -162,6 +194,47 @@ function useDebounce(value, delay) {
   }, [value, delay]);
 
   return debouncedValue;
+}
+
+function useDebouncedCallback(callback, delay) {
+  const callbackRef = useRef(callback);
+  const timeoutRef = useRef(null);
+
+  useEffect(() => {
+    callbackRef.current = callback;
+  }, [callback]);
+
+  return useCallback((...args) => {
+    clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => {
+      callbackRef.current(...args);
+    }, delay);
+  }, [delay]);
+}
+
+function SearchInput() {
+  const [query, setQuery] = useState('');
+  const debouncedQuery = useDebounce(query, 300);
+
+  useEffect(() => {
+    if (debouncedQuery) {
+      console.log('Searching for:', debouncedQuery);
+    }
+  }, [debouncedQuery]);
+
+  return (
+    <input value={query} onChange={(e) => setQuery(e.target.value)} />
+  );
+}
+
+function SaveButton() {
+  const saveDraft = useDebouncedCallback((text) => {
+    console.log('Saving draft:', text);
+  }, 500);
+
+  return (
+    <textarea onChange={(e) => saveDraft(e.target.value)} />
+  );
 }
 ```
 

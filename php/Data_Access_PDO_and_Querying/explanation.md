@@ -30,4 +30,8 @@ $stmt->execute(['id' => 1]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
 print_r($user);
+
+## Transactions and Integrity
+
+See `php/Transactions_Isolation_Locking/explanation.md` for details.
 ```

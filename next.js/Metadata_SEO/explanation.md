@@ -89,6 +89,29 @@ export const metadata = {
 };
 ```
 
+## Canonical and alternates
+
+```javascript
+export const metadata = {
+  metadataBase: new URL('https://example.com'),
+  alternates: {
+    canonical: '/docs',
+    languages: {
+      'en-US': '/en/docs',
+      'es-ES': '/es/docs'
+    }
+  }
+};
+```
+
+## Icons and metadata routes
+
+You can add route-based metadata files:
+
+- `app/icon.png` or `app/icon.tsx`
+- `app/robots.txt` or `app/robots.ts`
+- `app/sitemap.xml` or `app/sitemap.ts`
+
 ## Open Graph and Twitter
 
 ```javascript

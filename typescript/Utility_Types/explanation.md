@@ -4,6 +4,10 @@
 
 Utility types help transform existing types.
 
+## Why TypeScript
+
+TypeScript catches type errors early, improves editor tooling (autocomplete, refactors), and documents intent with types. It does this at build time without changing JavaScript runtime behavior.
+
 ## Common Utility Types
 
 ```typescript

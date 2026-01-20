@@ -96,6 +96,47 @@ export default function Page() {
 
 React Suspense allows partial UI to stream while data loads.
 
+## Partial Prerendering (PPR)
+
+PPR mixes static HTML with streamed dynamic parts in a single route. The shell is prerendered and cached, while dynamic islands stream in at request time.
+
+Use PPR when most of a page is static but small regions are personalized or real-time.
+
+Example (static shell + streamed dynamic region):
+
+```javascript
+// app/page.js (server component)
+import { Suspense } from 'react';
+
+async function LivePrice() {
+  const price = await fetch('https://api.example.com/price', {
+    cache: 'no-store'
+  }).then(r => r.json());
+  return <span>${price.value}</span>;
+}
+
+function PriceSkeleton() {
+  return <span>Loading price...</span>;
+}
+
+export default function Page() {
+  return (
+    <main>
+      <h1>Product</h1>
+      <p>Most of this page is static and cached.</p>
+      <Suspense fallback={<PriceSkeleton />}>
+        <LivePrice />
+      </Suspense>
+    </main>
+  );
+}
+```
+
+What happens: the static HTML for the page is cached and sent immediately; the `LivePrice` region is rendered on the server at request time and streamed into the page once it resolves.
+
+Islands vs PPR:
+PPR "islands" are streamed server-rendered regions inside a single route. The islands concept (popularized by Astro) usually means static HTML with isolated client-hydrated components. PPR is about server streaming and caching boundaries; island architecture is about client hydration boundaries. They can look similar in the UI, but they solve different problems.
+
 ## Interview Questions and Answers
 
 ### 1. What makes a route static in the App Router?

@@ -77,6 +77,7 @@ function isAdmin(u: User | Admin): u is Admin {
 ```
 
 User-defined guards are useful when the built-in checks are not enough to distinguish shapes.
+User‑defined type guards are functions that return a type predicate (value is T). So they’re predicates in the TypeScript sense: boolean checks that narrow types.
 
 A safer guard avoids assertions and checks the shape directly:
 

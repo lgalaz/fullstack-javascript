@@ -75,7 +75,7 @@ const numbers = [1, 2, 3, 4];
 const evens = numbers.filter(x => x % 2 === 0); // [2, 4]
 ```
 
-- **Parameters**: Callback function returning boolean
+- **Parameters**: Callback function returning boolean. (current, index, array) same as map.
 - **Return**: New array with filtered elements
 - **Use Case**: Selecting subsets of data
 
@@ -242,6 +242,9 @@ Array.prototype.mapWithReduce = function(callback) {
     return acc;
   }, []);
 };
+
+const doubled = [1, 2, 3].mapWithReduce(x => x * 2);
+// doubled is [2, 4, 6]
 ```
 
 ### 4. What are the performance implications of chaining these methods?

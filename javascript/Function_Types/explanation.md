@@ -71,12 +71,18 @@ const user = {
 ## Constructor Functions
 
 Called with `new` to create instances.
+`new` does four things: creates a new object, binds `this` to it, links its prototype to `Person.prototype`, and returns it (unless the constructor returns a different object).
 
 ```javascript
 function Person(name) {
   this.name = name;
 }
 const p = new Person('Ada');
+
+const obj = {};
+obj.__proto__ = Person.prototype;
+Person.call(obj, 'Ada');
+// return obj
 ```
 
 ## Generators and Async Functions

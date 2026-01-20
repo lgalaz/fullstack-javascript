@@ -1,23 +1,20 @@
-# Annotations (Attributes)
+# Docblock Annotations (Legacy)
 
 ## Introduction
 
-PHP 8 added native attributes, which are the modern, built-in replacement for docblock annotations. Attributes attach metadata to classes, methods, properties, and parameters, and can be read via reflection.
+Before PHP 8, many frameworks used docblock annotations (comments parsed at runtime) to attach metadata.
+PHP 8 introduced native attributes, which are preferred for new code because they are structured and type-safe.
 
-## Basic Attribute Example
+## Docblock Annotation Example
 
 ```php
 <?php
 
-#[Attribute]
-class Route
+/**
+ * @Route(method="GET", path="/users/{id}")
+ */
+final class UserController
 {
-    public function __construct(public string $method, public string $path) {}
-}
-
-class UserController
-{
-    #[Route('GET', '/users/{id}')]
     public function show(int $id): array
     {
         return ['id' => $id];
@@ -25,22 +22,19 @@ class UserController
 }
 ```
 
-## Reading Attributes
+## Reading Docblocks
 
 ```php
 $method = new ReflectionMethod(UserController::class, 'show');
-$attributes = $method->getAttributes(Route::class);
-$route = $attributes[0]->newInstance();
-var_dump($route);
-// object(Route)#1 (2) { ["method"]=> string(3) "GET" ["path"]=> string(11) "/users/{id}" }
+$doc = $method->getDocComment();
+var_dump($doc);
 ```
 
-## When Attributes Are a Good Idea
+## When to Use
 
-- You want first-class, structured metadata instead of docblock parsing.
-- You use frameworks that map attributes to routing or validation.
+- You are maintaining legacy systems that rely on docblock parsing.
+- You need to support PHP versions that predate attributes.
 
-## When to Avoid
+## Migration Guidance
 
-- Your target PHP version is below 8.0.
-- Simple configuration can live in code or config files.
+For new code, use native attributes and reflection (see `php/Attributes_and_Reflection/explanation.md`).

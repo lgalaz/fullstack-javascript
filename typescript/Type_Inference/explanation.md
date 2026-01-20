@@ -104,6 +104,8 @@ const config = {
 - Add explicit types at API boundaries.
  - Use `satisfies` to enforce constraints without widening literals.
 
+Note: "function boundaries" means the inputs and outputs of functions (parameters and return types), especially for exported or public functions, where explicit types help callers and prevent accidental changes.
+
 ## Interview Questions and Answers
 
 ### 1. When should you add explicit types?

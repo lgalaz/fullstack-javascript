@@ -146,6 +146,19 @@ return (
 );
 ```
 
+Keyed fragment example (needed when rendering a list of fragments so React can track identity across reorders):
+
+```javascript
+function Rows({ items }) {
+  return items.map(item => (
+    <React.Fragment key={item.id}>
+      <dt>{item.label}</dt>
+      <dd>{item.value}</dd>
+    </React.Fragment>
+  ));
+}
+```
+
 ## JSX is just expressions
 
 You can assign JSX to variables, pass it as props, or return it from functions.
@@ -169,6 +182,10 @@ Use `dangerouslySetInnerHTML` only with sanitized content.
 ```
 
 Note: This bypasses React's normal HTML escaping and inserts raw HTML into the DOM. Use it for trusted or sanitized content only. Common use cases include rendering CMS/Markdown content or embedding preformatted HTML from a WYSIWYG editor.
+
+## Virtual DOM (React element tree)
+
+When you render, React builds an in-memory tree of elements (a lightweight description of the UI). On the next render, it builds a new tree, compares it to the previous one (reconciliation), and commits only the minimal DOM changes. This is often called the "virtual DOM."
 
 ## Interview Questions and Answers
 

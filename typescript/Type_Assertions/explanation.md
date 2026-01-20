@@ -71,6 +71,18 @@ Sometimes you must bridge incompatible types (e.g., external libs). `as unknown 
 const data = '{"x":1}' as unknown as { x: number };
 ```
 
+Example (bridging a third-party type you cannot change):
+
+```typescript
+// Third-party type is too wide
+declare const client: { connect(): any };
+
+// You know at runtime it returns a specific shape
+const conn = client.connect() as unknown as { close(): void; id: string };
+```
+
+Why use it: sometimes a library returns `any` or an overly broad type and you need a precise shape to work with. `as unknown as` forces the cast when TypeScript would otherwise block it, but it should be a last resort because it skips safety checks.
+
 Safer JSON parsing with a type guard:
 
 ```typescript
@@ -110,6 +122,19 @@ const config = {
   retry: 3,
 } satisfies { env: 'dev' | 'prod'; retry: number };
 ```
+
+Example showing literal preservation:
+
+```typescript
+const routes = {
+  home: '/',
+  admin: '/admin',
+} satisfies Record<string, `/${string}`>;
+
+// routes.admin stays as the literal type "/admin"
+```
+
+satisfies is for “verify without changing,” while as is “trust me, treat it as this.”
 
 ## Interview Questions and Answers
 

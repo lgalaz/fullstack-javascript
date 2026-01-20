@@ -6,6 +6,8 @@ Enums define a set of named constants. Use string enums for safer output.
 
 ## Numeric Enums
 
+This is a numeric enum because it has no explicit values, so TypeScript assigns numeric values starting at 0 (Idle = 0, Loading = 1, etc.). That makes it a numeric enum. If you want a string enum, you must assign string values.
+
 ```typescript
 enum Status {
   Idle,
@@ -22,6 +24,18 @@ console.log(Status.Loading); // 1
 console.log(Status[1]); // "Loading"
 ```
 
+Approximate runtime shape:
+
+```javascript
+var Status;
+(function (Status) {
+  Status[Status["Idle"] = 0] = "Idle";
+  Status[Status["Loading"] = 1] = "Loading";
+  Status[Status["Success"] = 2] = "Success";
+  Status[Status["Error"] = 3] = "Error";
+})(Status || (Status = {}));
+```
+
 ## String Enums
 
 ```typescript
@@ -31,7 +45,17 @@ enum Role {
 }
 ```
 
-String enums are more stable and easier to debug because their values are readable and do not change if you reorder or insert members (numeric enums auto-increment and can shift values).
+String enums are more stable and easier to debug because their values are readable and do not change if you reorder or insert members (numeric enums auto-increment and can shift values). They do not generate reverse mappings, only the name-to-value mapping.
+
+Approximate runtime shape:
+
+```javascript
+var Role;
+(function (Role) {
+  Role["Admin"] = "admin";
+  Role["User"] = "user";
+})(Role || (Role = {}));
+```
 
 ## const enums
 

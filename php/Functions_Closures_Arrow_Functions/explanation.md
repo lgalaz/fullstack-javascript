@@ -113,4 +113,28 @@ $callable = greet(...);
 echo $callable('Ada');
 ```
 
-Note: the `...` is required for first-class callable syntax. In PHP, `greet` alone would call the function, not reference it. `greet(...)` creates a callable value without invoking it.
+Real-world API example: pass a formatter into a response helper so endpoints can choose how to shape data.
+
+```php
+<?php
+
+declare(strict_types=1);
+
+function jsonResponse(array $data, callable $formatter): string {
+    $payload = $formatter($data);
+    return json_encode($payload, JSON_PRETTY_PRINT);
+}
+
+function userPresenter(array $user): array {
+    return [
+        'id' => $user['id'],
+        'name' => $user['name'],
+    ];
+}
+
+$formatUser = userPresenter(...);
+
+echo jsonResponse(['id' => 1, 'name' => 'Ada', 'password' => 'secret'], $formatUser);
+```
+
+Note: the `...` is required for first-class callable syntax. In PHP, `greet()` calls the function, while `greet` alone is not a callable reference. `greet(...)` creates a callable value without invoking it.

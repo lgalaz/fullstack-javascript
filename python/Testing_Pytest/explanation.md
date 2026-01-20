@@ -111,6 +111,7 @@ By default Hypothesis runs many examples per test (default max_examples is 100),
 - HTTP mocking: responses or respx
 - HTTP test server: pytest-httpserver for predictable upstream responses
 - Time control: freezegun
+- Mutation tests: tools like mutmut or Cosmic Ray.
 
 Notes:
 

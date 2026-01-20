@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This topic explains how browsers keep data updated without full page reloads. It focuses on the common strategies: polling, long polling, Server-Sent Events (SSE), and WebSockets, plus older request mechanisms like XMLHttpRequest (XHR).
+This topic explains how browsers keep data updated without full page reloads. It focuses on the common strategies: polling, long polling, Server-Sent Events (SSE), streaming responses via fetch, and WebSockets, plus older request mechanisms like XMLHttpRequest (XHR).
 
 ## Core Terms (Quick Definitions)
 
@@ -11,8 +11,9 @@ This topic explains how browsers keep data updated without full page reloads. It
 - **Polling**: The client repeatedly asks the server for updates.
 - **Long polling**: The server holds the request open until new data is available.
 - **SSE (Server-Sent Events)**: A one-way, server-to-client stream over HTTP.
+- **Fetch streaming (ReadableStream)**: Reading a single HTTP response incrementally as chunks arrive.
 - **WebSocket**: A two-way, persistent connection between client and server.
-- **XHR (XMLHttpRequest)**: An older browser API for making HTTP requests.
+- **XHR (XMLHttpRequest)**: A legacy but still widely used browser API for making HTTP requests; many libraries wrap it even though `fetch` is the modern standard.
 - **Fetch**: The modern browser API for making HTTP requests.
 
 ## Why This Is JavaScript (Not HTML)
@@ -111,6 +112,33 @@ source.onerror = () => {
 };
 ```
 
+**Server example (Node.js + Express)**:
+
+```javascript
+import express from 'express';
+
+const app = express();
+
+app.get('/api/stream', (req, res) => {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+
+  const send = (data) => res.write(`data: ${JSON.stringify(data)}\n\n`);
+
+  const interval = setInterval(() => {
+    send({ time: Date.now() });
+  }, 2000);
+
+  req.on('close', () => {
+    clearInterval(interval);
+    res.end();
+  });
+});
+
+app.listen(3000, () => console.log('SSE server on :3000'));
+```
+
 **Pros**:
 
 - Efficient for server-to-client updates.
@@ -120,6 +148,97 @@ source.onerror = () => {
 
 - One-way only (server to client).
 - Not supported in older browsers without a polyfill. This mostly affects legacy environments like IE11 or older embedded WebViews (Android/Safari); modern evergreen browsers generally support SSE.
+
+## Fetch Streaming (ReadableStream)
+
+**What it is**: The server sends a single HTTP response that stays open and delivers chunks over time, and the client reads those chunks as they arrive.
+
+**How it works**:
+
+1. Client starts a `fetch` request.
+2. Server writes data in chunks (often newline-delimited JSON or text).
+3. Client reads `response.body` as a stream and parses incrementally.
+
+**Client example (streaming text chunks with framing + reconnect)**:
+
+```javascript
+async function streamWithReconnect() {
+  let retryMs = 1000;
+
+  while (true) {
+    try {
+      const res = await fetch('/api/stream');
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        // Framing: NDJSON where each line is a JSON message.
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() ?? '';
+
+        for (const line of lines) {
+          if (!line) continue;
+          const msg = JSON.parse(line);
+          console.log('message:', msg);
+        }
+      }
+    } catch (err) {
+      console.log('stream error, retrying...', err);
+      await new Promise((r) => setTimeout(r, retryMs));
+      retryMs = Math.min(retryMs * 2, 10000);
+    }
+  }
+}
+
+streamWithReconnect();
+```
+
+**Server example (Node.js + Express)**:
+
+```javascript
+import express from 'express';
+
+const app = express();
+
+app.get('/api/stream', (req, res) => {
+  res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+
+  let count = 0;
+  const interval = setInterval(() => {
+    count += 1;
+    res.write(`chunk ${count}\n`);
+    if (count >= 5) {
+      clearInterval(interval);
+      res.end();
+    }
+  }, 1000);
+
+  req.on('close', () => {
+    clearInterval(interval);
+  });
+});
+
+app.listen(3000, () => console.log('Streaming server on :3000'));
+```
+
+**Pros**:
+
+- Works over plain HTTP and supports incremental updates.
+- More flexible than SSE when you need custom framing or binary data.
+  - Custom framing means you define how each message is delimited and parsed (for example, NDJSON lines, length-prefixed blobs, or your own protocol markers).
+  - Binary data is useful for non-text payloads like images, audio chunks, protobuf messages, or compressed buffers to reduce overhead.
+
+**Cons**:
+
+- No built-in reconnection or event framing; you must define your own.
+- `res.json()` does not work because the response never completes until the server closes it.
 
 ## WebSockets
 
@@ -152,6 +271,29 @@ socket.onclose = () => {
 socket.close();
 ```
 
+**Server example (Node.js + Express + ws)**:
+
+```javascript
+import express from 'express';
+import http from 'http';
+import { WebSocketServer } from 'ws';
+
+const app = express();
+const server = http.createServer(app);
+const wss = new WebSocketServer({ server, path: '/socket' });
+
+wss.on('connection', (ws) => {
+  ws.send(JSON.stringify({ type: 'welcome' }));
+
+  ws.on('message', (data) => {
+    // Echo messages back to the client.
+    ws.send(data.toString());
+  });
+});
+
+server.listen(3000, () => console.log('WebSocket server on :3000'));
+```
+
 **Pros**:
 
 - Full duplex (two-way) communication.
@@ -174,4 +316,5 @@ These are the tools you use to send requests, but they are not strategies by the
 - **Short polling**: Low update frequency, simple apps.
 - **Long polling**: Updates need to be near real-time but you want to stay on HTTP.
 - **SSE**: Many server-to-client updates (news feeds, logs).
+- **Fetch streaming**: You want a single HTTP response that delivers incremental data, and you control the client parsing.
 - **WebSockets**: Two-way real-time data (chat, multiplayer, trading).

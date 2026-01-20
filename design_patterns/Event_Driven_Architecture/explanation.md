@@ -15,3 +15,31 @@ Components communicate by publishing and subscribing to events.
 - Eventual consistency and ordering issues.
 - Harder debugging and traceability.
 - Requires solid observability and schema governance.
+## PHP example
+
+```php
+<?php
+
+class EventBus
+{
+    private array $listeners = [];
+
+    public function subscribe(string $event, callable $listener): void
+    {
+        $this->listeners[$event][] = $listener;
+    }
+
+    public function publish(string $event, array $payload): void
+    {
+        foreach ($this->listeners[$event] ?? [] as $listener) {
+            $listener($payload);
+        }
+    }
+}
+
+$bus = new EventBus();
+$bus->subscribe('order.placed', fn (array $payload) => print("Email {$payload['id']}
+"));
+
+$bus->publish('order.placed', ['id' => 42]);
+```

@@ -1,0 +1,57 @@
+:root {
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  color: #1b1b1b;
+  background: radial-gradient(circle at top, #f6f1e8, #efe4cf 55%, #e4d4b6 100%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+.page {
+  max-width: 720px;
+  margin: 56px auto;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid #d5c2a4;
+  border-radius: 14px;
+  box-shadow: 0 16px 40px rgba(80, 60, 25, 0.18);
+}
+
+h1 {
+  margin-top: 0;
+  font-size: 2.1rem;
+}
+
+button {
+  margin-top: 16px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  border: none;
+  background: #b3642a;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+button:focus-visible {
+  outline: 3px solid #2a6bb3;
+  outline-offset: 3px;
+}
+
+.stats {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+  font-weight: bold;
+}
+
+.steps {
+  margin-top: 18px;
+  padding-left: 20px;
+  line-height: 1.6;
+}

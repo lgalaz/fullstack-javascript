@@ -88,18 +88,14 @@ In production, you serve the built files with a static server or CDN.
 
 This is the typical lifecycle for a render:
 
-1. **Render phase**
-   - React calls your components to get a new UI tree.
-2. **Reconciliation**
-   - React compares the new tree to the previous tree.
-3. **Commit phase**
-   - React applies changes to the DOM (or attaches to existing DOM during hydration).
-4. **Hydration (if SSR was used)**
-   - On the first client render, React attaches event handlers and reuses existing HTML instead of creating it.
-5. **Effects**
-   5.1 `useLayoutEffect`
-   5.2 paint
-   5.3 `useEffect` runs after the DOM updates and paint.
+1. **Render phase (reconciliation happens here)**
+   - React calls your components, builds the element tree, and prepares a work-in-progress fiber tree.
+2. **Commit phase (hydration on first render if SSR)**
+   - React applies DOM mutations or attaches to existing DOM, and updates the current fiber tree.
+3. **Effects**
+   3.1 `useLayoutEffect`
+   3.2 paint
+   3.3 `useEffect` runs after the DOM updates and paint.
 
 ## State and Updates
 
@@ -110,7 +106,7 @@ This is the typical lifecycle for a render:
 ## Where Code Runs
 
 - **Client components**: Run in the browser.
-- **Effects**: Run in the browser after render.
+- **Effects**: Run in the browser after commit (`useLayoutEffect` before paint, `useEffect` after paint).
 - **SSR (if used)**: React renders components on the server to HTML. The same component code runs on the server for the initial render, then in the browser during hydration.
 
 ## Debugging and Troubleshooting (React Specific)

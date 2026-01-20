@@ -20,6 +20,10 @@ You can set it per route handler or page. It affects available APIs and performa
 - No Node.js APIs (like `fs`)
 - Smaller runtime environment
 - Use Web APIs instead (the browser-like standards such as `fetch`, `Request`, `Response`, `Headers`, and `URL` available in edge runtimes)
+- No TCP sockets or long-lived connections (no WebSockets from the edge runtime)
+- Tighter CPU and memory limits (provider-dependent)
+
+Note: use Web Crypto (global `crypto`) instead of Node's `crypto` module.
 
 Good: use Web APIs in an edge route handler.
 

@@ -3,8 +3,9 @@
 ## Introduction
 
 TypeScript adds static typing to JavaScript. It helps catch errors early and improves tooling.
-
+Static typing means types are checked at compile time (or build time), not at runtime. It doesn't change JavaScript behavior; it just lets the compiler validate how values are used before you run the code.
 TypeScript types are erased at runtime. They are a developer-time contract that sits on top of JavaScript's actual runtime behavior.
+TypeScript doesn’t enforce runtime checks. For runtime validation you’d use a schema/validation library like Zod, Yup, Joi, or Valibot (or manual checks). Zod is a common choice because it can also infer TypeScript types from the schema.
 
 ## Primitive Types
 
@@ -34,13 +35,35 @@ console.log(Object.keys(user)); // ['name']
 ## null and undefined
 
 With `strictNullChecks`, `null` and `undefined` are not assignable to other types without a union. Without it, they flow into everything and reduce safety.
+Without `strictNullChecks`, `null`/`undefined` are treated as valid values for any type, so you can accidentally access properties on `null` at runtime without a type error.
+You can enable it explicitly in `tsconfig.json` (`"strictNullChecks": true`) or via `"strict": true` (which turns on all strict flags).
 
 ```typescript
 type User = { name: string };
 const maybeUser: User | null = null;
-
 if (maybeUser) {
   console.log(maybeUser.name);
+}
+```
+
+Note: with `strictNullChecks`, you must narrow a `User | null` before accessing properties (e.g., `if (maybeUser)`), otherwise TypeScript reports an error.
+
+Example without `strictNullChecks` (unsafe but allowed):
+
+```typescript
+type User = { name: string };
+let user: User = null; // Allowed without strictNullChecks
+console.log(user.name); // Runtime error if user is null
+```
+
+Example with `strictNullChecks` enabled:
+
+```typescript
+type User = { name: string };
+let user: User = null; // Error: Type 'null' is not assignable to type 'User'
+
+function greet(u: User | null) {
+  return u.name; // Error: Object is possibly 'null'
 }
 ```
 
@@ -74,6 +97,7 @@ if (typeof value === 'string') {
 Prefer `unknown` at boundaries (like JSON parsing) so you must validate before use.
 
 `unknown` is only assignable to itself and `any`, and you cannot access properties or call it without a type guard. That is why it "forces" narrowing: the compiler blocks unsafe operations until you prove the type.
+Note: a type guard is a check (like `typeof`, `instanceof`, `in`, or a custom `value is T` function) that narrows a type within a block.
 
 At type‑checking time (compile time), during TypeScript’s static analysis, TypeScript recognizes common type-guard conditionals (like `typeof`, `instanceof`, `in`, or custom `x is Y` functions). Inside the guarded branch, the value is narrowed; outside, it reverts to the original type (e.g., `unknown`).
 
@@ -106,12 +130,12 @@ function fail(message: string): never {
 Use `never` in exhaustive checks to ensure all cases are handled.
 
 ```typescript
-type Shape = { kind: 'circle'; r: number } | { kind: 'square'; size: number };
+type Shape = { kind: 'circle'; radius: number } | { kind: 'square'; size: number };
 
-function area(shape: Shape): number {
+function area(shape: Shape) {
   switch (shape.kind) {
     case 'circle':
-      return Math.PI * shape.r ** 2;
+      return Math.PI * shape.radius ** 2;
     case 'square':
       return shape.size ** 2;
     default: {

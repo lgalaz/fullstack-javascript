@@ -23,6 +23,7 @@ Superglobals are built-in arrays that contain request data.
 - `$_COOKIE`: cookie values
 - `$_SERVER`: request and server metadata
 - `$_FILES`: uploaded files
+- `$_REQUEST` is also a superglobal. It merges $_GET, $_POST, and $_COOKIE (order controlled by request_order/variables_order in php.ini), so many teams avoid it for clarity.
 
 Example using `filter_input` (a safe input-reading API):
 
@@ -35,11 +36,18 @@ declare(strict_types=1);
 $userId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
 if ($userId === null || $userId === false) {
+    // HTTP/1.1 400 Bad Request
+    // Content-Type: text/html; charset=UTF-8
+    // Invalid id
+
     http_response_code(400);
     echo 'Invalid id';
     exit;
 }
 
+// HTTP/1.1 200 OK
+// Content-Type: text/html; charset=UTF-8
+// Profile for user 123
 echo "Profile for user {$userId}";
 ```
 

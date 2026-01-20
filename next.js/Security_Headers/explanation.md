@@ -15,7 +15,9 @@ module.exports = {
         source: '/(.*)',
         headers: [
           { key: 'X-Frame-Options', value: 'DENY' },
-          { key: 'X-Content-Type-Options', value: 'nosniff' }
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy', value: 'geolocation=(), microphone=()' }
         ]
       }
     ];
@@ -84,6 +86,24 @@ response.headers.set('Content-Security-Policy', "default-src * 'unsafe-inline' '
 ```
 
 Note: `'unsafe-inline'` allows any inline script to execute, and `'unsafe-eval'` allows `eval()`/`new Function()`-style execution. Both reduce CSP to a much weaker protection against XSS.
+
+## HSTS (HTTPS only)
+
+HSTS forces browsers to use HTTPS for future requests.
+
+```javascript
+response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+```
+
+Note: HSTS only works on HTTPS responses. Do not enable it on a domain that still needs HTTP.
+
+## Clickjacking protection
+
+`X-Frame-Options` is common, but CSP `frame-ancestors` is more modern:
+
+```javascript
+response.headers.set('Content-Security-Policy', "frame-ancestors 'none'");
+```
 
 ## Interview Questions and Answers
 

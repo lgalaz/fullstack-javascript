@@ -97,7 +97,40 @@ fetchData()
   });
 ```
 
+You can attach a catch handler directly to a promise or as the second argument to `.then()`. 
+`try/catch` only works for synchronous code; `async/await` lets you write asynchronous code in a way that can be wrapped by `try/catch`.
+
+```javascript
+fetchData()
+  .then(result => processData(result))
+  .catch(error => console.error('Catch handler:', error));
+
+fetchData()
+  .then(
+    result => processData(result),
+    error => {
+      console.error('Then error handler:', error);
+      throw error; // rethrow if you want downstream handlers to run
+    }
+  );
+```
+
+**Fetch gotcha**: `fetch` only rejects on network errors; HTTP 4xx/5xx still resolve. You need to check `response.ok` and throw manually if you want `.catch` to run.
+
+```javascript
+fetch('/api/user')
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    return response.json();
+  })
+  .then(data => console.log(data))
+  .catch(error => console.error('Fetch error:', error));
+```
+
 Unhandled promise rejections:
+Fired when a Promise rejection isn’t handled 
 
 ```javascript
 // In Node.js

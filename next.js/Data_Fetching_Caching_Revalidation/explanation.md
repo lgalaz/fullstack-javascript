@@ -72,6 +72,12 @@ await fetch('https://api.example.com/users', {
 
 Revalidation means Next.js serves cached data and refreshes it in the background on a schedule. It is per-request; different fetches in the same page can use different strategies.
 
+You can also set a segment-wide default:
+
+```javascript
+export const revalidate = 300; // applies to all fetches in this route segment
+```
+
 ## No Store (Always Dynamic)
 
 ```javascript
@@ -79,6 +85,23 @@ await fetch('https://api.example.com/users', {
   cache: 'no-store'
 });
 ```
+
+## Request Memoization (dedupe)
+
+Within a single request, identical `fetch` calls are deduped. This means two server components calling the same URL with the same options will share the result.
+
+```javascript
+async function getUsers() {
+  return fetch('https://api.example.com/users').then(r => r.json());
+}
+
+export default async function Page() {
+  const [a, b] = await Promise.all([getUsers(), getUsers()]);
+  return <pre>{JSON.stringify({ a, b }, null, 2)}</pre>;
+}
+```
+
+Note: memoization is per request, not across requests. For cross-request caching, rely on `fetch` caching, `revalidate`, or `unstable_cache`.
 
 ## Tags and On-Demand Revalidation
 
@@ -118,6 +141,17 @@ export default function UsersPage() {
       <button type="submit">Refresh users</button>
     </form>
   );
+}
+```
+
+You can also revalidate by path:
+
+```javascript
+'use server';
+import { revalidatePath } from 'next/cache';
+
+export async function refreshUsersPage() {
+  revalidatePath('/users');
 }
 ```
 

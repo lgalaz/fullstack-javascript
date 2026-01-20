@@ -38,11 +38,12 @@ const result = add5And3(2); // 10
 
 - **Delayed evaluation**: Functions can be partially applied and stored for later execution, allowing for lazy evaluation and better control over when computations occur.
   ```javascript
-  const add = (a, b) => a + b;
-  const curriedAdd = a => b => a + b;
-  const addFive = curriedAdd(5); // Partially applied, not executed yet
+  const fetchWithAuth = token => url =>
+    fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+
+  const apiFetch = fetchWithAuth(process.env.API_TOKEN);
   // Later...
-  console.log(addFive(10)); // 15 - executed now
+  apiFetch('/api/projects').then(res => res.json());
   ```
 
 - **More flexible function composition**: Curried functions integrate seamlessly with composition techniques, making it easier to build complex functions from simpler ones.
@@ -79,6 +80,8 @@ This `curry` function creates a curried version of any given function `fn`. It w
    - If yes, it calls the original function `fn` with all arguments using `fn.apply(this, args)`.
    - If not, it returns another function that collects more arguments (`...args2`), concatenates them with the existing ones, and recursively calls `curried` with the combined arguments.
 3. This process repeats until all required arguments are provided, enabling partial application.
+
+**Note on recursion timing**: In this pattern, recursion is postponed until the next invocation. The returned `(...args2) => curried(...args, ...args2)` does not call `curried` immediately; it returns a new function that will call `curried` later when enough arguments have been supplied to satisfy the original function's arity. That means the curried function can be called multiple times until `args.length >= fn.length`. Recursion here simply means a function calls itself (directly or indirectly) to continue the process.
 
 
 ### Advanced Currying
@@ -138,7 +141,26 @@ const curry = (fn, arity = fn.length) => {
 };
 ```
 
-**Note on `fn.length`**: This implementation assumes `fn` is a function with a `length` property (which indicates the number of expected parameters). If `fn` doesn't have a `length` property (e.g., if it's not a function or is an arrow function with rest parameters), `arity` defaults to `undefined`, which could lead to unexpected behavior. In such cases, you should explicitly pass the `arity` parameter: `curry(myFn, 3)`.
+**Note on `fn.length`**: All functions have a `length` property, but it only counts parameters before the first default or rest parameter. That can make it smaller than the "real" arity you want to curry, so you may need to pass `arity` explicitly.
+
+```javascript
+const withRest = (...args) => args.join(',');
+withRest.length; // 0
+
+const withDefault = (a, b = 1, c) => [a, b, c];
+withDefault.length; // 1 (stops counting at the first default)
+
+const withOptional = (a, b, c) => [a, b, c];
+withOptional.length; // 3 (even if you call it with fewer args)
+
+const curriedRest = curry(withRest, 2);
+const curriedDefault = curry(withDefault, 3);
+const curriedOptional = curry(withOptional, 3);
+
+// arity controls how many arguments must be collected before invoking
+curriedRest('hello'); // returns a function (1/2 collected)
+curriedRest('hello')('my'); // "hello,my" (2/2 collected, now runs)
+```
 
 ## Function Composition
 
@@ -181,6 +203,7 @@ const pipeMultiple = (...fns) => x => fns.reduce((acc, fn) => fn(acc), x);
 - **`reduceRight`**: Similar to `reduce`, but iterates from right to left. For example: `[1,2,3].reduceRight((acc, num) => acc - num, 0)` would compute `3-2-1-0 = 0`.
 
 In `composeMultiple`, `reduceRight` applies functions from the last to the first (right-to-left composition). In `pipeMultiple`, `reduce` applies them from first to last (left-to-right piping). Both accumulate the result by passing the output of one function as input to the next.
+For unary functions, you can think of `compose` as `reduceRight` and `pipe` as `reduce` over a list of functions.
 
 ### Point-Free Style
 
@@ -225,6 +248,32 @@ app.use(middleware);
 ### Data Transformation Pipelines
 
 ```javascript
+const validateData = data => {
+  if (!data || !data.name) {
+    throw new Error('Missing required field: name');
+  }
+  return data;
+};
+
+const normalizeData = data => ({
+  ...data,
+  name: data.name.trim(),
+  email: data.email ? data.email.trim().toLowerCase() : undefined
+});
+
+const enrichData = data => ({
+  ...data,
+  fullName: data.lastName ? `${data.name} ${data.lastName}` : data.name,
+  isActive: Boolean(data.lastLoginAt)
+});
+
+const formatData = data => ({
+  id: data.id,
+  name: data.fullName,
+  email: data.email,
+  isActive: data.isActive
+});
+
 const processData = pipe(
   validateData,
   normalizeData,
@@ -250,11 +299,27 @@ const createAction = curry((type, payload) => ({ type, payload }));
 
 const setUser = createAction('SET_USER');
 const action = setUser({ id: 1, name: 'Alice' });
+
+// Step-by-step (expanded):
+// 1) createAction returns a curried function.
+// 2) createAction('SET_USER') collects the first arg and returns a new function.
+// 3) That new function receives the payload and invokes the original fn.
+// const createAction = curry((type, payload) => ({ type, payload }));
+// const step1 = createAction('SET_USER'); // args = ['SET_USER']
+// const step1_1 = (args.length >= fn.length)
+//   ? fn.apply(this, args)
+//   : (...more) => curried(...args, ...more);
+// // args.length is 1 (only 'SET_USER'), which is not >= fn.length (2),
+// // so it returns the (...more) function. That function will later call
+// // curried again with the existing args plus any new args from ...more.
+// const step2 = step1({ id: 1, name: 'Alice' }); // args = ['SET_USER', {..}]
+// // args.length >= fn.length, so it runs: fn.apply(this, args)
+// // Result: { type: 'SET_USER', payload: { id: 1, name: 'Alice' } }
 ```
 
 ## Performance Considerations
 
-- Currying creates closure chains, which can impact memory
+- Currying creates closure chains, which can impact memory. Each partial application returns a new function that closes over the arguments collected so far; long chains mean more small functions and retained data that can increase memory usage.
 - Deep composition might be harder to debug
 - Consider the trade-off between flexibility and performance
 
@@ -270,6 +335,24 @@ const curriedAdd = curry((a, b, c) => a + b + c);
 const add5 = curriedAdd(5);
 const add5And3 = add5(3);
 const result = add5And3(2); // 10
+
+const inc = x => x + 1;
+const double = x => x * 2;
+const addThenDouble = compose(double, inc);
+const composedResult = addThenDouble(3); // 8
+```
+
+```javascript
+import { flow, flowRight } from 'lodash';
+
+const add1 = x => x + 1;
+const double = x => x * 2;
+
+const leftToRight = flow(add1, double); // pipe-style
+const rightToLeft = flowRight(double, add1); // compose-style
+
+leftToRight(3); // 8
+rightToLeft(3); // 8
 ```
 
 ## Interview Questions and Answers
@@ -301,4 +384,5 @@ const curry = (fn, arity = fn.length) => {
 
 ### 5. Can you show a practical use case for these techniques?
 
-In a data processing pipeline: `const processUser = pipe(validateUser, normalizeUser, saveUser);`. Or in React: `const enhance = compose(withRouter, withAuth, withData); const EnhancedComponent = enhance(BaseComponent);`. These patterns create reusable, composable code.
+In a data processing pipeline: `const processUser = pipe(validateUser, normalizeUser, saveUser);`. 
+Or in React: `const enhance = compose(withRouter, withAuth, withData); const EnhancedComponent = enhance(BaseComponent);`. These patterns create reusable, composable code.

@@ -7,7 +7,7 @@ PHP (Hypertext Preprocessor) is a server-side language built for the web. The be
 ## What PHP Does Better
 
 - Web-native execution model: request-in, response-out fits the shape of most web apps.
-- Simple deployment: shared hosting, managed VPS, and serverless platforms support PHP out of the box.
+- Simple deployment: shared hosting, managed Virtual Private Server, and serverless platforms support PHP out of the box.
 - Strong ecosystem for web apps: Laravel, Symfony, WordPress, Magento, and a huge package ecosystem.
 - Cost-effective hosting: PHP stacks are cheap to run at scale for typical CRUD workloads.
 - Rapid iteration: good defaults, excellent DX (developer experience: fast feedback, good tooling), and tooling built around web conventions.

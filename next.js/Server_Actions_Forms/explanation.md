@@ -148,6 +148,12 @@ export default function CreateUserForm() {
 }
 ```
 
+## Action Inputs and State
+
+Server actions only accept serializable inputs. When you call an action from a client component, arguments are serialized and sent to the server.
+
+If you are on React 19+, `useActionState` is the newer name for `useFormState` and works the same way.
+
 ## Interview Questions and Answers
 
 ### 1. What problem do server actions solve?

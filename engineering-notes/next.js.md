@@ -7,7 +7,21 @@ Pages Router is “route = page component + data fetching function” (SSR/SSG/I
 In the Pages Router, a route is defined by a page component plus optional data-fetching functions, and those functions determine whether the page is SSR, SSG, or ISR.
 App Router is “route = a tree of Server Components by default,” where you compose layouts, segments, loading/error boundaries, and choose where code runs (server vs client) explicitly. Data fetching is no longer special Next functions; it’s “fetch on the server by default,” with caching/revalidation semantics on fetch and segment level. You think in terms of rendering boundaries, streaming, and cache invalidation, not just “getServerSideProps vs getStaticProps”.
 
-2) Server Components vs Client Components boundaries
+2) Pages Router vs App Router
+
+Interviewer: What are the key differences between Pages Router and App Router, and how do they change engineering decisions?
+
+Candidate:
+Pages Router is page-centric: a route maps to a single component and optional data hooks (getServerSideProps/getStaticProps/getInitialProps). The router is flat; layouts are manual; streaming/partial rendering is limited; and most of the UI is client-hydrated React with SSR as a perf SEO layer.
+App Router is tree-centric: a route is a hierarchy of layouts/segments with Server Components by default. You get first-class nested layouts, loading/error boundaries, and streaming. Data fetching moves into the component tree via fetch on the server with cache/revalidation semantics, so caching strategy becomes a core design concern.
+Practical implications:
+- Architecture: you design explicit server/client boundaries to minimize client JS and protect secrets; component placement affects cache and streaming behavior.
+- Performance: you can stream above-the-fold UI and progressively render data; you must manage revalidation and tag-based invalidation as part of system design.
+- Routing & layout: nested routes enable shared UI and state at segment level; 404/error/loading are per-segment, reducing blast radius for failures.
+- API surface: API routes still exist, but Route Handlers + Server Actions enable tighter UI-backend coupling; choose based on consumers and governance.
+- Migration: both routers can coexist; App Router wins on conflicts, so you plan parallel paths and traffic splitting for safe rollout.
+
+3) Server Components vs Client Components boundaries
 
 Interviewer: Explain how you decide what is a Server Component vs Client Component, and the common mistakes.
 
@@ -24,21 +38,18 @@ Forgetting that Client Components can’t directly import Server Components; you
 
 Overusing client-side fetching when server can fetch once and stream HTML.
 
-3) Data fetching, caching, and revalidation
+4) Data fetching, caching, and revalidation
 
 Interviewer: In App Router, what determines whether fetch() is cached? How do you implement ISR-like behavior now?
 
 Candidate:
 Caching is driven by:
 
-fetch options (cache, next: { revalidate, tags })
-
-whether the route is considered static or dynamic (e.g., reading cookies/headers/searchParams can make it dynamic)
-
-segment config like export const revalidate = ... or dynamic = 'force-dynamic'.
+- fetch options (cache, next: { revalidate, tags })
+- whether the route is considered static or dynamic (e.g., reading cookies/headers/searchParams can make it dynamic)
+- segment config like export const revalidate = ... or dynamic = 'force-dynamic'.
 
 ISR-like behavior is revalidate:
-
 Per-request caching: fetch(url, { next: { revalidate: 60 }})
 
 Or segment-level: export const revalidate = 60 for the route.
@@ -48,7 +59,7 @@ fetch(..., { next: { tags: ['post:123'] } })
 
 Later revalidateTag('post:123') in a server action/route handler after publishing.
 
-Interviewer: How do you "precache" a subset of dynamic routes like blog posts?
+## Interviewer: How do you "precache" a subset of dynamic routes like blog posts?
 
 Candidate:
 Use generateStaticParams in the dynamic segment to pre-render specific entries at build time, then layer ISR/revalidation for freshness.
@@ -67,7 +78,7 @@ export default async function PostPage({ params }: { params: { id: string } }) {
 }
 ```
 
-4) Dynamic rendering triggers
+5) Dynamic rendering triggers
 
 Interviewer: What are the most common reasons a route unexpectedly becomes dynamic, and how do you debug it?
 
@@ -88,7 +99,7 @@ Debug:
 
 Verify segment configs (dynamic, revalidate) and middleware effects
 
-5) Streaming and loading.tsx
+6) Streaming and loading.tsx
 
 Interviewer: How does streaming work in App Router, and what does loading.tsx actually do?
 
@@ -96,7 +107,7 @@ Candidate:
 App Router can stream HTML progressively as server work completes. loading.tsx provides an instant fallback UI for a segment while the server is still producing the real UI (often waiting for data). It’s like a built-in Suspense boundary for that route segment.
 You get faster perceived performance: shell renders quickly; slow parts fill in later. You can also compose streaming boundaries via nested layouts/segments.
 
-6) Error handling: error.tsx vs not-found.tsx
+7) Error handling: error.tsx vs not-found.tsx
 
 Interviewer: Compare error.tsx, not-found.tsx, and global-error.tsx. When do you use each?
 
@@ -124,7 +135,7 @@ export default function Error({ error, reset }: { error: Error; reset: () => voi
 
 global-error.tsx: last-resort top-level error UI (e.g. root layout issues). Use sparingly; prefer segment error.tsx so failures are isolated.
 
-7) Route Handlers vs Server Actions vs “real backend”
+8) Route Handlers vs Server Actions vs “real backend”
 
 Interviewer: Where’s the boundary? When is a Server Action enough vs a Route Handler vs a separate API service?
 
@@ -136,7 +147,7 @@ Route Handlers: best when you need a conventional HTTP API surface: used by mult
 
 Separate backend: when you have multiple consumers (mobile, partners), long-lived processes (queues, websockets), complex domain services, independent scaling/governance, or you want a stable API boundary across multiple frontends.
 
-8) Middleware: what it’s good for and what it’s not
+9) Middleware: what it’s good for and what it’s not
 
 Interviewer: What do you use middleware for, and what are the footguns?
 
@@ -153,9 +164,9 @@ Footguns:
 - Limited runtime APIs (edge constraints depending on setup).
 - Over-fetching in middleware can kill performance.
 
-Middleware can inadvertently make routes dynamic or complicate caching assumptions.
+Middleware runs on every request and can force request-time behavior (cookies/headers/rewrites), which can make routes dynamic and complicate caching.
 
-9) Images, fonts, scripts
+10) Images, fonts, scripts
 
 Interviewer: Give me an overview of next/image, next/font, and next/script—what problems they solve.
 
@@ -168,7 +179,7 @@ Candidate:
   - afterInteractive: default; loads once the page is interactive and hydration has begun.
   - lazyOnload: waits until window load; lowest priority (analytics/widgets).
 
-10) SEO and Metadata API
+11) SEO and Metadata API
 
 Interviewer: How do you handle metadata in App Router for dynamic routes? What’s the difference between static and dynamic metadata?
 
@@ -176,7 +187,7 @@ Candidate:
 Use export const metadata for static metadata. For dynamic, implement generateMetadata({ params }) and fetch the resource title/description server-side.
 The key is: metadata generation runs on server, and should align with caching/revalidation strategy so you don’t fetch on every request unnecessarily. Also: handle not-found cases (if post doesn’t exist) by calling notFound() in generateMetadata or returning safe fallback metadata, and avoid leaking private data into metadata.
 
-11) Authentication in Next.js
+12) Authentication in Next.js
 
 Interviewer: What’s your approach to auth in App Router, and how do you protect server-only secrets?
 
@@ -184,7 +195,7 @@ Candidate:
 Auth is best enforced server-side: in middleware for coarse gating + in server components/actions/route handlers for the real enforcement.
 Secrets live in server-only env vars and are only referenced in server-only modules. I structure code so the client never imports a module that touches secrets (avoid “shared utils” importing server-only libs). Also, use secure cookies, rotate tokens, and validate sessions on the server.
 
-12) Performance: what do you measure and what do you optimize in Next specifically?
+13) Performance: what do you measure and what do you optimize in Next specifically?
 
 Interviewer: Next.js-specific performance levers—what do you actually do in practice?
 
@@ -216,7 +227,7 @@ Candidate:
 - Check bundle output (route-level JS), watch for a single "use client" pulling big deps.
 - Instrument: Web Vitals (LCP/INP/CLS), server timings, and Next logs for cache hits/misses.
 
-13) Deployment and runtime choices
+14) Deployment and runtime choices
 
 Interviewer: Edge runtime vs Node runtime—how do you choose?
 
@@ -224,7 +235,7 @@ Candidate:
 Edge: great for low-latency, geo-distributed, lightweight logic (redirects, auth gates, simple API). Constraints: limited Node APIs, some libs don’t work.
 Node: full compatibility (ORMs, crypto libs, file ops, heavy transforms). I choose Node for anything that needs richer dependencies or compute; Edge for fast request shaping.
 
-14) Migration strategy from Pages Router
+15) Migration strategy from Pages Router
 
 Interviewer: You have a big Pages Router app. What’s your migration plan that minimizes risk?
 
@@ -233,9 +244,8 @@ Incremental:
 
 - Keep Pages Router running, add App Router alongside where possible.
 - Start with non-critical routes and shared layouts.
-- Identify data fetching patterns (GSSP/GSP) and map to server fetch + revalidate.
+- Identify data fetching patterns (GetServerSideProps/GetStaticProps) and map to server fetch + revalidate.
 - Create a consistent auth pattern (middleware + server enforcement).
 - Audit client bundles to avoid ballooning with "use client".
 - Ensure analytics, error reporting, and caching behavior are correct before moving high-traffic routes.
 - Note: if the same route exists in both /app and /pages, App Router wins. To A/B test, create a parallel path (e.g., /new or /app-variant) and use rewrites/middleware flags or a subdomain to split traffic, then cut over once stable.
-

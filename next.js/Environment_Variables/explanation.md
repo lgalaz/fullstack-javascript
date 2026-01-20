@@ -26,6 +26,11 @@ const secret = process.env.NEXT_PUBLIC_SECRET_KEY;
 - `.env.production` for production (typically not committed if it contains secrets)
 - Common convention: commit a `.env.example` template (not required by Next.js, but widely used)
 
+Load order (highest priority wins):
+- `.env.local`
+- `.env.[environment]` (e.g., `.env.production`)
+- `.env`
+
 ## Runtime Usage
 
 Environment variables are inlined at build time for client bundles, so changes require rebuilds.
@@ -36,6 +41,17 @@ Example server-only usage:
 
 ```javascript
 const dbUrl = process.env.DATABASE_URL;
+```
+
+You can also inline values at build time via `next.config.js`:
+
+```javascript
+// next.config.js
+module.exports = {
+  env: {
+    BUILD_TIME_FLAG: 'true'
+  }
+};
 ```
 
 ## Interview Questions and Answers

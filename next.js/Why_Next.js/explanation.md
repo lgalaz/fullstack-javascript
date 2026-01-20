@@ -35,6 +35,13 @@ Next.js is a full-stack React framework that provides routing, server rendering,
 - Your app is purely client-side and performance/SEO are not priorities.
 - You already have a backend framework and only need a static SPA.
 
+## Tradeoffs and constraints (interview-ready)
+
+- Server-side complexity: you now own caching, revalidation, and server runtime behavior, not just UI code.
+- Platform constraints: edge runtimes do not support Node APIs, and serverless runtimes have cold starts and time limits.
+- Hosting differences: Vercel is first-class, but self-hosting requires more work (image optimization, caching headers, CI/CD).
+- Build time growth: large apps can have slow builds and memory-heavy bundling if not optimized.
+
 ## Summary
 
 Next.js is a great choice when you want a cohesive, performant React stack with strong defaults. It shines for SEO, hybrid rendering, and apps that need both UI and backend logic in one place.

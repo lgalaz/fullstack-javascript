@@ -92,6 +92,16 @@ export default function UserPage({ params }) {
 Pair `generateStaticParams` with `revalidate` or caching to keep content fresh.
 Note: this is useful for known-at-build-time slugs like popular products, docs pages, or marketing pages; for example, pre-render your top 100 product pages for fast loads.
 
+## dynamicParams (fallback control)
+
+By default, Next.js allows params not returned by `generateStaticParams` (it will render them on demand). You can disable that:
+
+```javascript
+export const dynamicParams = false;
+```
+
+When `dynamicParams = false`, any param not returned by `generateStaticParams` returns a 404. This is a common interview topic for controlling "fallback" behavior in the App Router.
+
 ## Interview Questions and Answers
 
 ### 1. How do you access route params in the App Router?

@@ -14,6 +14,7 @@ async function fetchUser(id: number): Promise<{ id: number; name: string }> {
 ```
 
 The `Promise<...>` return type describes the value you get after awaiting the function. Here, `await fetchUser(1)` resolves to `{ id: number; name: string }`, even though the function itself returns a promise at runtime.
+The return type tells TypeScript what the promise will resolve to, so anywhere you await it (or use .then), you get that type for IntelliSense and type checking. It doesn’t change runtime behavior; it just lets the compiler know what to expect.
 
 ```typescript
 async function loadName() {
@@ -29,6 +30,7 @@ const p: Promise<number> = Promise.resolve(42);
 ```
 
 Use `Promise<T>` to be explicit about the resolved value type.
+Note: this documents intent and enforces the resolved type when inference is weak (e.g., empty `new Promise`, conditional branches, or `any`).
 
 ## Awaited and Promise utilities
 
@@ -50,7 +52,13 @@ type User = Awaited<ReturnType<typeof fetchUser>>;
 // User is { id: number; name: string }
 ```
 
+Note: `ReturnType<T>` is a built-in utility type that extracts a function's return type. Here it pulls the return type of `fetchUser`, and `Awaited` then unwraps the promise to get the resolved value.
+
 ```typescript
+async function fetchUser() {
+  return { id: 1, name: 'Ada' };
+}
+
 function withLoading<T>(promise: Promise<T>) {
   return promise.then(value => ({ loading: false, value }));
 }
@@ -61,16 +69,15 @@ type Loaded<T> = {
 };
 
 type UserLoaded = Loaded<ReturnType<typeof fetchUser>>;
+
+async function loadUser() {
+  const result = await withLoading(fetchUser());
+  return result.value; // result.value is { id: number; name: string }
+}
 ```
 
 Why `withLoading`: it is a helper that standardizes async results into a consistent shape for UI or data layers. Instead of passing a raw promise around, you return `{ loading, value }` so consumers can handle state uniformly.
-
-```typescript
-async function loadUser() {
-  const result = await withLoading(fetchUser());
-  return result.value; // typed as { id: number; name: string }
-}
-```
+The `value` type comes from the generic `T` in `withLoading<T>`, which is inferred from the promise you pass in; `Loaded<T>` uses `Awaited<T>` to unwrap that promise's resolved type.
 
 You could also annotate `fetchUser` directly.
 
@@ -139,6 +146,8 @@ async function loadSafe() {
   }
 }
 ```
+
+Above example uses Type Narrowing: Narrowing means you use a check (like typeof, instanceof, or in) to reduce a union to a more specific type, and inside that block TypeScript treats the value as the narrowed type.
 
 ## Interview Questions and Answers
 

@@ -74,6 +74,100 @@ export default function Page() {
 }
 ```
 
+## Navigation and prefetching
+
+`next/link` prefetches routes in the viewport by default in production. This speeds up navigation but can increase network usage. You can disable it when needed:
+
+```javascript
+<Link href="/reports" prefetch={false}>Reports</Link>
+```
+
+## HTTP Early Hints (103)
+
+Early Hints is an interim 103 response that sends `Link` headers (preload/preconnect) before the final HTML. It works because the browser can start downloading critical assets while the server is still rendering or fetching data.
+
+How to add it in Next.js depends on your hosting runtime:
+- If your platform supports 103 (Vercel, some CDNs/proxies), set `Link` headers and the platform can emit Early Hints.
+- If you run a custom Node server, call `res.writeEarlyHints()` before sending the final response.
+
+Example: add `Link` preload headers via `next.config.js` so your platform can turn them into Early Hints.
+
+```javascript
+// next.config.js
+module.exports = {
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          { key: 'Link', value: '</_next/static/app.css>; rel=preload; as=style' },
+        ],
+      },
+    ];
+  },
+};
+```
+
+Example: custom Node server route handler that sends Early Hints directly.
+
+```javascript
+const http = require('http');
+const next = require('next');
+
+const app = next({ dev: process.env.NODE_ENV !== 'production' });
+const handle = app.getRequestHandler();
+
+app.prepare().then(() => {
+  http.createServer((req, res) => {
+    res.writeEarlyHints({
+      link: [
+        '</_next/static/app.css>; rel=preload; as=style',
+        '</_next/static/app.js>; rel=preload; as=script',
+      ],
+    });
+
+    handle(req, res);
+  }).listen(3000);
+});
+```
+
+Example: one custom server that serves `/api/*` itself and delegates UI routes to Next.
+
+```javascript
+const http = require('http');
+const next = require('next');
+
+const app = next({ dev: process.env.NODE_ENV !== 'production' });
+const handle = app.getRequestHandler();
+
+function apiRouter(req, res) {
+  if (req.url === '/api/health') {
+    handleHealth(req, res);
+    return;
+  }
+
+  res.writeHead(404, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify({ error: 'Not found' }));
+}
+
+function handleHealth(req, res) {
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify({ ok: true }));
+}
+
+app.prepare().then(() => {
+  http.createServer((req, res) => {
+    if (req.url.startsWith('/api/')) {
+      apiRouter(req, res);
+      return;
+    }
+
+    // All non-API routes are handled by Next.js (pages/app router).
+    handle(req, res);
+  }).listen(3000);
+});
+```
+
 ## Cache Wisely
 
 Use `fetch` caching and revalidation to avoid repeated work.
@@ -116,6 +210,18 @@ async function AnalyticsPanel() {
 ## Optimize Images and Fonts
 
 Use `next/image` and `next/font`.
+
+For above-the-fold images, set `priority` to improve LCP:
+
+```javascript
+<Image src="/hero.jpg" alt="Hero" width={1200} height={600} priority />
+```
+
+## Bundle analysis
+
+Use `@next/bundle-analyzer` or `next build --profile` to find large dependencies and routes.
+
+Bundle analysis helps you spot heavy libraries, duplicated code, and unexpectedly large routes so you can split, lazy-load, or replace them.
 
 ## Server timing and profiling
 

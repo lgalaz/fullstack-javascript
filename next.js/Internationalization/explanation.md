@@ -55,6 +55,15 @@ export default async function Home({ params }) {
 }
 ```
 
+Use `Intl` for formatting numbers, dates, and currencies:
+
+```javascript
+const price = new Intl.NumberFormat(params.locale, {
+  style: 'currency',
+  currency: 'USD'
+}).format(1999);
+```
+
 Example `tsconfig.json` alias for `@`:
 
 ```json
@@ -112,6 +121,25 @@ export async function getStaticProps({ locale }) {
 
 export default function Home({ messages }) {
   return <p>{messages.welcome}</p>;
+}
+```
+
+## Locale detection (App Router)
+
+Use middleware to read `Accept-Language` and redirect to a locale segment:
+
+```javascript
+// middleware.js
+import { NextResponse } from 'next/server';
+
+export function middleware(request) {
+  const locale = request.headers.get('accept-language')?.split(',')[0] ?? 'en';
+  const url = request.nextUrl.clone();
+  if (!url.pathname.startsWith(`/${locale}`)) {
+    url.pathname = `/${locale}${url.pathname}`;
+    return NextResponse.redirect(url);
+  }
+  return NextResponse.next();
 }
 ```
 

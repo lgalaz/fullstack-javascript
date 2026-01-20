@@ -3,7 +3,7 @@
 ## XSS and Output Escaping
 
 XSS stands for Cross-Site Scripting. It happens when untrusted input is rendered as HTML or JavaScript.
-Use `htmlspecialchars` to escape output.
+Use `htmlspecialchars` to encode output.
 
 ```php
 <?php
@@ -14,6 +14,16 @@ $name = $_GET['name'] ?? '';
 
 echo htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
 ```
+
+Note: raw PHP echoes are not escaped by default. You must call htmlspecialchars() (or equivalent) yourself.
+
+Frameworks help:
+- Laravel Blade: {{ $var }} is escaped by default; {!! $var !!} outputs raw HTML.
+- Symfony typically uses Twig, which auto‑escapes output by default. You opt out with the |raw filter.
+- Django: auto‑escapes by default; you opt out with |safe.
+- Next.js/React: escapes by default; you opt out with dangerouslySetInnerHTML.
+- Vue.js: use v-html
+So in plain PHP you must opt in to escaping; many frameworks flip that by default.
 
 ## CSRF Protection
 
@@ -54,6 +64,12 @@ echo "<button>Submit</button>";
 echo "</form>";
 ```
 
+- Same file handles both GET and POST.
+- On first GET it creates the token in $_SESSION and outputs the form with the hidden token.
+- The form posts back to the same URL (no action), so it hits the same file.
+- POST branch compares token and accepts/rejects.
+Laravel actually stores the CSRF token in the session. It also sets an XSRF-TOKEN cookie so JavaScript (e.g., Axios) can read it and send it back in the X-XSRF-TOKEN header. That’s for SPA / AJAX convenience and same‑origin protection. 
+
 ## Password Hashing
 
 Never store raw passwords. Use `password_hash` to store a one-way hash and `password_verify` to check.
@@ -64,9 +80,19 @@ Note: `PASSWORD_DEFAULT` can change over time as PHP upgrades hashing algorithms
 
 declare(strict_types=1);
 
-$hash = password_hash('secret-password', PASSWORD_DEFAULT);
+// Registration: store this hash in your database.
+$storedHash = password_hash('secret-password', PASSWORD_DEFAULT);
 
-if (password_verify('secret-password', $hash)) {
+// Login: verify the user input against the stored hash.
+$loginInput = 'secret-password';
+
+if (password_verify($loginInput, $storedHash)) {
     echo 'Password ok';
 }
+```
+
+## Beyond the Basics
+
+For session hardening, cookies, crypto, and security headers, see
+`php/Security_Sessions_Cookies_Crypto_Headers/explanation.md`.
 ```

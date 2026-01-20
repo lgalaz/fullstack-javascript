@@ -599,3 +599,109 @@ test.describe('homepage', () => {
 - I’m comfortable operating with incomplete information and adjusting fast
 - I prefer small bets, fast learning, and tightening the loop over waiting for perfect certainty
 - The goal is sustained momentum, not short-term heroics
+
+## How would you optimize a React application rendering 100k+ list items?
+
+First, avoid rendering 100k DOM nodes. Use windowing/virtualization (react-window or react-virtualized) so only visible rows mount. That is the biggest win. Then optimize renders so each row is cheap:
+
+- Keep list item components pure and memoized (React.memo) with stable props and keys.
+- Avoid inline objects/functions that change on every render; precompute and pass primitives.
+- Split state so edits in one row do not invalidate the entire list.
+- Use pagination or progressive loading when a full dataset is not required at once.
+- Use content-visibility and contain where layout allows to reduce offscreen work.
+
+If the list requires heavy data shaping, do it off the main thread (Web Worker) and send already-shaped rows to the UI. Profile with React DevTools and the Performance tab to confirm render time and layout cost, not just guess.
+
+## What strategies improve page load time for a global audience?
+
+The path to a fast global experience is: minimize work, move it closer to users, and cache aggressively.
+
+- Serve HTML and assets from a CDN with regional POPs; cache static HTML with long TTL + stale-while-revalidate.
+- Use SSG/ISR for content that can be cached; keep personalized data as late/async as possible.
+- Optimize images (AVIF/WebP, responsive sizes, lazy loading, correct dimensions).
+- Reduce JS payload (code splitting, tree shaking, avoid heavy third-party scripts).
+- Use HTTP/2 or HTTP/3, enable compression (br/gzip), and preconnect to critical origins.
+- Collect RUM data by region to catch real latency, not just lab metrics.
+
+## You detect a memory leak in a production SPA — how do you identify and fix it?
+
+I confirm it first: watch heap growth over time in production (RUM memory metrics or crash logs), then reproduce locally with DevTools. I take heap snapshots before/after a user flow, look for retained objects and detached DOM nodes, and use the Allocation Timeline to find where allocations happen.
+
+Common culprits are event listeners not removed, subscriptions not cleaned up, timers left running, caches that never evict, and closures that retain large objects. The fix is usually in cleanup: useEffect return handlers, AbortController for fetches, unsubscribe on unmount, and clear intervals/timeouts. If a cache is needed, add bounds/TTL or use WeakMap where appropriate.
+
+## A component breaks after upgrading a library — how do you manage dependency conflicts safely?
+
+I treat upgrades as controlled change, not a quick bump. I read the changelog, identify breaking changes, and upgrade in a branch with a lockfile pinned. If there are peer conflicts, I use overrides/resolutions sparingly and only as a temporary bridge.
+
+I run tests, add a small repro if behavior changed, and do a staged rollout (canary or feature flag) so we can roll back quickly. If the dependency is widely used, I batch the upgrade with codemods and document the migration in the repo so future updates are predictable.
+
+## How do you debug a performance bottleneck using React DevTools / browser profiling?
+
+I start with the React Profiler to find the components with the longest render and commit times. The flame graph shows which components re-render frequently and why. If a component re-renders unexpectedly, I inspect props/state changes and use why-did-you-render or custom logs to confirm.
+
+Then I switch to the browser Performance tab to see if the cost is JS execution, layout, paint, or forced reflow. React may be fast but layout or painting can still be the bottleneck. I focus on the largest tasks, measure before/after, and verify improvements in the profiler.
+
+## How would you migrate a legacy frontend codebase to a modern framework with minimal risk?
+
+I use a strangler approach. Keep the existing app running, and move routes or components incrementally. Start with low-risk pages, wrap the new framework into the old shell, and share a design system to keep UX consistent.
+
+I add regression tests around critical flows, keep data contracts stable, and use feature flags for gradual rollout. Only after the new architecture proves stable do I migrate more complex flows. The goal is reversible steps, not a big-bang rewrite.
+
+## How do you ensure secure handling of sensitive user data on the client side?
+
+On the client, security is about minimizing exposure. I avoid storing secrets in localStorage/sessionStorage; if possible, use HttpOnly, Secure cookies for auth. I never log sensitive fields, and I redact PII in monitoring tools.
+
+I enforce HTTPS, use a strict CSP, and avoid leaking data into the DOM or query strings. If sensitive data must be displayed, I limit its lifetime in memory and clear it on logout or tab close. The best security move on the client is to not store or expose data unnecessarily.
+
+## Users report intermittent UI issues across browsers — how do you troubleshoot?
+
+I start with reproduction: capture browser/version, OS, and device. Then I look at RUM and error logs segmented by user agent to see if it clusters around a specific browser or device class.
+
+I check for missing polyfills, unsupported CSS/JS features, and timing issues (race conditions, resize observers, font loading). I try to build a minimal repro and test with BrowserStack or real devices. The goal is to isolate whether it is a browser compatibility gap, a performance timing issue, or a feature-detection problem.
+
+## A critical UI feature fails during peak traffic — how do you mitigate quickly?
+
+First, stop the bleeding: flip a kill switch or feature flag to disable the failing feature and serve a safe fallback. Then reduce load by moving to cached or static content where possible.
+
+I check monitoring to confirm recovery, communicate status, and start a fix in parallel. If the issue is tied to a release, I roll back quickly. The priority is restoring a degraded but functional experience before root cause analysis.
+
+## How do you manage state in a complex app to avoid unnecessary re-renders?
+
+I default to local state and only elevate when multiple components truly need it. I split contexts by domain to avoid global invalidation, and I use selectors so components only subscribe to the data they need.
+
+For shared state, I prefer stores that support fine-grained subscriptions (Redux with selectors, Zustand, Jotai). I keep derived data memoized, avoid prop drilling of new object literals, and use React.memo and useCallback where it actually reduces churn.
+
+## How would you build a frontend monitoring and logging system?
+
+I layer it:
+
+- Error tracking for uncaught exceptions and unhandled promise rejections (Sentry/Datadog).
+- Performance RUM for LCP/INP/CLS and long tasks.
+- Custom events for key UX flows and feature usage.
+- Correlation IDs to tie frontend events to backend requests.
+
+I also set sampling, redaction rules, and release tags, and I upload sourcemaps so stack traces are actionable. Logs should be useful for debugging without leaking sensitive data.
+
+## How do you render large datasets without blocking the main thread?
+
+Use virtualization to keep DOM small, and chunk heavy work. If data shaping is expensive, move it to a Web Worker. If rendering is heavy (charts, large grids), consider Canvas or OffscreenCanvas.
+
+For gradual rendering, use incremental paint (requestIdleCallback or small batches) so the UI stays responsive. The key is to avoid long tasks and keep the main thread free for input.
+
+## How do you implement A/B testing safely without impacting users?
+
+Assign buckets consistently (server-side when possible) and avoid flicker by deciding variants before render. Keep experiment code behind a feature flag with a kill switch, and measure impact on Core Web Vitals and errors.
+
+I keep variants isolated, avoid changing critical flows without guardrails, and ensure the experiment respects privacy and consent. If an experiment degrades performance or increases error rates, it gets shut down quickly.
+
+## A CSS animation feels janky on mobile — how do you diagnose and fix it?
+
+I profile with the Performance tab and enable rendering stats (FPS meter, paint flashing). If the animation triggers layout or paint on every frame, I switch to transform/opacity and reduce the painted area.
+
+I remove expensive effects (large box-shadows, filters), reduce layer count, and use will-change sparingly for the element that actually animates. If needed, I lower the animation complexity or duration on mobile.
+
+## How do you handle real-time updates efficiently in React?
+
+Use a streaming channel (WebSocket or SSE), but batch updates on the client. I normalize state so updates touch only the affected entities, and I use startTransition or deferred updates to keep interactions responsive.
+
+If updates are frequent, I throttle UI updates, avoid re-rendering full lists, and virtualize visible rows. Real-time should feel live without turning every message into a full re-render.

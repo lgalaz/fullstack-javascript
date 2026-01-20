@@ -37,6 +37,25 @@ Image optimizations available:
 - Placeholder support (blur-up) to reduce perceived loading time.
 - On-demand optimization and caching on the server/edge.
 
+Remote images require config in `next.config.js`:
+
+```javascript
+// next.config.js
+module.exports = {
+  images: {
+    remotePatterns: [
+      { protocol: 'https', hostname: 'images.example.com' }
+    ]
+  }
+};
+```
+
+Useful props:
+- `sizes` to control responsive image selection
+- `priority` for above-the-fold images. Note: Starting with Next.js 16, the priority property has been deprecated in favor of the preload property in order to make the behavior clear.
+- In most cases, you should use loading="eager" or fetchPriority="high" instead of preload.
+- `placeholder="blur"` with `blurDataURL` for low-quality placeholders
+
 ## Fonts
 
 Use `next/font` for self-hosted, optimized fonts.
@@ -66,6 +85,14 @@ Font optimizations available:
 - Automatic preload of critical font files.
 - CSS inlining to avoid additional render-blocking requests.
 - Controlled `font-display` behavior to reduce layout shifts.
+
+Local fonts:
+
+```javascript
+import localFont from 'next/font/local';
+
+const brand = localFont({ src: './Brand.woff2', variable: '--font-brand' });
+```
 
 ## Scripts
 

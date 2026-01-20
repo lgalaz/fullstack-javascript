@@ -127,6 +127,10 @@ Math.max.call(null, ...numbers);
 Returns a new function with `this` bound to the provided value. The new function can be called later.
 
 ```javascript
+function greet(greeting, punctuation) {
+  console.log(`${greeting}, ${this.name}${punctuation}`);
+}
+
 const boundGreet = greet.bind(person, 'Hey');
 boundGreet('?'); // Hey, Bob?
 ```
@@ -137,6 +141,8 @@ Partial application:
 const boundGreetHi = greet.bind(person, 'Hi');
 boundGreetHi('!'); // Hi, Bob!
 ```
+
+`bind` can pre-fill arguments in addition to setting `this`, which is why this is partial application: the first argument is fixed to `'Hi'` and the remaining argument is supplied later.
 
 ## Arrow Functions
 
@@ -207,6 +213,14 @@ button.addEventListener('click', function() {
 });
 ```
 
+If you use an arrow function here, `this` is lexical and won't be the button. Use the event target instead:
+
+```javascript
+button.addEventListener('click', (e) => {
+  console.log(e.currentTarget); // the button element
+});
+```
+
 - Class methods: In classes, methods are not automatically bound.
 
 ```javascript
@@ -253,7 +267,7 @@ method2(); // Class
 
 - `call`: Invokes function immediately with specified `this` and individual arguments.
 - `apply`: Similar to `call`, but takes arguments as an array.
-- `bind`: Returns a new function with `this` bound, doesn't invoke immediately.
+- `bind`: Returns a new function with `this` bound, doesn't invoke immediately. And can prefill arguments for partial application
 
 ### 4. How do arrow functions handle `this`?
 

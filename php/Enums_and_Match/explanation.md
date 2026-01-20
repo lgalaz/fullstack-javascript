@@ -21,7 +21,9 @@ function canEdit(Status $status): bool {
     return $status === Status::Draft;
 }
 
-echo Status::Published->value;
+echo Status::Published->value; // 'published'
+$status = Status::Published;
+echo canEdit($status); // false
 ```
 
 ## Match Expressions
@@ -29,6 +31,8 @@ echo Status::Published->value;
 A match expression is like a switch but is exhaustive and returns a value.
 Exhaustive means all possible inputs must be handled.
 If no case matches and there is no `default`, PHP throws an `UnhandledMatchError`.
+Unlike `switch`, `match` uses strict comparison (`===`) and never falls through to the next case.
+Each arm is a single expression, and multiple conditions can be grouped in one arm (for example, `1, 2 => 'low'`).
 
 ```php
 <?php
@@ -47,5 +51,5 @@ function labelForStatus(Status $status): string {
     };
 }
 
-echo labelForStatus(Status::Draft);
+echo labelForStatus(Status::Draft); // Draft
 ```

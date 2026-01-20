@@ -56,7 +56,7 @@ final class Order {
 ## Abstraction, Inheritance, and Polymorphism
 
 Abstraction means exposing a simplified interface while hiding implementation details.
-Inheritance means a class extends another to reuse behavior.
+Inheritance is when a class extends a base class to reuse and specialize its behavior.
 Polymorphism means code can work with different implementations through a shared contract (interface or abstract class).
 Generalization means designing a base type that captures common behavior for a family of types.
 
@@ -90,7 +90,44 @@ final class SmsNotifier implements Notifier {
 function alert(Notifier $notifier, string $message): void {
     $notifier->send($message);
 }
+
+$emailNotifier = new EmailNotifier();
+$smsNotifier = new SmsNotifier();
+alert($emailNotifier, 'notify email');
+alert($smsNotifier, 'notify sms');
 ```
+
+Another polymorphism example with a collection:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+$notifiers = [new EmailNotifier(), new SmsNotifier()];
+
+foreach ($notifiers as $notifier) {
+    $notifier->send('System maintenance tonight');
+}
+```
+
+## Covariance and Contravariance
+
+These are type‑system rules, and languages vary in how (or whether) they enforce them.
+
+- Some languages enforce variance rules at compile time (e.g., allow covariant returns, restrict parameter variance).
+- Others are more permissive or dynamic, so variance is less enforced or only checked at runtime.
+- In PHP specifically, covariance for return types and contravariance for parameter types are enforced when overriding methods (since PHP 7.4+).
+
+In PHP, these show up in OOP method signatures when you override methods in subclasses.
+
+Covariant: you can substitute a more specific type.
+Contravariant: you can substitute a more general type.
+
+Return types are usually covariant (subclass can return a subtype).
+Parameter types are usually contravariant (subclass can accept a supertype).
+
+Example idea: if a base method returns `Animal`, an override can return `Dog` (covariant). If a base method accepts `Dog`, an override can accept `Animal` (contravariant).
 
 ## Abstract Modifier and Abstract Classes
 
@@ -154,9 +191,107 @@ A trait is a reusable set of methods and properties you can include in multiple 
 
 Note: traits are copy-paste at compile time; method conflicts must be resolved explicitly, and heavy trait use can make behavior harder to trace.
 
+```php
+<?php
+
+trait A { public function log(): string { return 'A'; } }
+trait B { public function log(): string { return 'B'; } }
+
+final class Report {
+    use A, B {
+        A::log insteadof B;
+        B::log as logFromB;
+    }
+}
+```
+
+Why use a trait instead of an abstract class:
+- PHP only allows single inheritance, so a trait lets you mix in behavior without forcing a class hierarchy.
+- Traits are best for small, orthogonal behaviors (independent features that do not depend on each other or on the class hierarchy); abstract classes are better when you need a shared base with required structure or template methods.
+A template method is a pattern where a base class defines the algorithm’s overall steps, but lets subclasses fill in or override specific steps. The “template” is the fixed structure; the variable parts are deferred to subclasses (or protected hooks).
+
+Template method example (base class defines the algorithm skeleton):
+
+```php
+<?php
+
+declare(strict_types=1);
+
+abstract class ReportGenerator {
+    // Template method. Lives in the base class and defines the algorithm’s steps.
+    final public function generate(): string { 
+        $data = $this->fetchData();
+        $rows = $this->formatRows($data);
+        return $this->render($rows);
+    }
+
+    abstract protected function fetchData(): array;
+
+    protected function formatRows(array $data): array {
+        return $data;
+    }
+
+    protected function render(array $rows): string {
+        return implode("\n", $rows);
+    }
+}
+
+final class CsvReport extends ReportGenerator {
+    // Subclass can override some of the steps with specific implementations
+    protected function fetchData(): array { 
+        return ['id,name', '1,Ada', '2,Grace'];
+    }
+
+    protected function formatRows(array $data): array {
+        return $data;
+    }
+}
+```
+
 When to use a trait:
 - Cross-cutting, stateless behavior (small helpers, shared implementation detail).
 - Avoid traits for core domain behavior; prefer composition or interfaces to keep design explicit.
+
+Example trait:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+trait Timestamps {
+    private DateTimeImmutable $createdAt;
+
+    public function markCreated(): void {
+        $this->createdAt = new DateTimeImmutable('now', new DateTimeZone('UTC'));
+    }
+
+    public function createdAt(): DateTimeImmutable {
+        return $this->createdAt;
+    }
+}
+
+final class Post {
+    use Timestamps;
+}
+```
+
+Laravel example (Eloquent uses traits heavily):
+
+```php
+<?php
+
+declare(strict_types=1);
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+final class Post extends Model {
+    use SoftDeletes;
+}
+```
+
+Traits like `SoftDeletes`, `HasFactory`, and `Notifiable` let Laravel add optional behavior to many unrelated models without forcing them into a shared abstract base class.
 
 ## Composition, Aggregation, and Association
 
@@ -169,7 +304,13 @@ Quick mental model:
 - Composition/Aggregation are "has-a" (a Car has an Engine).
 - Association is "uses-a" (a Driver uses a Car).
 
-Senior practice: prefer composition over inheritance to reduce coupling and make behavior easier to test and swap.
+Note: If the Driver stores a reference to the car reference (e.g., it’s a property) that’s aggregation (“has‑a”). 
+If the Driver just uses a Car passed into a method, that’s association (“uses‑a”). The difference is about ownership/lifetime, not the real‑world wording.
+Aggregation: Driver has a Car as a field; Car can exist without Driver.
+Composition: Driver creates/controls the Car lifecycle; Car doesn’t meaningfully exist without Driver.
+Association: Driver uses a Car temporarily (e.g., method parameter), no stored reference.
+
+Prefer composition over inheritance to reduce coupling and make behavior easier to test and swap.
 
 Example: composition is explicit and local.
 
@@ -204,12 +345,13 @@ final class JsonFormatter extends Formatter {
 
 $logger = new FileLogger(new JsonFormatter());
 ```
+Note: Dependency injection encourages composition by having objects receive collaborators instead of inheriting behavior, which keeps relationships explicit and flexible.
 
 ## SOLID Principles (Senior Focus)
 
 SOLID stands for Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, and Dependency Inversion.
 
-S: Single Responsibility (one reason to change)
+S: Single Responsibility (one reason to change, one axis of change). A class should have a single, focused purpose and only change when that purpose changes.
 
 Bad:
 ```php
@@ -237,6 +379,9 @@ final class EmailSender {
 
 O: Open/Closed (open for extension, closed for modification)
 
+Why: core code stays stable while new behavior is added in new types, reducing regressions.
+How: depend on abstractions and inject implementations so behavior can be extended without editing the core.
+
 Bad:
 ```php
 <?php
@@ -251,20 +396,60 @@ function priceFor(string $type): int {
 Good:
 ```php
 <?php
+// Note: This example is essentially the Strategy pattern: a context (PriceCalculator) delegates pricing to interchangeable strategy objects (Pricing implementations).
 
 interface Pricing {
-    public function price(): int;
+    public function supports(string $type): bool;
+    public function price(string $type): int;
+}
+
+final class PriceCalculator {
+    /** @param Pricing[] $strategies */
+    public function __construct(private array $strategies) {}
+
+    public function priceFor(string $type): int {
+        foreach ($this->strategies as $pricing) {
+            if ($pricing->supports($type)) {
+                return $pricing->price($type);
+            }
+        }
+        throw new InvalidArgumentException("Unknown type: {$type}");
+    }
 }
 
 final class StandardPricing implements Pricing {
-    // Add new pricing by implementing the interface, not editing priceFor.
-    public function price(): int { return 10; }
+    public function supports(string $type): bool { return $type === 'standard'; }
+    public function price(string $type): int { return 10; }
 }
+
+$calculator = new PriceCalculator([
+    new StandardPricing(),
+]);
+
+echo $calculator->priceFor('standard');
+
+// Add PremiumPricing by creating a new class and registering it in the strategies list.
 ```
 
 L: Liskov Substitution (subtypes must be usable as their base type)
+Subclasses should honor the parent’s contract—same or weaker preconditions, same or stronger postconditions, and preserved invariants.
 
-Bad:
+- Preconditions are what must be true before a method is called.
+LSP says a subclass must not require more than the base class (so it can accept everything the base could). That’s “same or weaker preconditions.”
+
+- Postconditions are what must be true after the method finishes.
+LSP says a subclass must guarantee at least what the base promised (and can promise more). That’s “same or stronger postconditions.”
+
+Conditions example:
+If a subclass method requires more than the base, then code that works with the base can break when given the subclass. That violates substitutability. Example: base accepts any positive amount, subclass only accepts amounts over 100, codethatpasses50 would work for the base but fail for the subclass.
+If a subclass weakens postconditions, callers relying on the base contract can break.
+Example: base save() guarantees the data is persisted. If a subclass’s save() sometimes does nothing (or silently drops data), any code that assumes “after save, data is stored” is now wrong. That violates LSP because the subclass no longer fulfills the base’s promise.
+
+
+Liskov Bad example:
+Liskov is about behavioral contracts, not just return types.
+save(): void still matches the signature, but the subclass changes the behavior by refusing to save (throws). That breaks callers who rely on “save works.”
+
 ```php
 <?php
 
@@ -277,7 +462,7 @@ class ReadOnlyFileStore extends FileStore {
     public function save(string $data): void { throw new RuntimeException('read-only'); }
 }
 ```
-Good:
+Liskov good example:
 ```php
 <?php
 
@@ -286,7 +471,7 @@ interface WritableStore { public function save(string $data): void; }
 // Separate interfaces avoid forcing a read-only store to support save().
 ```
 
-I: Interface Segregation (small, specific interfaces)
+I: Interface Segregation (small, specific interfaces). Clients should not be forced to depend on methods they do not use; prefer several focused interfaces over one wide one.
 
 Bad:
 ```php
@@ -305,6 +490,7 @@ Good:
 
 interface Coder { public function code(): void; }
 interface Designer { public function design(): void; }
+interface Manager { public function manage(): void; }
 // Clients depend only on the capabilities they need.
 ```
 
@@ -326,10 +512,18 @@ Good:
 
 interface PaymentGateway { public function charge(int $cents): void; }
 
+final class StripeClient implements PaymentGateway {
+    public function charge(int $cents): void {
+        // talk to Stripe
+    }
+}
+
 final class Checkout {
     // Depends on an abstraction so implementations can vary.
     public function __construct(private PaymentGateway $gateway) {}
 }
+
+$checkout = new Checkout(new StripeClient());
 ```
 
 ## Design Patterns (GoF)
@@ -345,6 +539,8 @@ final class ConnectionFactory {
         return new PDO($driver);
     }
 }
+
+$pdo = ConnectionFactory::make('sqlite::memory:');
 ```
 
 Strategy: swap behavior via a shared interface.
@@ -354,6 +550,9 @@ Strategy: swap behavior via a shared interface.
 interface TaxStrategy { public function rate(): float; }
 final class UkTax implements TaxStrategy { public function rate(): float { return 0.2; } }
 final class UsTax implements TaxStrategy { public function rate(): float { return 0.07; } }
+
+$strategy = new UkTax();
+$total = 100 * (1 + $strategy->rate());
 ```
 
 Observer: notify subscribers when events occur.
@@ -369,6 +568,10 @@ final class EventBus {
         }
     }
 }
+
+$bus = new EventBus();
+$bus->on('user.registered', fn (array $user) => print $user['email']);
+$bus->emit('user.registered', ['email' => 'ada@example.com']); // prints: ada@example.com
 ```
 
 Adapter: wrap incompatible APIs to match your interface.
@@ -381,6 +584,9 @@ final class LoggerAdapter implements Logger {
     public function __construct(private LegacyLogger $legacy) {}
     public function log(string $message): void { $this->legacy->write($message); }
 }
+
+$logger = new LoggerAdapter(new LegacyLogger());
+$logger->log('started');
 ```
 
 Decorator: wrap objects to add behavior without changing them.
@@ -396,4 +602,7 @@ final class LoggingNotifier implements Notifier {
         $this->inner->send($message);
     }
 }
+
+$notifier = new LoggingNotifier(new EmailNotifier());
+$notifier->send('hello'); // sends the email and also logs
 ```

@@ -4,7 +4,7 @@
 
 Custom hooks let you extract and reuse stateful logic across components. They are plain functions whose names start with `use`.
 They can call other hooks, which is what differentiates them from regular utility functions.
-Use a custom hook when you need reusable stateful behavior that plugs into React's lifecycle (state, effects, context); use a plain function for pure, stateless helpers.
+Use a custom hook when you need reusable stateful behavior that plugs into React's rendering model (state, effects, context updates); use a plain function for pure, stateless helpers.
 
 ## Example: useLocalStorage
 
@@ -129,8 +129,7 @@ function Profile({ showStatus }) {
 }
 ```
 
-If `showStatus` changes from true to false, React "skips" the effect hook and the next hook (`useState` for age) takes its place. On the next render, the
-state that used to belong to the effect slot is now treated as the age state.
+If `showStatus` changes from true to false, React "skips" the effect hook and the next hook (`useState` for age) takes its place. On the next render, the state that used to belong to the effect slot is now treated as the age state.
 In practice, you might see the age input suddenly show `undefined` or a stale value, or the app might throw a runtime error like:
 
 ```

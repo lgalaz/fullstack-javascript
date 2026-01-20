@@ -23,6 +23,7 @@ export default function Error({ error, reset }) {
 ```
 
 Note: `reset` is a Next.js-provided function that clears the error state for this segment and re-renders it, so clicking the button retries the render after the failure. A segment is one folder level in `app/` that maps to a route part, so the reset is scoped to that route segment and its children.
+Note: `error.js` must be a client component.
 
 ```javascript
 // app/profile/not-found.js
@@ -30,6 +31,20 @@ export default function NotFound() {
   return <h1>User not found</h1>;
 }
 ```
+
+You can also trigger a 404 from a server component:
+
+```javascript
+import { notFound } from 'next/navigation';
+
+export default async function UserPage({ params }) {
+  const user = await getUser(params.id);
+  if (!user) notFound();
+  return <div>{user.name}</div>;
+}
+```
+
+Use `app/global-error.js` for a root-level error boundary.
 
 ## Logging
 
@@ -105,6 +120,7 @@ export default function GlobalError({ error }) {
 Pair `error.js` with client-side error boundaries for interactive segments, and log errors in `componentDidCatch` or error boundary `useEffect`.
 
 ```javascript
+// app/profile/error.js (route segment error boundary)
 'use client';
 import { useEffect } from 'react';
 

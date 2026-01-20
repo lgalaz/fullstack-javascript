@@ -64,8 +64,7 @@ console.log(y); // ReferenceError
 
 - **Declaration**: Block-scoped.
 - **Hoisting**: Same as `let`, hoisted but in TDZ.
-- **Reassignment**: Cannot be reassigned or redeclared. For objects, properties can be mutated.
-
+- **Reassignment**: Cannot\\\\\\\\\\\\\\\\
 Example:
 
 ```javascript

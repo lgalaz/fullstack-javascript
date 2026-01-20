@@ -68,6 +68,14 @@ function sum(...nums: number[]) {
 
 Rest parameters are typed as arrays, so `...nums: number[]` means any number of numbers.
 
+If you need different types by position, use a tuple rest parameter:
+
+```typescript
+function logEvent(...args: [event: string, count: number, ok?: boolean]) {
+  // args[0] is string, args[1] is number, args[2] is boolean | undefined
+}
+```
+
 ## Variadic tuple types
 
 ```typescript

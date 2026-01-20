@@ -65,6 +65,19 @@ export async function GET(): Promise<Response> {
 }
 ```
 
+## Metadata typing
+
+Use the `Metadata` type when defining page metadata:
+
+```typescript
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Docs',
+  description: 'API docs'
+};
+```
+
 ## Shared Types
 
 Shared types are types you import in both server and client components (or route handlers). You can place them in `types/`, `lib/`, or any folder you prefer; the important part is keeping the file free of server-only or browser-only code so it can be safely imported on both sides.

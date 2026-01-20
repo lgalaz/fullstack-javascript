@@ -13,4 +13,5 @@ Services organize logic that doesn't belong to a single entity or value object. 
 ## Practical Guidance
 
 - Keep domain services free of persistence and IO.
+Persistence, external APIs, file/queue/HTTP IO belong in infrastructure services. Domain services should be pure business logic and depend on abstractions (e.g., repository interfaces), not concrete IO.
 - Application services coordinate work and manage transactions.

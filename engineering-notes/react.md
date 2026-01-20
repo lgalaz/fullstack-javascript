@@ -73,7 +73,35 @@ useMemo doesn’t “cache forever”; it caches until deps change.
 
 My approach: measure first (Profiler), then apply memoization where it reduces real cost.
 
-5) Concurrent rendering, transitions, and Suspense
+5) Rendering/perf deep dives
+
+I: What are your go-to techniques and mental models for deep rendering performance work?
+
+C: I start with measurement: React DevTools Profiler, browser Performance tab, and React's scheduling lanes mental model (urgent vs transition). I look for:
+
+Unnecessary renders (props/context churn, new identities).
+
+Expensive renders (heavy computation in render, large lists, expensive child trees).
+
+Long commits (too much work in one frame).
+
+Targeted fixes:
+
+Stabilize props (memoize objects/functions where it matters).
+
+Split context by update frequency, or use selector-based stores.
+
+Virtualize large lists (react-window/react-virtualized).
+
+Move heavy computation to memoized selectors or background workers.
+
+Introduce transitions for non-urgent updates to keep input responsive.
+
+I avoid blanket memoization. If the Profiler shows time dominated by reconciliation, I reduce element churn and ensure keys are stable. If it's dominated by actual render work, I focus on cutting expensive render paths or splitting components to isolate hot paths.
+
+Note: flushSync (react-dom) forces immediate synchronous DOM updates and bypasses normal scheduling. I treat it as a last resort when I must read layout right after a state update, because it can hurt responsiveness.
+
+6) Concurrent rendering, transitions, and Suspense
 
 I: Explain concurrent rendering concepts and how startTransition changes behavior.
 
@@ -83,7 +111,7 @@ Example: typing in a search input updates query urgently, but expensive filterin
 
 Suspense is React’s mechanism for coordinating async boundaries: when a subtree suspends (e.g., data not ready), React can show fallback UI while keeping the rest interactive. In practice, Suspense is most powerful with frameworks (like Next) that integrate data fetching and streaming, but it’s also useful for code-splitting (lazy).
 
-6) Context: performance and architecture
+7) Context: performance and architecture
 
 I: Context is easy to misuse. What’s the real performance behavior and how do you structure context in a big app?
 
@@ -99,7 +127,7 @@ Sometimes use context for dependencies (like services, clients) rather than freq
 
 For complex global state, a dedicated library (Redux, Zustand, Jotai, Recoil, etc.) can give more granular subscriptions.
 
-7) Forms: controlled vs uncontrolled, React Hook Form
+8) Forms: controlled vs uncontrolled, React Hook Form
 
 I: Compare controlled vs uncontrolled inputs. When would you pick React Hook Form?
 
@@ -109,7 +137,7 @@ Uncontrolled inputs let the DOM hold the value (defaultValue, refs). Benefits: f
 
 React Hook Form works well because it leans toward uncontrolled patterns with refs, minimizing rerenders while still offering validation and form state tracking. I use it for large, complex forms where performance and ergonomics matter.
 
-8) Server Components vs Client Components (framework-level)
+9) Server Components vs Client Components (framework-level)
 
 I: In Next.js App Router terms: what are Server Components, what are Client Components, and what are the practical boundaries?
 
@@ -123,7 +151,7 @@ Props passed from server to client must be serializable.
 
 Practical architecture: keep data fetching and heavy lifting in server components, push interactive widgets to client components, and be explicit about boundaries to avoid shipping unnecessary JS.
 
-9) Testing strategy for senior-level apps
+10) Testing strategy for senior-level apps
 
 I: What’s your testing pyramid for React? Tools and what you avoid?
 
@@ -143,7 +171,7 @@ Over-mocking React itself or verifying exact component tree structure unless it�
 
 Also: I like running lint/unit tests in CI and often set up pre-commit hooks for fast checks.
 
-10) Debugging a real issue: “Why is this component re-rendering?”
+11) Debugging a real issue: “Why is this component re-rendering?”
 
 I: You see excessive rerenders and sluggish UI. What’s your step-by-step approach?
 
@@ -163,7 +191,7 @@ Consider list virtualization (react-window) for large lists and ensure keys are 
 
 If rendering is blocked by heavy computations, move to a transition or background compute (web worker) depending on needs.
 
-11) Component API & composition design
+12) Component API & composition design
 
 I: You’re designing a reusable component library (design system). How do you decide between props vs composition (children, render props, slots)?
 

@@ -3,6 +3,8 @@
 ## Introduction
 
 TypeScript can model error types, but JavaScript still throws any value. Good error handling uses type guards and narrowing.
+Type guards are runtime checks (like `typeof`, `instanceof`, `in`, or custom `value is T` functions) that tell TypeScript a value has a more specific type.
+Narrowing is the compiler behavior that refines a union type within a branch based on those checks.
 
 ## Narrowing Unknown Errors
 
@@ -64,6 +66,9 @@ function parseIntSafe(input: string): Result<number> {
 ## Preserve cause
 
 In modern runtimes, prefer `cause` for error chaining.
+`cause` is a standard `Error` option that stores the original thrown value on the new error (accessible as `error.cause`), preserving the underlying error object and stack instead of flattening it into a string.
+Using `message` alone loses the original error type and context; `cause` keeps both while still letting you provide a higher-level message.
+If you wrap and rethrow multiple times, each error can point to the previous one via `cause`, forming a chain you can traverse. You can traverse error.cause?.cause?.cause to see the chain.
 
 ```typescript
 try {

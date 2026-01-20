@@ -54,3 +54,32 @@ This is a common pattern in frameworks that attach metadata to handlers at runti
 
 - Use JSDoc at module boundaries or public APIs.
 - Prefer explicit composition when metadata makes code harder to trace.
+  - In practice, this means wiring the behavior directly at the call site instead of storing metadata and relying on another system to interpret it later.
+
+```javascript
+// Metadata-driven: handlers are decorated, then discovered later.
+function route(method, path) {
+  return function (handler) {
+    handler.route = { method, path };
+    return handler;
+  };
+}
+
+const listUsers = route('GET', '/users')(function listUsersHandler(req) {
+  return { users: [] };
+});
+
+function registerFromMetadata(handlers) {
+  for (const handler of handlers) {
+    const { method, path } = handler.route;
+    router[method.toLowerCase()](path, handler);
+  }
+}
+
+registerFromMetadata([listUsers]);
+
+// Explicit composition: routes are registered directly and visibly.
+router.get('/users', function listUsersHandler(req) {
+  return { users: [] };
+});
+```

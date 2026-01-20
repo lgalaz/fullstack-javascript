@@ -58,14 +58,14 @@ export default function SaveButton() {
 
 ## App Router vs Legacy Pages Router
 
-The legacy Pages Router (`pages/`) is the original Next.js routing model. It still works and is maintained, but it has a flatter mental model and fewer built-in primitives compared to the App Router. In practice, that means Pages Router apps usually assemble features manually: shared layouts live in `_app.js` or page-level wrappers, route-level loading and error UI are handled by custom patterns or component state, and nested composition is achieved with wrapper components or layout HOCs rather than segment-based `layout.js` files. The App Router makes those ideas first-class with nested layouts, `loading.js`, `error.js`, and segment conventions like `template.js`, `not-found.js`, route groups `(marketing)`, and parallel routes `@sidebar`.
+The legacy Pages Router (`pages/`) is the original Next.js routing model. It still works and is maintained, but it has a flatter mental model and fewer built-in primitives compared to the App Router. In practice, that means Pages Router apps usually assemble features manually: shared layouts live in `_app.js` or page-level wrappers, route-level loading and error UI are handled by custom patterns or component state, and nested composition is achieved with wrapper components or layout HOCs rather than segment-based `layout.js` files. The App Router makes those ideas first-class with nested layouts, `loading.js`, `error.js`, `route.js`, and segment conventions like `template.js`, `not-found.js`, route groups `(marketing)`, and parallel routes `@sidebar`.
 
 The Pages Router is the older `pages/`-directory system (also file-based routing) that uses data-fetching functions like `getServerSideProps` and `getStaticProps`. The App Router is the newer `app/`-directory system with layouts, server components, and more granular loading/error UI. Both map files to routes; the App Router adds new conventions and rendering features.
 
 At a glance:
 
 - App Router uses server components and layouts.
-- Pages Router uses `pages/` with `getServerSideProps` and `getStaticProps`.
+- Pages Router uses `pages/` with `getServerSideProps`, `getStaticProps`, and (legacy) `getInitialProps`.
 - App Router is recommended for new apps.
 
 Key differences:
@@ -110,6 +110,8 @@ Why App Router is generally the better option for new builds:
 - Cleaner composition with nested layouts, templates, and route segments.
 - First-class loading/error states aligned with routes and UI structure.
 - Future-facing model that matches ongoing Next.js and React investment.
+- server components by default and explicit `'use client'` boundaries
+- built-in streaming with React Suspense
 
 File-based examples (with `src/` as the project root):
 
@@ -129,14 +131,8 @@ src/app/users/[id]/page.js -> /users/123
 
 ## Route conventions
 
-- `layout.js` and `template.js` composes shared UI for a segment and its children.
+- `layout.js` and `template.js` composes shared UI for a segment and its children. Difference is that layout.js persist state across route changes while template.js resets on route changes.
 - Only the root `app/layout.js` must return `<html>` and `<body>`; Next.js throws a dev/build error if they are missing.
-- `loading.js` renders a Suspense fallback while data loads.
-- `error.js` defines a segment-level error boundary.
-- `not-found.js` customizes 404s for a route subtree.
-- server components by default and explicit `'use client'` boundaries
-- built-in streaming with React Suspense
-
 ```javascript
 // app/layout.js
 export default function RootLayout({ children }) {
@@ -147,6 +143,12 @@ export default function RootLayout({ children }) {
   );
 }
 ```
+- `loading.js` renders a Suspense fallback while data loads.
+- `error.js` defines a segment-level error boundary.
+- `not-found.js` customizes 404s for a route subtree.
+- `route.js` defines route handlers (API endpoints) for the segment.
+
+
 
 Note: the function name is not special; only the `app/layout.js` filename and default export matter. The root layout must return `<html>` and `<body>`.
 
@@ -215,6 +217,70 @@ export default function MarketingHome() {
 
 Note: route groups do not affect the URL, but they do affect layout nesting and shared UI.
 
+## Route Segment Config (App Router)
+
+You can control rendering and caching per route segment with exports:
+
+```javascript
+export const dynamic = 'auto'; // or 'force-static' | 'force-dynamic'
+export const revalidate = 60; // ISR for the whole route segment
+export const dynamicParams = true; // allow params not returned by generateStaticParams
+```
+
+Use `dynamicParams = false` when you want unknown params to return 404s and only pre-rendered params to exist.
+
+Example with `generateStaticParams` and a whitelist:
+
+```javascript
+// app/products/[id]/page.js
+export const dynamicParams = false;
+
+export async function generateStaticParams() {
+  return [{ id: '1' }, { id: '2' }];
+}
+
+export default function ProductPage({ params }) {
+  return <div>Product {params.id}</div>;
+}
+```
+
+With `dynamicParams = false`, only IDs returned by `generateStaticParams` are allowed and pre-rendered (a whitelist).
+If you want a blacklist instead, keep `dynamicParams = true` and add a check:
+
+```javascript
+const blacklist = ['13', '666'];
+
+export default function ProductPage({ params }) {
+  if (blacklist.includes(params.id)) notFound();
+  return <div>Product {params.id}</div>;
+}
+```
+
+## Search Params
+
+Server components receive `searchParams` as a prop, and client components can use `useSearchParams`.
+
+```javascript
+// app/products/page.js
+export default function Products({ searchParams }) {
+  const query = searchParams.q ?? '';
+  return <div>Query: {query}</div>;
+}
+```
+
+Client example with `useSearchParams`:
+
+```javascript
+'use client';
+import { useSearchParams } from 'next/navigation';
+
+export default function ProductsClient() {
+  const searchParams = useSearchParams();
+  const query = searchParams.get('q') ?? '';
+  return <div>Query: {query}</div>;
+}
+```
+
 ## Parallel Routes
 
 Parallel routes let a layout render multiple sibling routes at once using named slots (folders prefixed with `@`). Each slot renders in parallel in the parent layout.
@@ -249,6 +315,30 @@ Notes:
 - Next.js decides which slot page to render based on the current URL and the slot's route tree; the layout just receives the slot props.
 - If a slot does not match the current URL, Next.js renders the slot's `default.js` if it exists (for example, `app/@auth/default.js`); otherwise that slot renders nothing (visiting `/` renders `children` from `app/page.js` and `@auth/default.js` if present).
 - The `children` prop is the primary route for the current URL (the non-`@` tree), so `/` renders `app/page.js`, `/login` renders `app/login/page.js` if it exists, and `/dashboard` renders `app/dashboard/page.js`.
+Example (root layout receiving `children` from `app/page.js`):
+
+```javascript
+// app/layout.js
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        <header>Global header</header>
+        <main>{children}</main>
+      </body>
+    </html>
+  );
+}
+```
+
+```javascript
+// app/page.js
+export default function HomePage() {
+  return <h1>Home</h1>;
+}
+```
+
+Visiting `/` renders `app/page.js` and injects it into the `children` slot of `app/layout.js`.
 
 ## Intercepting Routes
 

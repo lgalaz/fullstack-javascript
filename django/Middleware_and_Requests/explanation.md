@@ -103,6 +103,23 @@ class RequestTimingMiddleware:
         return response
 ```
 
+## HTTP Early Hints (103)
+
+Early Hints is a 103 response that lets the server send `Link` preload headers before the final response. It helps browsers start fetching critical CSS/JS earlier, reducing render delay.
+
+Django itself does not provide a first-class Early Hints API, and WSGI servers generally do not emit 103. The common pattern is to set `Link` headers in Django and let an ASGI server or reverse proxy/CDN that supports 103 turn them into Early Hints.
+
+```python
+class EarlyHintsMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        response['Link'] = '</static/app.css>; rel=preload; as=style'
+        return response
+```
+
 ## Ordering Matters
 
 The order in `MIDDLEWARE` controls behavior.

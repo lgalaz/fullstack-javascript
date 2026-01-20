@@ -29,6 +29,18 @@ class User {
 }
 ```
 
+**Note**: The `context` argument is provided by the decorators proposal runtime (or by your transpiler). You do not pass it manually; the engine calls the decorator with `(value, context)` when it applies `@sealed`.
+
+```javascript
+// Example shape (simplified)
+function sealed(value, context) {
+  // context.kind: "class"
+  // context.name: "User"
+  // context.addInitializer: (fn) => void
+  console.log(context.kind, context.name);
+}
+```
+
 ## Method Decorator Example (Proposal Style)
 
 ```javascript

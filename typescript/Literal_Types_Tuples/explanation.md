@@ -97,6 +97,17 @@ Why use this: it preserves the relationship between the two inputs and guarantee
 type Range = [start: number, end: number];
 ```
 
+Example usage (labels improve readability in tooling):
+
+```typescript
+function clamp(value: number, range: Range) {
+  const [start, end] = range;
+  return Math.min(Math.max(value, start), end);
+}
+
+clamp(10, [0, 5]);
+```
+
 ## Interview Questions and Answers
 
 ### 1. What is a literal type?

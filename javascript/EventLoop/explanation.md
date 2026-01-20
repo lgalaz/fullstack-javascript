@@ -4,6 +4,24 @@
 
 JavaScript is single-threaded, meaning it can only execute one piece of code at a time. The event loop is the mechanism that allows JavaScript to handle asynchronous operations without blocking the main thread.
 
+## Execution Context
+
+An execution context is the runtime container for code execution. It holds the scope chain (lexical environment), variable bindings, and the `this` value for a given piece of code.
+
+How contexts are created:
+- **Global/Module context**: created first when the script or module is loaded.
+- **Function context**: created each time a function is invoked (or when a class constructor is called).
+
+What a context contains (simplified):
+- **Lexical Environment**: where identifiers are resolved (scope chain).
+- **Variable Environment**: `var` bindings and function declarations.
+- **This binding**: the value of `this` for that call.
+
+Why this matters for the event loop:
+- The call stack is a stack of execution contexts (LIFO).
+- Async callbacks run later by creating new function contexts when the event loop dequeues them.
+- `await`/Promises schedule microtasks; when they resume, they run in fresh contexts pushed onto the stack.
+
 ## Components of the Event Loop
 
 ### Call Stack
@@ -78,13 +96,10 @@ Microtasks have higher priority and are executed before the next macrotask.
 
 ## How the Event Loop Works
 
-1. Execute code on the call stack.
-2. When an async operation is encountered, hand it off to Web APIs.
-3. When the async operation completes, its callback is added to the appropriate queue.
-4. When the call stack is empty, the event loop checks for tasks:
-   - First, process all microtasks in the microtask queue.
-   - Then, process one macrotask from the macrotask queue.
-5. Repeat.
+- Execution contexts (global/module/function) are pushed onto the call stack (LIFO).
+- When async work is initiated, the JS engine calls into browser/Node native APIs via bindings (WebIDL is the spec that describes those interfaces; the browser implements the bindings).
+- The native API performs the work and, when ready, enqueues a callback as a task or microtask (depending on the API).
+- The event loop runs when the stack is empty: it drains all microtasks, then runs one task, then repeats.
 
 ## Execution Order Example
 
@@ -111,7 +126,7 @@ Why? Synchronous code runs first. `setTimeout` callback goes to macrotask queue.
 ### Microtasks
 
 - Executed after the current operation completes, before the next macrotask.
-- Examples: `Promise.then()`, `Promise.catch()`, `MutationObserver`, `process.nextTick`.
+- Examples: `Promise.then()`, `Promise.catch()`, `MutationObserver`, `queueMicrotask` (browser), `process.nextTick` (Node).
 
 ### Macrotasks
 
@@ -150,18 +165,22 @@ Promise.resolve().then(() => console.log('promise'));
 // Promise logs first, then timeout
 ```
 
+If you want "run as soon as possible after the current call stack," a microtask (`Promise.resolve().then(...)` or `queueMicrotask`) is closer to `process.nextTick` than `setTimeout(0)`.
+
 ## Event Loop in Node.js vs Browser
 
 ### Browser
 
 - Uses Web APIs for async operations.
-- Has a rendering phase between macrotasks.
+- Has a rendering phase between macrotasks: after a task finishes and microtasks drain, the browser may recalculate styles, layout, and paint before running the next task.
+- The browser engine embeds the JS engine and also handles DOM, layout, paint, and Web APIs. It schedules rendering between tasks (after microtasks) when there is visual work and a frame boundary.
 
 ### Node.js
 
 - Uses libuv for async operations.
 - Phases: timers, pending callbacks, idle/prepare, poll, check, close callbacks.
 - `process.nextTick` is a microtask in Node.js.
+- Node also has microtasks vs tasks: Promises/`queueMicrotask` (and `process.nextTick`) run between phases, while the phase queues are macrotasks.
 
 ## Common Pitfalls
 

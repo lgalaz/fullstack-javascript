@@ -68,6 +68,7 @@ Common causes:
 2) An ad script runs early and injects markup inside `#ad-slot`.
 3) React hydrates and expects `#ad-slot` to be empty based on the server HTML.
 4) React detects the mismatch and replaces the DOM with its own output, removing the ad.
+5) The ad script usually does not re-run, so the ad stays gone unless you re-trigger it after hydration.
 
 ## Mitigations
 

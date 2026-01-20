@@ -2,7 +2,8 @@
 
 ## Introduction
 
-A bounded context is a logical boundary where a model and language apply consistently. The same term can mean different things in different contexts.
+A bounded context is primarily a modeling and language boundary for a domain area. It is a logical boundary where a model and language apply consistently. 
+A bounded context is where a single ubiquitous language is consistent and unambiguous. Outside it, the same term can mean something different, so you need translation between contexts.
 
 ## Example
 

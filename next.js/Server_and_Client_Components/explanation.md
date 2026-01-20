@@ -89,6 +89,12 @@ export default function Counter() {
 }
 ```
 
+## Client Boundary Rules (important)
+
+- The `'use client'` directive is transitive: all imports below it become client components.
+- Client components cannot import server-only modules (DB, filesystem, secrets).
+- Props passed from server to client must be serializable (no functions, class instances, or Dates without serialization).
+
 ## When to Use Which
 
 - Server components for data fetching and static UI

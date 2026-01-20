@@ -85,6 +85,33 @@ return new Response(JSON.stringify({ ok: true }), {
 });
 ```
 
+## NextRequest and helpers
+
+Use `NextRequest` when you need cookies, headers, or URL parsing helpers.
+
+```javascript
+import { NextRequest } from 'next/server';
+
+export async function GET(request: NextRequest) {
+  const token = request.cookies.get('token')?.value;
+  const search = request.nextUrl.searchParams.get('q');
+  return Response.json({ token, search });
+}
+```
+
+You can also parse form data:
+
+```javascript
+export async function POST(request) {
+  const form = await request.formData();
+  return Response.json({ name: form.get('name') });
+}
+```
+
+## CORS and OPTIONS
+
+If your API is called cross-origin, add an `OPTIONS` handler for preflight requests and set `Access-Control-*` headers.
+
 ## Dynamic segments and params
 
 ```javascript
@@ -199,6 +226,13 @@ Consider a separate Node.js backend when server responsibilities grow beyond req
 - independent scaling and deployment of the API layer
 
 In those cases, a dedicated backend provides clearer layering, more reliable process control, and decoupled scaling from the UI.
+
+Quick decision guide:
+
+- Tiny UI-only state changes (no server) → keep it in the component.
+- HTTP request/response needs → Route Handlers or Server Actions.
+- Simple forms (e.g., signup) → keep UI state in the component, handle validation + persistence in a Route Handler or Server Action (no separate controller unless you already have a backend layer).
+- Complex server concerns (queues, WebSockets, long-running jobs, shared APIs) → separate backend.
 
 ## Interview Questions and Answers
 

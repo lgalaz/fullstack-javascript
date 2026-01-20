@@ -33,6 +33,23 @@ test('increments on click', () => {
 });
 ```
 
+## Jest config (Next.js)
+
+Use `next/jest` to wire up Next.js config and transforms.
+
+```javascript
+// jest.config.js
+const nextJest = require('next/jest');
+
+const createJestConfig = nextJest({ dir: './' });
+
+const customConfig = {
+  testEnvironment: 'jsdom'
+};
+
+module.exports = createJestConfig(customConfig);
+```
+
 ## React Server Components (RSC) Testing
 
 Server components run on the server and can be tested by calling their data helpers directly or by rendering the output of async functions and asserting on the resulting JSX.
@@ -201,6 +218,15 @@ import { cookies } from 'next/headers';
 export function getSessionId() {
   return cookies().get('session')?.value ?? null;
 }
+```
+
+Client routing hooks can be mocked too:
+
+```javascript
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({ push: jest.fn() }),
+  useSearchParams: () => new URLSearchParams('q=test')
+}));
 ```
 
 ## Interview Questions and Answers

@@ -84,39 +84,45 @@ Note: How do @layer and @scope help at scale?
 
 @layer lets me define cascade order (base, components, utilities) without specificity hacks. @scope limits selector reach to a subtree, reducing leakage and making styles more component-like.
 
+Example:
+
+```css
+@layer reset, base, components, utilities;
+
+@layer reset {
+  * { box-sizing: border-box; margin: 0; }
+}
+
+@layer base {
+  body { font-family: system-ui, sans-serif; }
+  h1 { font-size: 2rem; }
+}
+
+@layer components {
+  .card { padding: 1rem; border-radius: 8px; }
+}
+
+@layer utilities {
+  .p-2 { padding: 0.5rem; }
+  .text-center { text-align: center; }
+  .card { padding: 2rem; }
+}
+```
+
 8) Performance: layout and paint
 
 Note: How do you avoid costly reflows and repaints?
 
-I minimize layout thrash by avoiding JS reads/writes in loops, keeping the DOM shallow/isolated so layout changes affect fewer nodes, use content-visibility for large offscreen content, and prefer transforms/opacity for animations. Reflow (layout) recalculates geometry/positions; repaint redraws pixels without changing layout. `content-visibility: auto` lets the browser skip rendering work for offscreen elements while still reserving space (often paired with `contain-intrinsic-size` to avoid layout shifts). I use will-change sparingly when I know an element will animate.
+I minimize layout thrash by:
+- avoiding JS reads/writes in loops
+- keeping the DOM shallow/isolated so layout changes affect fewer nodes - use content-visibility for large offscreen content
+- prefer transforms/opacity for animations. 
 
-9) Animations and motion
+Reflow (layout) recalculates geometry/positions; repaint redraws pixels without changing layout. 
+`content-visibility: auto` lets the browser skip rendering work for offscreen elements while still reserving space (often paired with `contain-intrinsic-size` to avoid layout shifts). 
+I use will-change sparingly when I know an element will animate.
 
-Note: What’s your approach to motion?
-
-Motion should be purposeful and not block interaction. I keep durations short, use prefers-reduced-motion, and avoid animating layout properties when possible.
-`prefers-reduced-motion` is a user OS/browser setting that signals motion sensitivity; I respect it by reducing or disabling non-essential animations.
-
-Example:
-
-```css
-.card {
-  transition: transform 200ms ease;
-}
-
-.card:hover {
-  transform: translateY(-4px);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .card {
-    transition: none;
-    transform: none;
-  }
-}
-```
-
-10) Accessibility in CSS
+9) Accessibility in CSS
 
 Note: What CSS choices affect accessibility?
 
@@ -144,14 +150,22 @@ body {
 }
 ```
 
-11) Forms and UI controls
+10) Forms and UI controls
 
 Note: How do you style form controls without breaking them?
 
-I start from native controls, enhance with appearance: none only when necessary, and keep focus/hover/disabled states obvious. I avoid hiding inputs without providing an accessible equivalent. Newer `field-sizing: content` lets text inputs size to their content (instead of a fixed width), which can reduce JS-based autosizing.
+I start from native controls, enhance with appearance: none only when necessary, and keep focus/hover/disabled states obvious. I avoid hiding inputs without providing an accessible equivalent. Newer 
+`field-sizing: content` lets text inputs size to their content (instead of a fixed width), which can reduce JS-based autosizing.
 
-12) Modern features worth knowing
+11) Modern features worth knowing
 
 Note: Which CSS features changed how you build UIs?
 
-Container queries, :has(), native nesting, aspect-ratio, logical properties, and cascade tools like @layer and @scope reduced the need for JS and preprocessors. Core layout primitives like Flexbox, Grid, and position: sticky were also major shifts that eliminated large classes of layout JS. These features simplify responsive and stateful styling while keeping performance predictable.
+- Container queries
+- :has()
+-  native nesting
+- aspect-ratio
+- logical properties and cascade tools like @layer and @scope reduced the need for JS and preprocessors. 
+- Core layout primitives like Flexbox, Grid, and position: sticky were also major shifts that eliminated large classes of layout JS. 
+
+These features simplify responsive and stateful styling while keeping performance predictable.

@@ -39,6 +39,7 @@ outer(); // After 1 second: "Count: 1"
 ## How Closures Work
 
 When a function is created, it creates a closure that captures the variables from its lexical environment.
+A lexical environment is the set of variables and bindings that are in scope where the function is defined (its local scope plus any outer scopes), fixed by the code’s structure rather than by how the function is called.
 
 Example:
 
@@ -161,6 +162,8 @@ for (var i = 0; i < 3; i++) {
   setTimeout(() => console.log(i), 100); // Logs 3, 3, 3
 }
 ```
+
+This happens because `var` is function-scoped and hoisted, so all iterations share the same `i` binding (which ends at 3).
 
 All closures share the same `i`, which is 3 after the loop ends.
 
