@@ -10,7 +10,6 @@ A `Money` value object might include `amount` and `currency` and be treated as a
 
 ## Practical Guidance
 
-- Make value objects immutable.
 - Validate invariants at creation time.
 
 ## Typed Identifiers and Domain Primitives

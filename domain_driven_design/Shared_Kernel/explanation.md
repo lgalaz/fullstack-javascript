@@ -3,7 +3,7 @@
 ## Introduction
 
 A Shared Kernel is a small, explicitly shared part of the model and code used by multiple bounded contexts. It exists to avoid duplicated core concepts while keeping most of each context independent. 
-It’s usually better to only share value objects and small abstractions. Sharing entities can tightly couple contexts, so only do it if both contexts truly agree on the entity’s meaning and lifecycle.
+It’s usually better to only share value objects and value types. Sharing entities can tightly couple contexts, so only do it if both contexts truly agree on the entity’s meaning and lifecycle.
 
 ## Example
 

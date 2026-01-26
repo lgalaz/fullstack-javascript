@@ -23,7 +23,6 @@ So the “bottom line” isn’t just maintainability in the abstract. It’s ma
 - the domain rules stay coherent instead of being spread across controllers, SQL, UI, and cron jobs
 - the model has fewer “partial truths” and fewer flags
 - teams can change one area without breaking the rest
-- If you want a clean interview-ready version in your tone:
 
 “DDD doesn’t have one perfect model. It gives you tools to keep the model aligned with the business over time. The point is to end up with boundaries and language that make the rules easier to enforce, change, and reason about as the product evolves.”
 

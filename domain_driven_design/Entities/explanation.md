@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Entities are domain objects defined by identity, not just their attributes. They can change over time but remain the same conceptual thing.
+Entities are domain objects defined by identity, not just their attributes. They can change over time but remain the same conceptual thing (They have Lifecycle, mutable state).
 
 ## Example
 

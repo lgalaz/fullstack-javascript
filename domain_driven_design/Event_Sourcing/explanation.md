@@ -18,7 +18,6 @@ Event sourcing is not required for DDD, but it fits well when auditability and t
 - EventSauce: provides event-sourced aggregates, message repositories, and upcasters; you plug in a storage backend and build projections.
 - Symfony Messenger + Doctrine: build your own event store table (append-only), dispatch events via Messenger, and project into read models.
 - EventStoreDB (external service) + client library: dedicated event store with streams, subscriptions, and projections; your app appends events and rebuilds state.
-- Legacy options like Broadway or Prooph exist but are largely unmaintained; use with caution.
 
 ## Migration Strategy and Operational Complexity
 

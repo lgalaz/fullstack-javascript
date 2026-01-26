@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Factories create complex objects while enforcing invariants. They keep construction logic out of entities and services.
+Factories create complex objects while enforcing invariants and hiding construction complexity. They keep construction logic out of entities and services.
 
 ## Example
 
@@ -50,6 +50,13 @@ final class OrderItem {
         return $this->priceCents;
     }
 }
+
+$items = [
+    new OrderItem('SKU-1', 500),
+    new OrderItem('SKU-2', 700),
+];
+
+$order = OrderFactory::create($items);
 ```
 
 ## Practical Guidance
