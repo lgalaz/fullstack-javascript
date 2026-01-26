@@ -1,5 +1,7 @@
 # API Development
 
+REST (Representational State Transfer) is about resource‑oriented design and uniform HTTP semantics, which maps directly to these practices: use resource URLs and proper verbs (resource design + HTTP basics), represent state consistently with clear schemas and error shapes (request/response shape + contracts), and rely on HTTP features like status codes, caching headers, and idempotency for predictable behavior. The rest of the list—security, versioning, observability, reliability—supports REST’s goals of stateless, scalable, and evolvable APIs.
+
 ## HTTP Basics
 
 HTTP method semantics (sometimes called REST semantics): the intended meaning of each verb, along with properties like idempotency and safety (e.g., GET is safe/idempotent).
