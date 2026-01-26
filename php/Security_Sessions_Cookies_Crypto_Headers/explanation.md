@@ -92,6 +92,23 @@ header("Content-Security-Policy: default-src 'self'");
 Limits what resources can load; here it allows only same‑origin resources by default, reducing XSS impact.
 ```
 
+Nonce-based CSP (require the nonce on script tags):
+
+```php
+<?php
+
+declare(strict_types=1);
+
+$nonce = base64_encode(random_bytes(16));
+header("Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-{$nonce}'; object-src 'none'");
+```
+
+```html
+<script nonce="<?= htmlspecialchars($nonce, ENT_QUOTES, 'UTF-8') ?>">
+    // Allowed by CSP because nonce matches.
+</script>
+```
+
 ## Audit Logging
 
 Log security-relevant actions (auth, permissions, money movement) with immutable, append-only logs.

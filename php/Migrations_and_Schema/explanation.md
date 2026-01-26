@@ -4,12 +4,13 @@
 
 Migrations track schema changes in code so environments stay consistent.
 Apply migrations in order and make them idempotent where possible.
+If neede, use a migration for required baseline data; use seeders for non‑essential or environment‑specific data. If you need idempotency, use upserts or “insert if not exists”.
 
 ## Constraints First
 
 Use database constraints to enforce rules, not just application logic:
 
-- `NOT NULL` and default values
+- `NOT NULL` and default values (+ Default to ensure required value)
 - `UNIQUE` constraints for idempotency keys
 - Foreign keys for referential integrity
 - `CHECK` constraints for valid ranges

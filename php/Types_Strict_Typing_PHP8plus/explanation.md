@@ -81,7 +81,7 @@ $timeout ??= 30; // Stays 0 because it is not null.
 
 ## Union and Intersection Types
 
-A union type allows multiple possible types using `|`. An intersection type requires a value to satisfy all listed interfaces using `&`. An interface is a contract of methods a class must implement.
+A union type allows multiple possible types using `|`. An intersection type requires a value to satisfy all listed interfaces using `&`. 
 
 ```php
 <?php

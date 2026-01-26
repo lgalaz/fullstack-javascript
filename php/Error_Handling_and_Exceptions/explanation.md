@@ -30,6 +30,7 @@ try {
 ## Converting Errors to Exceptions
 
 `set_error_handler` lets you turn PHP errors into exceptions for consistent handling.
+It is not configurable in `php.ini`; it is configured per request at runtime, and most frameworks set it up for you.
 Note: avoid error suppression with `@` in production; it hides failures and makes debugging harder.
 
 Why this is useful:

@@ -72,6 +72,37 @@ $sender = new App\Email\Sender();
 $sender->send('user@example.com', 'Hello');
 ```
 
+What `vendor/autoload.php` roughly does (simplified):
+
+```php
+<?php
+
+declare(strict_types=1);
+
+require __DIR__ . '/composer/autoload_real.php';
+
+return ComposerAutoloaderInit::getLoader();
+```
+
+And the registered autoloader (also simplified):
+
+```php
+<?php
+
+declare(strict_types=1);
+
+spl_autoload_register(function (string $class): void {
+    $classMap = [
+        App\Email\Sender::class => __DIR__ . '/../src/Email/Sender.php',
+        // vendor classes...
+    ];
+
+    if (isset($classMap[$class])) {
+        require $classMap[$class];
+    }
+});
+```
+
 ## Other PSRs You Should Know
 
 - PSR-1 / PSR-12: basic and extended coding standards.

@@ -97,20 +97,22 @@ composer audit
 
 This exits non-zero when advisories are found, so CI can fail the job.
 
-## A common CI set for PHP:
+## A common CI set for PHP
 
-- On Push/PR
-  - phpunit for tests
-  - integration tests. Most frameworks have utilities for simplifying these tests (like API tests)
-  - end to end tests for critical paths (Playwright/Cypress)
-  - accesibility testing (AXE) (Playwright/Cypress)
-  - phpstan or psalm for static analysis
-  - php-cs-fixer (or Pint) for style/lint
-  - composer audit (or symfony security:check) for dependency vulnerabilities
-  - Static Application Security Testing via Semgrep CLI (Critical HighSeverity ruleset)
-- nightly
-  - infection for mutation testing (often on nightly or main branch)
-  - load/perf testing (e.g., k6 or Artillery) against staging
-  - Static Application Security Testing via Semgrep CLI (Broad ruleset)
-  - Dynamic Application Security Testing via OWASP ZAP, run against staging.
+On Push/PR:
+- PHPUnit for tests
+- Integration tests. Most frameworks have utilities for simplifying these tests (like API tests).
+- Accessibility testing (AXE) (Playwright/Cypress)
+- PHPStan or Psalm for static analysis
+- PHP-CS-Fixer (or Pint) for style/lint
+- Composer audit (or `symfony security:check`) for dependency vulnerabilities
+- Static Application Security Testing via Semgrep CLI (critical high severity ruleset)
 
+Nightly:
+- End-to-end tests for critical paths (Playwright/Cypress)
+- Contract tests for API or interface contracts (response shape, status codes, required fields)
+- Postman API tests via Newman, run against staging
+- Load/perf testing (e.g., k6 or Artillery), run against staging
+- Infection for mutation testing (often on nightly or main branch)
+- Static Application Security Testing via Semgrep CLI (broad ruleset)
+- Dynamic Application Security Testing via OWASP ZAP, run against staging

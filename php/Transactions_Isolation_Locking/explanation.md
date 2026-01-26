@@ -34,8 +34,13 @@ Transaction A reads data that Transaction B has written but not yet committed. I
 Transaction A reads the same row twice and gets different results because Transaction B committed an update between the two reads.
 - `SERIALIZABLE`: strongest isolation, highest contention.
 
+In MVCC (Multi Version Concurrent Control):
+Read Committed (RC): each statement gets a fresh snapshot.
+Repeatable Read (RR): the snapshot is fixed for the whole transaction.
+On write, the database creates a new version of the row. Readers keep seeing their snapshot depending on the isolation level.
+
 Use the weakest level that still satisfies correctness.
-Enterprise apps usually use targeted locking/transactions (e.g., SELECT ... FOR UPDATE) and careful business logic under REPEATABLE READ or READ COMMITTED, reserving SERIALIZABLE for the few truly critical operations that require it.
+Enterprise apps usually use targeted locking/transactions (e.g., SELECT ... FOR UPDATE) and careful business logic under REPEATABLE READ or READ COMMITTED, reserving SERIALIZABLE for the few truly critical operations that require it (it often reduces concurrency via stricter locking or serialization checks).
 
 # Core DBMS guarantees are usually ACID:
 
@@ -82,6 +87,28 @@ try {
 
 When a request can be retried, store an idempotency key and enforce uniqueness.
 This prevents duplicate charges or state transitions.
+
+Client (generate once, reuse on retries):
+
+```php
+<?php
+
+declare(strict_types=1);
+
+// Store this per user action and reuse it for retries.
+$idempotencyKey = bin2hex(random_bytes(16));
+
+// Example request (pseudo):
+// POST /charge with header Idempotency-Key: $idempotencyKey
+```
+
+normal flow:
+```
+- GET /create-user: server generates idempotency key, stores it in session, and includes it in the form (hidden input or header).
+- POST /create-user: server checks idempotency_keys for that key + user/action (and optionally request hash).
+  - If it exists, return the stored result (e.g., user_id) — don’t re‑query by params.
+  - If it doesn’t, create the user, store the result with the key, and return it.
+```
 
 ```php
 <?php

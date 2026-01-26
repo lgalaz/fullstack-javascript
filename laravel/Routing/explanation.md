@@ -6,6 +6,33 @@ Routes live in:
 - `routes/web.php` for browser pages (sessions, CSRF).
 - `routes/api.php` for stateless JSON APIs.
 
+Note: Laravel routes are strict about trailing slashes, so `/posts` and `/posts/` are different routes unless you normalize or define both. Be consistent to avoid extra redirects or 404s.
+
+You can normalize trailing slashes with middleware to keep a canonical URL and avoid duplicate routes.
+You can also do it at the web server/proxy (Nginx) for even earlier handling. For fewer round trips, ideally enforce a consistent URL scheme in links and routes so redirects are rarely needed.
+
+```php
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+
+class TrimTrailingSlash
+{
+    public function handle(Request $request, Closure $next)
+    {
+        $path = $request->path();
+
+        if ($path !== '/' && str_ends_with($path, '/')) {
+            $normalized = rtrim($request->getRequestUri(), '/');
+            return redirect($normalized, 301);
+        }
+
+        return $next($request);
+    }
+}
+```
+
 Example routes:
 
 ```php

@@ -5,7 +5,7 @@
 PHP runs inside a SAPI (Server API, API means Application Programming Interface), which is the interface between PHP and the web server or runtime environment.
 Common SAPIs:
 
-- PHP-FPM: FastCGI (Fast Common Gateway Interface) Process Manager, the most common way to run PHP behind Nginx or Apache.
+- PHP-FPM: FastCGI Process Manager (Fast Common Gateway Interface Process Manager), the most common way to run PHP behind Nginx or Apache.
 - CLI: Command Line Interface for scripts and tooling.
 
 ## Request/Response Basics

@@ -4,6 +4,7 @@
 
 An enum (short for enumeration) defines a fixed set of values.
 PHP 8.1 supports backed enums, where each case has a scalar value (a single primitive like int or string).
+Backed enum cases have a name and a scalar value; non-backed enum cases only have a name.
 
 Note: enums are safer than strings for domain values because they prevent invalid states at runtime.
 
@@ -24,6 +25,23 @@ function canEdit(Status $status): bool {
 echo Status::Published->value; // 'published'
 $status = Status::Published;
 echo canEdit($status); // false
+```
+
+Non-backed enum example:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+enum Role {
+    case Admin;
+    case Editor;
+    case Viewer;
+}
+
+$role = Role::Admin;
+echo $role->name; // 'Admin'
 ```
 
 ## Match Expressions

@@ -127,3 +127,58 @@ echo $route->path;
 // Output:
 // /users
 ```
+
+## OpenTelemetry: excluding `/login` from tracing in Laravel
+
+If you are manually creating request spans, you can skip creating a span for the login endpoint in middleware.
+This keeps the `/login` request out of your traces without affecting other routes.
+
+`app/Http/Middleware/OtelRequestTracing.php`:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use OpenTelemetry\API\Globals;
+use OpenTelemetry\API\Trace\Span;
+
+final class OtelRequestTracing
+{
+    public function handle(Request $request, Closure $next)
+    {
+        if ($request->is('login')) {
+            return $next($request);
+        }
+
+        $tracer = Globals::tracerProvider()->getTracer('app.http');
+        $span = $tracer->spanBuilder($request->method() . ' ' . $request->path())
+            ->startSpan();
+        $scope = $span->activate();
+
+        try {
+            return $next($request);
+        } finally {
+            $scope->detach();
+            $span->end();
+        }
+    }
+}
+```
+
+Register the middleware so it runs early in the request lifecycle.
+
+`app/Http/Kernel.php`:
+
+```php
+<?php
+
+protected $middleware = [
+    // ...
+    \App\Http\Middleware\OtelRequestTracing::class,
+];
+```

@@ -21,6 +21,17 @@ Use strict error reporting in development and log errors in production.
 
 declare(strict_types=1);
 
+// Applies per-file; affects parameter and return type coercion, not general expressions.
+function add(int $a, int $b): int {
+    return $a + $b;
+}
+
+add('1', 2); // TypeError under strict_types=1; coerces under strict_types=0.
+
+function total(): int {
+    return '3'; // TypeError under strict_types=1; coerces under strict_types=0.
+}
+
 // Development: show all errors and warnings to aid debugging.
 error_reporting(E_ALL);
 ini_set('display_errors', '1');

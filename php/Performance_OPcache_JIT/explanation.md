@@ -19,7 +19,7 @@ JIT stands for Just-In-Time compilation. It compiles some bytecode into machine 
 
 How PHP execution changes:
 Normal: PHP → Zend opcodes → Zend VM interprets them (the VM is a C program already compiled to machine code).
-JIT: PHP → Zend opcodes → hot opcodes compiled to native machine code at runtime, executed directly.
+JIT: PHP → Zend opcodes → hot opcodes compiled to native machine code at runtime, executed directly. So those hot paths bypass the Zend VM interpreter. But it doesn’t remove the VM entirely—cold paths still run through the VM.
 
 When to consider JIT:
 

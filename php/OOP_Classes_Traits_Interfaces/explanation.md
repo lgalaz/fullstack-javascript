@@ -35,7 +35,7 @@ echo $user->label();
 
 Senior guidance:
 - Prefer the narrowest visibility that still works. Expose intent, not internals.
-- Use `final` for classes or methods you do not want extended, to keep invariants safe.
+- Use `final` for classes or methods you do not want extended, to keep invariants safe. Final classes cant be sublcassed at all. Final meethods can't be overridden.
 
 ## Readonly Properties
 
@@ -115,11 +115,7 @@ foreach ($notifiers as $notifier) {
 
 These are type‑system rules, and languages vary in how (or whether) they enforce them.
 
-- Some languages enforce variance rules at compile time (e.g., allow covariant returns, restrict parameter variance).
-- Others are more permissive or dynamic, so variance is less enforced or only checked at runtime.
-- In PHP specifically, covariance for return types and contravariance for parameter types are enforced when overriding methods (since PHP 7.4+).
-
-In PHP, these show up in OOP method signatures when you override methods in subclasses.
+In PHP specifically, covariance for return types and contravariance for parameter types are enforced when overriding methods (since PHP 7.4+).
 
 Covariant: you can substitute a more specific type.
 Contravariant: you can substitute a more general type.
@@ -531,6 +527,7 @@ $checkout = new Checkout(new StripeClient());
 GoF means Gang of Four. Common patterns in PHP codebases include Factory (create objects), Strategy (swap behavior), Observer (events), Adapter (compatibility), and Decorator (wrap behavior). Frameworks use these heavily, so recognizing them makes code easier to reason about.
 
 Factory: centralizes object creation.
+Because creation often has rules: selecting a subclass, validating inputs, wiring dependencies, or applying defaults. A factory keeps those rules in one place 
 ```php
 <?php
 

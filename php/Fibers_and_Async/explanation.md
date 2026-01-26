@@ -75,8 +75,6 @@ Common PHP options for async/concurrent work:
 - Laravel Octane: app server for concurrency using Swoole or RoadRunner.
 - FrankenPHP: modern app server built on Caddy with worker mode and concurrent request handling.
 
-HTTP Early Hints (103) can also improve perceived performance by sending `Link` preload headers before the final response. In PHP this is primarily done through modern application servers like FrankenPHP, or via reverse proxies/CDNs that support 103.
+Note: On Enterprise apps, concurrency is often needed for throughput (I/O-heavy tasks, queues, real-time feeds), but correctness usually matters more than raw concurrency. Use database transactions, locks, and idempotency to keep sensitive moves safe.
 
-Note: On Enterprise apps, concurrency is often needed for throughput (I/O-heavy tasks, queues, real-time feeds),
-but correctness usually matters more than raw concurrency. Use database transactions, locks, and idempotency
-to keep sensitive moves safe.
+Note: HTTP Early Hints (103) can also improve perceived performance by sending `Link` preload headers before the final response. In PHP this is primarily done through modern application servers like FrankenPHP, or via reverse proxies/CDNs that support 103.

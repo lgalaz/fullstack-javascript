@@ -33,7 +33,7 @@ $priceWithTax = function (float $price) use ($taxRate): float {
     return $price * (1 + $taxRate);
 };
 
-echo $priceWithTax(10.0);
+echo $priceWithTax(10.0); // 12
 ```
 
 Capture by value (the closure keeps the original value):

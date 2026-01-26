@@ -52,7 +52,9 @@ $context = stream_context_create([
     ],
 ]);
 
-$json = file_get_contents('https://example.com/api', false, $context);
+$json = file_get_contents('https://example.com/api/user/1', false, $context); // $json = '{"name":"luis"}'
+$user = json_decode($json);
+// $user is stdClass, e.g. $user->name === 'luis'
 ```
 
 Server-sent events (SSE) stream example:

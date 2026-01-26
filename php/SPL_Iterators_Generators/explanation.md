@@ -5,6 +5,10 @@
 SPL provides core data structures and interfaces used by frameworks and libraries.
 Common interfaces include `Iterator`, `IteratorAggregate`, `Countable`, and `ArrayAccess`.
 
+Iterator means your class is the iterator: you implement current(), next(), key(), valid(), rewind() and it’s used directly in foreach.
+
+IteratorAggregate means your class provides an iterator: you implement getIterator() and return an Iterator (or Traversable). It’s cleaner when your class is a collection and you want to keep iteration logic separate.
+
 ```php
 <?php
 // To work with foreach, you must implement Iterator or IteratorAggregate.
@@ -71,6 +75,24 @@ $gen = numbers();
 echo $gen->current(); // 1
 $gen->next();
 echo $gen->current(); // 2
+```
+
+`foreach` example:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+function numbers(): Generator {
+    yield 1;
+    yield 2;
+    yield 3;
+}
+
+foreach (numbers() as $n) {
+    echo $n . "\n";
+}
 ```
 
 Use generators for streaming large datasets, ETL pipelines, or report exports.
