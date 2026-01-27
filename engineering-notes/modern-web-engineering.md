@@ -1,27 +1,36 @@
 Most mature stacks can deliver the same product features and scale to typical production needs. Performance differences usually matter far less than team execution, architecture, and operational discipline. So choosing a stack is often about team expertise, hiring pool, time‑to‑market, and ecosystem support, not raw language speed.
 
-Security note: use the OWASP Top 10 as a baseline checklist for common web risks. The current web app list (2021) is:
-
-- A01 Broken Access Control: users can access or modify data/actions they shouldn’t.
-- A02 Cryptographic Failures: weak or missing encryption, key handling, or transport protection.
-- A03 Injection: untrusted input is interpreted as code/query (SQL/NoSQL/command).
-- A04 Insecure Design: missing security controls in the design; insecure patterns by default.
-- A05 Security Misconfiguration: unsafe defaults, exposed services, or improper hardening.
-- A06 Vulnerable and Outdated Components: known-vulnerable dependencies or unpatched software.
-- A07 Identification and Authentication Failures: broken auth, session handling, or identity checks.
-- A08 Software and Data Integrity Failures: untrusted updates, CI/CD, deserialization, or code tampering.
-- A09 Security Logging and Monitoring Failures: insufficient logging/alerting to detect attacks.
-- A10 Server-Side Request Forgery (SSRF): server makes unintended requests to internal/external targets.
+Security note: the OWASP Top 10 is a short, widely used checklist of the most common web app security risks. Use it as a baseline to sanity‑check design and implementation (access control, auth, input handling, crypto, dependency hygiene, logging/monitoring, and secure defaults), not as a list you need to memorize.
 
 ## When is a meta-framework unnecessary?
 
-Meta-frameworks aren’t just about SSR—they also provide scaffolding, conventions, and production-ready tooling (build, bundling, deployment defaults, and performance optimizations) that reduce setup friction and help teams align on a common structure. By standardizing routing, data loading, build configuration, and deployment assumptions, they lower decision fatigue and prevent common mistakes, which can be valuable even when advanced rendering features aren’t required.
-
-However, they become unnecessary when those benefits don’t outweigh the constraints they introduce. For simple internal tools or straightforward SPAs with no SEO needs and clear backend boundaries, the added architectural rules and framework-specific concepts can increase cognitive overhead without delivering enough leverage. In such cases, a lighter setup is often easier to build, operate, debug, and reason about. The key is whether the framework’s complexity actively serves the problem, rather than becoming a long-term maintenance tax.
+Meta‑frameworks provide scaffolding, conventions, and production-ready tooling (build, bundling, deployment defaults, and performance optimizations) that reduce setup friction and help teams align on a common structure. But they’re unnecessary when those benefits don’t outweigh the constraints, like in simple internal tools or SPAs without SEO needs—where a lighter setup is easier to build, debug, and maintain.
 
 ## How do Core Web Vitals influence architecture?
 
 Core Web Vitals influence architecture by setting the performance envelope. Architectural choices like SSG, ISR, or server components determine whether metrics like LCP or INP can be optimized at all. However, architecture doesn’t guarantee good scores — it only creates headroom. Execution quality, especially JavaScript discipline and layout predictability, ultimately determines whether those metrics are actually achieved.
+
+## Tradeoff: worse frontend solution to mitigate risk
+Yes. When risk is high (security, compliance, delivery), I’ll trade UX polish or architectural elegance for predictability. Example: avoiding a new UI library or advanced SSR feature because it adds unknowns to release timing or security review. I’ll choose a simpler, proven pattern (basic form flows, fewer client dependencies) to reduce attack surface and production risk, then iterate once the risk window passes.
+
+## “API security is tight — how do you make frontend security tight?”
+Frontend can’t enforce security (that’s server‑side), but it can reduce exposure and prevent common client‑side risks:
+
+- Strict CSP, no inline scripts, and careful script sourcing.
+- Sanitize/escape user‑generated content; avoid dangerouslySetInnerHTML.
+- Limit sensitive data in the client (no secrets; minimize tokens and PII in the DOM/local storage).
+- Use secure auth flows (httpOnly cookies when possible, CSRF protection).
+- Dependency hygiene (lockfiles, audit, reduce third‑party scripts).
+- Harden against clickjacking (X-Frame-Options / CSP frame-ancestors), and avoid overly permissive CORS.
+
+## Frontend perf issue, network is fine — how to debug
+
+Use Performance panel (record) to identify long tasks, layout thrash, or heavy scripting.
+Check Main thread for expensive JS, re‑renders, and heavy third‑party scripts.
+Use React Profiler (if React) to find components re‑rendering too often.
+Look for layout shifts and style recalculation (CSS thrash).
+Inspect memory for leaks if performance degrades over time.
+If it’s paint‑related: check large DOM, complex CSS, images, and offscreen rendering.
 
 ## Differences between browser, CDN, origin caching?
 
@@ -29,7 +38,7 @@ Browser and CDN caching mostly cache HTTP responses, while origin caching often 
 
 ## Technologies you’d avoid (and why)?
 
-I don’t avoid technologies outright; I avoid misusing them. Most tools exist to solve real problems, but they become harmful when applied outside their context—before the problem exists, without sufficient leverage, or beyond the team’s ability to operate them. I’m especially cautious with technologies that increase coupling, hide runtime costs, or add irreversible complexity without clear benefit.
+I don’t avoid technologies; I avoid misusing them. Most tools exist to solve real problems, but they become harmful when applied outside their context—before the problem exists, without sufficient leverage, or beyond the team’s ability to operate them. I’m especially cautious with technologies that increase coupling, hide runtime costs, or add irreversible complexity without clear benefit.
 
 ## What is the iterative process and what are iterative development practices in Agile?
 

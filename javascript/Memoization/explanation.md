@@ -15,6 +15,7 @@ Memoization is a performance technique where you cache the results of a function
 ```javascript
 function memoize(fn) {
   const cache = new Map();
+
   return function(...args) {
     const key = JSON.stringify(args);
     if (cache.has(key)) {
@@ -22,12 +23,14 @@ function memoize(fn) {
     }
     const result = fn.apply(this, args);
     cache.set(key, result);
+
     return result;
   };
 }
 
 const slowSquare = (n) => {
   for (let i = 0; i < 1e7; i++) {}
+
   return n * n;
 };
 
@@ -49,6 +52,7 @@ The cache key is critical:
 ```javascript
 function memoizeByArgs(fn) {
   const cache = new Map();
+
   return function(...args) {
     let node = cache;
     for (const arg of args) {
@@ -58,6 +62,7 @@ function memoizeByArgs(fn) {
     if (node.has('value')) return node.get('value');
     const result = fn.apply(this, args);
     node.set('value', result);
+
     return result;
   };
 }
@@ -70,11 +75,13 @@ Memoizing async work is usually done by caching the Promise so concurrent calls 
 ```javascript
 function memoizeAsync(fn) {
   const cache = new Map();
+
   return async function(...args) {
     const key = JSON.stringify(args);
     if (!cache.has(key)) {
       cache.set(key, fn.apply(this, args));
     }
+
     return cache.get(key);
   };
 }

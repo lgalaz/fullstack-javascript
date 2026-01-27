@@ -53,13 +53,3 @@ module.exports = {
   }
 };
 ```
-
-## Interview Questions and Answers
-
-### 1. How do you expose an env var to the client?
-
-Prefix it with `NEXT_PUBLIC_`.
-
-### 2. Are env vars available at runtime on the client?
-
-They are baked into the build; changes require a rebuild.

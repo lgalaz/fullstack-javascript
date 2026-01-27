@@ -19,6 +19,7 @@ Validation happens at the boundary of your system. This example shows a simple w
 ```javascript
 // validate.js
 function isValidUsername(value) {
+
   return typeof value === 'string' && /^[a-z0-9_]{3,20}$/i.test(value);
 }
 
@@ -26,6 +27,7 @@ function renderUser(username) {
   if (!isValidUsername(username)) {
     throw new Error('Invalid username');
   }
+
   return `Hello, ${username}`;
 }
 

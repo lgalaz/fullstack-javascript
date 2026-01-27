@@ -58,6 +58,7 @@ Server components run on the server and can be tested by calling their data help
 // app/users/page.js
 export default async function UsersPage() {
   const users = await getUsers();
+
   return <pre>{JSON.stringify(users, null, 2)}</pre>;
 }
 ```
@@ -113,6 +114,7 @@ beforeAll(() => {
     nextRes.headers.forEach((value, key) => res.setHeader(key, value));
     res.end(await nextRes.text());
   });
+
   return new Promise(resolve => {
     server.listen(0, () => {
       const { port } = server.address();
@@ -216,6 +218,7 @@ Example helper under test:
 import { cookies } from 'next/headers';
 
 export function getSessionId() {
+
   return cookies().get('session')?.value ?? null;
 }
 ```

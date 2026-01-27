@@ -63,6 +63,7 @@ type User = { name: string };
 let user: User = null; // Error: Type 'null' is not assignable to type 'User'
 
 function greet(u: User | null) {
+
   return u.name; // Error: Object is possibly 'null'
 }
 ```
@@ -103,6 +104,7 @@ At type‑checking time (compile time), during TypeScript’s static analysis, T
 
 ```typescript
 function parseJson(input: string): unknown {
+
   return JSON.parse(input);
 }
 

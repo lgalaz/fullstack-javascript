@@ -58,6 +58,7 @@ function handle(err: Error | ApiError) {
 ```typescript
 function greet(name?: string) {
   if (!name) return 'Hello';
+
   return `Hello ${name.toUpperCase()}`;
 }
 ```
@@ -72,6 +73,7 @@ type User = { id: number; name: string };
 type Admin = { id: number; role: 'admin' };
 
 function isAdmin(u: User | Admin): u is Admin {
+
   return (u as Admin).role === 'admin';
 }
 ```
@@ -83,6 +85,7 @@ A safer guard avoids assertions and checks the shape directly:
 
 ```typescript
 function isAdminSafe(u: User | Admin): u is Admin {
+
   return 'role' in u && u.role === 'admin';
 }
 ```
@@ -111,6 +114,7 @@ function assertIsString(value: unknown): asserts value is string {
 
 function parse(value: unknown) {
   assertIsString(value);
+
   return value.toUpperCase();
 }
 ```
@@ -125,6 +129,7 @@ function take(value: string | string[]) {
   if (Array.isArray(value)) {
     return value.join(',');
   }
+
   return value;
 }
 
@@ -136,6 +141,7 @@ function handleEvent(event: Event) {
   if (event.type === 'click') {
     return event.x + event.y;
   }
+
   return event.key;
 }
 ```

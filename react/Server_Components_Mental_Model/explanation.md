@@ -30,11 +30,13 @@ Treat Server Components as "data + layout" and Client Components as "interactivi
 // Server component
 function UserPage({ id }) {
   const user = db.users.findById(id);
+
   return <UserProfile user={user} />;
 }
 
 // Client component
 function UserProfile({ user }) {
+
   return (
     <div>
       <h1>{user.name}</h1>

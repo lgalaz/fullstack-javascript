@@ -17,6 +17,7 @@ File-based routing means the folder and file names determine the URL path. Both 
 ```javascript
 // app/about/page.js
 export default function AboutPage() {
+
   return <h1>About</h1>;
 }
 ```
@@ -29,6 +30,7 @@ Use `next/link` for client-side navigation.
 import Link from 'next/link';
 
 export default function Home() {
+
   return <Link href="/about">About</Link>;
 }
 ```
@@ -37,6 +39,7 @@ Bad practice: using a plain `<a>` for internal navigation causes a full page rel
 
 ```javascript
 export default function Home() {
+
   return <a href="/about">About</a>;
 }
 ```
@@ -52,6 +55,7 @@ import { useRouter } from 'next/navigation';
 
 export default function SaveButton() {
   const router = useRouter();
+
   return <button onClick={() => router.push('/about')}>Go</button>;
 }
 ```
@@ -82,10 +86,12 @@ Key differences:
 // pages/profile.js
 export async function getServerSideProps() {
   const profile = await fetch('https://api.example.com/me').then(r => r.json());
+
   return { props: { profile } };
 }
 
 export default function Profile({ profile }) {
+
   return <div>{profile.name}</div>;
 }
 ```
@@ -96,10 +102,12 @@ export default function Profile({ profile }) {
 // pages/blog.js
 export async function getStaticProps() {
   const posts = await fetch('https://api.example.com/posts').then(r => r.json());
+
   return { props: { posts }, revalidate: 60 };
 }
 
 export default function Blog({ posts }) {
+
   return posts.map(p => <div key={p.id}>{p.title}</div>);
 }
 ```
@@ -136,6 +144,7 @@ src/app/users/[id]/page.js -> /users/123
 ```javascript
 // app/layout.js
 export default function RootLayout({ children }) {
+
   return (
     <html>
       <body>{children}</body>
@@ -155,6 +164,7 @@ Note: the function name is not special; only the `app/layout.js` filename and de
 ```javascript
 // app/loading.js
 export default function Loading() {
+
   return <p>Loading...</p>;
 }
 ```
@@ -166,6 +176,7 @@ export default function Loading() {
 ```javascript
 // app/about/page.js -> /about
 export default function AboutPage() {
+
   return <h1>About</h1>;
 }
 ```
@@ -177,6 +188,7 @@ Note: static segments are the simplest and most predictable; use them for fixed 
 ```javascript
 // app/users/[id]/page.js -> /users/123
 export default function UserPage({ params }) {
+
   return <div>User ID: {params.id}</div>;
 }
 ```
@@ -188,6 +200,7 @@ Note: params are strings; validate and coerce types before using them (for examp
 ```javascript
 // app/docs/[...slug]/page.js -> /docs/a/b/c
 export default function DocsPage({ params }) {
+
   return <div>Slug: {params.slug.join('/')}</div>;
 }
 ```
@@ -200,6 +213,7 @@ Note: `params.slug` is always an array for catch-all routes; handle empty arrays
 // app/docs/[[...slug]]/page.js -> /docs and /docs/a/b
 export default function DocsPage({ params }) {
   const slug = params.slug ?? [];
+
   return <div>Slug: {slug.join('/') || '(root)'}</div>;
 }
 ```
@@ -211,6 +225,7 @@ Note: `params.slug` can be `undefined` for the root path; guard for that case ex
 ```javascript
 // app/(marketing)/page.js -> /
 export default function MarketingHome() {
+
   return <h1>Marketing</h1>;
 }
 ```
@@ -222,7 +237,7 @@ Note: route groups do not affect the URL, but they do affect layout nesting and 
 You can control rendering and caching per route segment with exports:
 
 ```javascript
-export const dynamic = 'auto'; // or 'force-static' | 'force-dynamic'
+export const dynamic = 'auto'; // or 'force-static' | 'force-dynamic | error'
 export const revalidate = 60; // ISR for the whole route segment
 export const dynamicParams = true; // allow params not returned by generateStaticParams
 ```
@@ -236,10 +251,12 @@ Example with `generateStaticParams` and a whitelist:
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
+
   return [{ id: '1' }, { id: '2' }];
 }
 
 export default function ProductPage({ params }) {
+
   return <div>Product {params.id}</div>;
 }
 ```
@@ -252,6 +269,7 @@ const blacklist = ['13', '666'];
 
 export default function ProductPage({ params }) {
   if (blacklist.includes(params.id)) notFound();
+
   return <div>Product {params.id}</div>;
 }
 ```
@@ -264,6 +282,7 @@ Server components receive `searchParams` as a prop, and client components can us
 // app/products/page.js
 export default function Products({ searchParams }) {
   const query = searchParams.q ?? '';
+
   return <div>Query: {query}</div>;
 }
 ```
@@ -277,17 +296,20 @@ import { useSearchParams } from 'next/navigation';
 export default function ProductsClient() {
   const searchParams = useSearchParams();
   const query = searchParams.get('q') ?? '';
+
   return <div>Query: {query}</div>;
 }
 ```
 
 ## Parallel Routes
 
+Parallel routes (slot): folders named with @, e.g. @auth. They do not affect the URL and are passed as props to the layout. 
 Parallel routes let a layout render multiple sibling routes at once using named slots (folders prefixed with `@`). Each slot renders in parallel in the parent layout.
 
 ```javascript
 // app/layout.js
 export default function RootLayout({ children, auth, marketing }) {
+
   return (
     <div>
       <main>{children}</main>
@@ -301,11 +323,13 @@ export default function RootLayout({ children, auth, marketing }) {
 ```javascript
 // app/@auth/login/page.js
 export default function Login() {
+
   return <p>Login</p>;
 }
 
 // app/@marketing/page.js
 export default function Marketing() {
+
   return <p>Marketing</p>;
 }
 ```
@@ -320,6 +344,7 @@ Example (root layout receiving `children` from `app/page.js`):
 ```javascript
 // app/layout.js
 export default function RootLayout({ children }) {
+
   return (
     <html>
       <body>
@@ -334,6 +359,7 @@ export default function RootLayout({ children }) {
 ```javascript
 // app/page.js
 export default function HomePage() {
+
   return <h1>Home</h1>;
 }
 ```
@@ -348,6 +374,7 @@ Intercepting routes use special segments like `(.)` or `(..)` to render one rout
 // Full page route
 // app/photos/[id]/page.js
 export default function PhotoPage({ params }) {
+
   return <div>Photo {params.id}</div>;
 }
 ```
@@ -356,6 +383,7 @@ export default function PhotoPage({ params }) {
 // Intercept inside a modal slot
 // app/@modal/(.)photos/[id]/page.js
 export default function PhotoModal({ params }) {
+
   return <div>Modal photo {params.id}</div>;
 }
 ```
@@ -364,6 +392,7 @@ export default function PhotoModal({ params }) {
 // Intercept from one level up
 // app/@modal/(..)photos/[id]/page.js
 export default function PhotoModalFromParent({ params }) {
+
   return <div>Modal photo {params.id}</div>;
 }
 ```
@@ -372,30 +401,23 @@ export default function PhotoModalFromParent({ params }) {
 // Deeper nesting example
 // app/gallery/photos/[id]/page.js
 export default function GalleryPhoto({ params }) {
+
   return <div>Gallery photo {params.id}</div>;
 }
 
 // Intercept from the gallery level
 // app/gallery/@modal/(.)photos/[id]/page.js
 export default function GalleryPhotoModal({ params }) {
+
   return <div>Modal gallery photo {params.id}</div>;
 }
 
 // Intercept from one level above gallery
 // app/@modal/(..)gallery/photos/[id]/page.js
 export default function GalleryPhotoModalFromRoot({ params }) {
+
   return <div>Modal gallery photo {params.id}</div>;
 }
 ```
 
 Note: You can chain more dots like `(...)` to intercept from higher levels (each `..` hops one segment up).
-
-## Interview Questions and Answers
-
-### 1. What is the App Router in Next.js?
-
-It is the `app/` directory-based routing system with nested layouts and server components by default.
-
-### 2. Why use `next/link` instead of `<a>`?
-
-It enables client-side navigation, route prefetching, stateful transitions, and better integration with App Router features like loading/error boundaries.

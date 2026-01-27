@@ -56,6 +56,16 @@ input {
   font-size: 15px;
 }
 
+.input-error {
+  border-color: #c1121f;
+}
+
+.error {
+  margin: 8px 0 0;
+  color: #c1121f;
+  font-size: 13px;
+}
+
 button {
   padding: 10px 16px;
   border-radius: 10px;

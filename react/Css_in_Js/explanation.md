@@ -44,6 +44,7 @@ const Button = styled.button`
 `;
 
 function Card({ title }) {
+
   return (
     <div
       css={css`
@@ -80,6 +81,7 @@ const Badge = styled.span`
 `;
 
 function Profile() {
+
   return (
     <ThemeProvider theme={theme}>
       <div>
@@ -125,6 +127,7 @@ export const themeTokens = {
 import { card } from './styles.css';
 
 export function Card({ title }) {
+
   return <div className={card}>{title}</div>;
 }
 ```

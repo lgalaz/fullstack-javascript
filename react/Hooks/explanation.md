@@ -7,8 +7,7 @@ Hooks let function components manage state, side effects, and performance. The m
 Other built-in hooks and when to use them:
 
 - Quick list: `useReducer`, `useContext`, `useRef`, `useLayoutEffect`, `useImperativeHandle`, `useDebugValue`, `useTransition`, `useDeferredValue`, `useId`, `useSyncExternalStore`, `useInsertionEffect`
-
-- `useReducer` for complex state logic or when the next state depends on the previous state in multiple ways.
+## `useReducer` for complex state logic or when the next state depends on the previous state in multiple ways.
 - Signature: `const [state, dispatch] = useReducer(reducer, initialArg, init?)`
 - `reducer(state, action) -> nextState` describes how state changes in response to actions.
 - Returns a tuple:
@@ -42,6 +41,7 @@ function reducer(state, action) {
 
 function Counter() {
   const [state, dispatch] = useReducer(reducer, { count: 0 });
+
   return (
     <>
       <button onClick={() => dispatch({ type: 'dec' })}>-</button>
@@ -56,10 +56,12 @@ Example: "function-like" actions via action creators + reducer helpers:
 
 ```javascript
 function increment(state, amount) {
+
   return { ...state, count: state.count + amount };
 }
 
 function reset(state) {
+
   return { ...state, count: 0 };
 }
 
@@ -81,6 +83,7 @@ const actions = {
 
 function Counter() {
   const [state, dispatch] = useReducer(reducer, { count: 0 });
+
   return (
     <>
       <button onClick={() => dispatch(actions.inc(5))}>+5</button>
@@ -140,7 +143,7 @@ async function onSaveGrouped() {
 
 Why no "functional state update" here: the reducer always receives the latest state as its first argument, and React applies actions in order. Batching does not break this; it just defers when the updates are processed. If your next state depends on previous state, keep that logic inside the reducer.
 
-- `useContext` to read values from React context without prop drilling.
+## `useContext` to read values from React context without prop drilling.
 - `createContext` returns an object with `Provider` and `Consumer` components:
   - `Provider` sets the value for its subtree via a `value` prop.
   - `Consumer` is the legacy render-prop way to read the value (still supported for class components or when hooks are unavailable).
@@ -153,6 +156,7 @@ const ThemeContext = createContext('light');
 
 function Button() {
   const theme = useContext(ThemeContext);
+
   return <button className={`btn-${theme}`}>OK</button>;
 }
 ```
@@ -165,6 +169,7 @@ import { createContext } from 'react';
 const ThemeContext = createContext('light');
 
 function App() {
+
   return (
     <ThemeContext.Provider value="dark">
       <Toolbar />
@@ -175,6 +180,14 @@ function App() {
 
 Note: `Provider` makes `value` available to all descendant components via context, not via explicit props.
 
+```javascript
+function Button() {
+  const theme = useContext(ThemeContext);
+
+  return <button className={`btn-${theme}`}>OK</button>;
+}
+```
+
 Example (`Consumer`):
 
 ```javascript
@@ -183,6 +196,7 @@ import { createContext } from 'react';
 const ThemeContext = createContext('light');
 
 function Button() {
+
   return (
     <ThemeContext.Consumer>
       {(theme) => <button className={`btn-${theme}`}>OK</button>}
@@ -191,7 +205,7 @@ function Button() {
 }
 ```
 
-- `useRef` to hold a mutable value that persists across renders (DOM nodes, timers, or instance-like data that should not trigger re-renders).
+## `useRef` to hold a mutable value that persists across renders (DOM nodes, timers, or instance-like data that should not trigger re-renders).
 - Example:
 
 ```javascript
@@ -199,6 +213,7 @@ import { useRef } from 'react';
 
 function SearchInput() {
   const inputRef = useRef(null);
+
   return (
     <>
       <input ref={inputRef} />
@@ -208,7 +223,7 @@ function SearchInput() {
 }
 ```
 
-- `useLayoutEffect` for measurements or DOM mutations that must happen before the browser paints (use sparingly, because it runs synchronously after DOM updates and before paint, which can block rendering and cause visible jank if it does heavy work).
+## `useLayoutEffect` for measurements or DOM mutations that must happen before the browser paints (use sparingly, because it runs synchronously after DOM updates and before paint, which can block rendering and cause visible jank if it does heavy work).
 - Use it for layout-critical work: measuring sizes/positions or synchronously applying style changes that affect layout (top/left, width/height, scroll position) to avoid visible flicker.
 - Example:
 
@@ -227,7 +242,7 @@ function Box() {
 }
 ```
 
-- `useImperativeHandle` with `forwardRef` to expose an imperative API to parent components (it lets the child decide what methods/fields are exposed on its ref, instead of giving full access).
+## `useImperativeHandle` with `forwardRef` to expose an imperative API to parent components (it lets the child decide what methods/fields are exposed on its ref, instead of giving full access).
 - Example:
 
 ```javascript
@@ -240,6 +255,7 @@ const Input = forwardRef(function Input(props, ref) {
       localRef.current?.focus();
     },
   }));
+
   return <input ref={localRef} />;
 });
 ```
@@ -251,6 +267,7 @@ import { useRef } from 'react';
 
 function Form() {
   const inputRef = useRef(null);
+
   return (
     <>
       <Input ref={inputRef} />
@@ -260,7 +277,7 @@ function Form() {
 }
 ```
 
-- `useDebugValue` to label custom hooks in React DevTools.
+## `useDebugValue` to label custom hooks in React DevTools.
 - It only affects how hooks appear in DevTools; it does not change runtime behavior or UI.
 - Example:
 
@@ -270,6 +287,7 @@ import { useDebugValue, useState } from 'react';
 function useStatus() {
   const [status] = useState('idle');
   useDebugValue(status);
+
   return status;
 }
 ```
@@ -280,7 +298,36 @@ In React DevTools, the hook will show a label like:
 useStatus: idle
 ```
 
-- `useTransition` to mark updates as non-urgent (keep the UI responsive during expensive renders). `startTransition` wraps a callback; any state updates scheduled inside are treated as low priority.
+- More examples:
+
+```javascript
+import { useDebugValue, useMemo, useState } from 'react';
+
+function useSearch(query) {
+  const [status] = useState('idle');
+  const results = useMemo(() => [], [query]);
+  useDebugValue({ status, query, count: results.length });
+
+  return { status, results };
+}
+```
+
+```javascript
+import { useDebugValue, useState } from 'react';
+
+function useOnlineStatus() {
+  const [online] = useState(true);
+  useDebugValue(online ? 'online' : 'offline');
+
+  return online;
+}
+```
+
+## `useTransition` to mark updates as non-urgent (keep the UI responsive during expensive renders). `startTransition` wraps a callback; any state updates scheduled inside are treated as low priority.
+- isPending is per useTransition hook instance. It becomes true if any transition started with that hook is still pending.
+- You can call the same startTransition multiple times; isPending will reflect whether any of those are still in progress.
+- If you need separate pending indicators, you can use multiple useTransition() calls.
+
 - Example:
 
 ```javascript
@@ -309,7 +356,7 @@ function Search() {
 
 How transitions work: they are not like `React.lazy`. `React.lazy` splits code and defers loading a component. `useTransition` marks a state update as low priority so React can keep urgent updates (like typing and clicks) responsive. React will render the urgent update first, then finish the transition update when time is available, which can mean showing the previous UI briefly while the new result renders. This scheduling is handled by React's scheduler, which yields to higher-priority work and resumes low-priority rendering in idle slices. Higher priority work usually means user input and direct feedback (typing, clicks, pointer moves, focus/blur, animations). Lower priority work usually means non-urgent updates like search results, filtering large lists, rendering expensive content, or preloading data for the next view. `isPending` lets you show a spinner or subtle loading state while the transition work completes.
 
-- `useDeferredValue` to let a value lag behind so expensive rendering can be deferred.
+## `useDeferredValue` to let a value lag behind so expensive rendering can be deferred.
 - Example:
 
 ```javascript
@@ -323,6 +370,7 @@ function Filter() {
 
   const results = useMemo(() => {
     // Simulate expensive filtering that we want to defer.
+
     return ['apple', 'apricot', 'banana', 'berry', 'grape'].filter((item) =>
       item.includes(deferredText.toLowerCase())
     );
@@ -344,7 +392,7 @@ function Filter() {
 
 Note: the deferral is managed by React's scheduler, which prioritizes urgent input updates (discrete events like clicks and typing) over normal async work, and treats updates marked with `startTransition` or `useDeferredValue` as low priority so they catch up in idle time.
 
-- `useId` to generate stable IDs for accessibility attributes.
+## `useId` to generate stable IDs for accessibility attributes.
 - Example:
 
 ```javascript
@@ -352,6 +400,7 @@ import { useId } from 'react';
 
 function Field() {
   const id = useId();
+
   return (
     <>
       {/* Example id: "r0-1" (shape varies, but is stable for this component) */}
@@ -364,7 +413,7 @@ function Field() {
 
 Note: `useId` generates stable, unique IDs per component instance to avoid collisions and prevent hydration mismatches in SSR. Hardcoded strings can collide across instances, and Symbols are not valid DOM `id` values.
 
-- `useSyncExternalStore` to subscribe safely to external stores (e.g., Redux, custom store) with concurrent rendering support. It was created to prevent “tearing” in concurrent rendering, where the UI can read inconsistent snapshots if a store changes mid-render. Use it when state lives outside React (global stores, event emitters, browser APIs). It also helps share state across multiple React roots/trees (e.g., separate widgets on a page) without wiring context between them, since all trees can read from the same external store. Libraries like Zustand and Redux integrate with it under the hood so React can read a consistent snapshot and re-render if it changes during a render.
+## `useSyncExternalStore` to subscribe safely to external stores (e.g., Redux, custom store) with concurrent rendering support. It was created to prevent “tearing” in concurrent rendering, where the UI can read inconsistent snapshots if a store changes mid-render. Use it when state lives outside React (global stores, event emitters, browser APIs). It also helps share state across multiple React roots/trees (e.g., separate widgets on a page) without wiring context between them, since all trees can read from the same external store. Libraries like Zustand and Redux integrate with it under the hood so React can read a consistent snapshot and re-render if it changes during a render.
 - Example (store in a separate file):
 
 ```javascript
@@ -391,6 +440,7 @@ import { useSyncExternalStore } from 'react';
 import { store } from './store';
 
 function Counter() {
+  // useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot?).
   const value = useSyncExternalStore(
     store.subscribe.bind(store),
     store.getSnapshot.bind(store)
@@ -408,13 +458,14 @@ function AnotherWidget() {
     store.subscribe.bind(store),
     store.getSnapshot.bind(store)
   );
+
   return <p>Shared value: {value}</p>;
 }
 ```
 
 Note: if you are not using a global state library, you create the external store yourself (as above). Any React tree that imports this store can subscribe to it, even if it is rendered in a separate root.
 
-- `useInsertionEffect` for CSS-in-JS libraries to inject styles before layout (library-level, rarely used in app code). It's mainly for library authors who need to inject styles before layout to avoid flicker; most apps should use `useEffect`/`useLayoutEffect` or just static CSS. "Library-level" means it's primarily intended for CSS-in-JS tooling and third-party styling libraries.
+## `useInsertionEffect` for CSS-in-JS libraries to inject styles before layout (library-level, rarely used in app code). It's mainly for library authors who need to inject styles before layout to avoid flicker; most apps should use `useEffect`/`useLayoutEffect` or just static CSS. "Library-level" means it's primarily intended for CSS-in-JS tooling and third-party styling libraries.
 - Example:
 
 ```javascript
@@ -425,6 +476,7 @@ function useInjectedStyles(cssText) {
     const style = document.createElement('style');
     style.textContent = cssText;
     document.head.appendChild(style);
+
     return () => document.head.removeChild(style);
   }, [cssText]);
 }
@@ -444,28 +496,53 @@ function Badge({ tone }) {
   `;
 
   useInjectedStyles(css);
+
   return <span className="badge">New</span>;
 }
 ```
 
-Good vs. bad usage:
+Better vs. bad usage:
 
 ```javascript
-// Good: library-level hook uses useInsertionEffect internally.
-function Badge({ tone }) {
-  const css = `.badge { background: ${tone}; }`;
-  useInjectedStyles(css);
-  return <span className="badge">New</span>;
+// themeStyles.js
+import { useInsertionEffect } from 'react';
+
+const inserted = new Set();
+const styleTag = document.createElement('style');
+document.head.appendChild(styleTag);
+
+// Better: a library hook that dedupes rules and controls insertion order.
+export function useInjectedStyles(cssText, key) {
+  useInsertionEffect(() => {
+    if (inserted.has(key)) return;
+    inserted.add(key);
+    styleTag.appendChild(document.createTextNode(cssText));
+  }, [cssText, key]);
+}
+```
+
+```javascript
+// Badge.js
+import { useInsertionEffect } from 'react';
+import { useInjectedStyles } from './themeStyles';
+
+export function Badge({ tone }) {
+  const css = `.badge--${tone} { background: ${tone}; }`;
+  useInjectedStyles(css, `badge:${tone}`);
+
+  return <span className={`badge--${tone}`}>New</span>;
 }
 
 // Bad: app code calling useInsertionEffect directly to add ad-hoc styles.
-function BadBadge({ tone }) {
+export function BadBadge({ tone }) {
   useInsertionEffect(() => {
     const style = document.createElement('style');
     style.textContent = `.badge { background: ${tone}; }`;
     document.head.appendChild(style);
+
     return () => document.head.removeChild(style);
   }, [tone]);
+
   return <span className="badge">New</span>;
 }
 ```
@@ -515,7 +592,24 @@ import { useState } from 'react';
 
 function Toggle() {
   const [on, setOn] = useState(false);
+
   return <button onClick={() => setOn(v => !v)}>{String(on)}</button>;
+}
+```
+
+Initializer function example (runs once):
+
+```javascript
+import { useState } from 'react';
+
+function Draft() {
+  const [text, setText] = useState(() => {
+    const saved = localStorage.getItem('draft');
+
+    return saved ?? '';
+  });
+
+  return <textarea value={text} onChange={(e) => setText(e.target.value)} />;
 }
 ```
 
@@ -525,6 +619,7 @@ Example bug: derived state goes stale
 function Profile({ user }) {
   // Bad: `fullName` is derived from props but stored in state once.
   const [fullName] = useState(`${user.first} ${user.last}`);
+
   return <p>{fullName}</p>;
 }
 ```
@@ -574,6 +669,7 @@ function Counter({ step }) {
     const id = setInterval(() => {
       setCount(count + localStep);
     }, 1000);
+
     return () => clearInterval(id);
   }, []);
 
@@ -602,6 +698,7 @@ function Counter({ step }) {
     const id = setInterval(() => {
       setCount(count + localStep);
     }, 1000);
+
     return () => clearInterval(id);
   }, [count, localStep]);
 
@@ -688,9 +785,11 @@ function Counter() {
 import { useSyncExternalStore } from 'react';
 
 function useWindowWidth() {
+
   return useSyncExternalStore(
     (onStoreChange) => {
       window.addEventListener('resize', onStoreChange);
+
       return () => window.removeEventListener('resize', onStoreChange);
     },
     () => window.innerWidth,
@@ -700,6 +799,7 @@ function useWindowWidth() {
 
 function WindowWidth() {
   const width = useWindowWidth();
+
   return <p>Window width: {width}</p>;
 }
 ```
@@ -722,6 +822,7 @@ import { useMemo } from 'react';
 
 function Expensive({ items }) {
   const total = useMemo(() => {
+
     return items.reduce((sum, n) => sum + n, 0);
   }, [items]);
 
@@ -764,6 +865,7 @@ function Parent() {
 }
 
 const Child = memo(function Child({ onClick, count }) {
+
   return (
     <button onClick={onClick}>
       Clicked {count}
@@ -794,6 +896,7 @@ function App() {
 
 function Parent() {
   const [count, setCount] = useState(0);
+
   return <Child onClick={() => setCount(c => c + 1)} count={count} />;
 }
 ```

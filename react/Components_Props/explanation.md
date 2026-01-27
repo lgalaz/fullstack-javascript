@@ -2,9 +2,22 @@
 
 ## Introduction
 
-Components are the building blocks of a React UI. Props (short for properties) are inputs passed into components to configure how they render and behave. Components should be pure with respect to their props: given the same props, they should render the same output.
+Components are the building blocks of a React UI.
+A React component is a reusable, self‑contained piece of UI logic that returns what should appear on screen. It can be a function or class, can accept inputs called props, manage its own state, and render other components to build complex interfaces.
+Props (short for properties) are inputs passed into components to configure how they render and behave. Components should be pure with respect to their props: given the same props, they should render the same output.
 
 React compares props by reference when deciding if a component can skip re-rendering (e.g., `React.memo`). Keeping props stable matters for performance-sensitive components.
+
+Example (lift constants outside render):
+
+```javascript
+const BUTTON_STYLE = { color: 'white' };
+
+function App() {
+
+  return <Button label="Save" style={BUTTON_STYLE} />;
+}
+```
 
 ## Class Components
 
@@ -36,6 +49,7 @@ Render functions = helpers; components = identity + lifecycle.
 
 ```javascript
 function Greeting(props) {
+
   return (
     <h1>
       Hello, {props.name}! {props.children}
@@ -51,6 +65,7 @@ You can also destructure props for clarity:
 
 ```javascript
 function Greeting({ children, name }) {
+
   return <h1>Hello, {name}{children ? ` ${children}` : ''}</h1>;
 }
 ```
@@ -78,6 +93,7 @@ Examples:
 
 // one-way flow + callback back up
 function Counter({ count, onInc }) {
+
   return <button onClick={onInc}>{count}</button>;
 }
 
@@ -85,6 +101,7 @@ function CounterApp() {
   const [count, setCount] = React.useState(0);
   // Good: uses functional update, safe with batching
   const handleInc = () => setCount(c => c + 1);
+
   return <Counter count={count} onInc={handleInc} />;
 }
 ```
@@ -96,16 +113,19 @@ function CounterAppBad() {
   const [count, setCount] = React.useState(0);
   // Bad: closes over stale count if updates are batched
   const handleInc = () => setCount(count + 1);
+
   return <Counter count={count} onInc={handleInc} />;
 }
 ```
 
 ```javascript
 function Button({ label, onClick }) {
+
   return <button onClick={onClick}>{label}</button>;
 }
 
 function App() {
+
   return <Button label="Save" onClick={() => alert('Saved')} />;
 }
 ```
@@ -116,6 +136,7 @@ In this example, `App` owns the data and behavior (`label`, `onClick`). `Button`
 
 ```javascript
 function Button({ label, onClick, style }) {
+
   return (
     <button onClick={onClick} style={style}>
       {label}
@@ -131,6 +152,7 @@ function App() {
   }, []);
 
   const style = React.useMemo(() => ({ color: 'white' }), []);
+
   return <MemoButton label="Save" onClick={onSave} style={style} />;
 }
 ```
@@ -145,6 +167,7 @@ function App() {
     // save
   };
   const style = { color: 'white' };
+
   return <MemoButton label="Save" onClick={onSave} style={style} />;
 }
 ```
@@ -176,6 +199,7 @@ In JSX, `className` is used instead of `class` because `class` is a reserved Jav
 
 ```javascript
 function Card({ children }) {
+
   return <div className="card">{children}</div>;
 }
 
@@ -203,6 +227,7 @@ function DataFetcher({ children }) {
   React.useEffect(() => {
     setData({ name: 'Ada' });
   }, []);
+
   return children(data);
 }
 
@@ -222,6 +247,7 @@ function DataFetcher({
   React.useEffect(() => {
     setData({ name: 'Ada' });
   }, []);
+
   return children(data);
 }
 ```
@@ -232,6 +258,7 @@ You can use default values with function parameters or defaultProps.
 
 ```javascript
 function Badge({ label = 'New' }) {
+
   return <span>{label}</span>;
 }
 ```
@@ -243,18 +270,22 @@ Passing props through multiple layers can be noisy. Context can help when many n
 ```javascript
 function App() {
   const [theme, setTheme] = React.useState('dark');
+
   return <Layout theme={theme} />;
 }
 
 function Layout({ theme }) {
+
   return <Sidebar theme={theme} />;
 }
 
 function Sidebar({ theme }) {
+
   return <Profile theme={theme} />;
 }
 
 function Profile({ theme }) {
+
   return <div className={`profile ${theme}`}>Profile</div>;
 }
 ```
@@ -266,6 +297,7 @@ const ThemeContext = React.createContext('light');
 
 function App() {
   const [theme, setTheme] = React.useState('dark');
+
   return (
     <ThemeContext.Provider value={theme}>
       <Layout />
@@ -274,15 +306,18 @@ function App() {
 }
 
 function Layout() {
+
   return <Sidebar />;
 }
 
 function Sidebar() {
+
   return <Profile />;
 }
 
 function Profile() {
   const theme = React.useContext(ThemeContext);
+
   return <div className={`profile ${theme}`}>Profile</div>;
 }
 ```

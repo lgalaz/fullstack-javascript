@@ -49,10 +49,12 @@ Promises can be chained to handle sequential asynchronous operations.
 fetch('https://api.example.com/user')
   .then(response => {
     if (!response.ok) throw new Error('Network error');
+
     return response.json();
   })
   .then(user => {
     console.log('User:', user);
+
     return fetch(`https://api.example.com/posts/${user.id}`);
   })
   .then(response => response.json())
@@ -153,6 +155,7 @@ async function fetchData() {
 async function example() {
   const result = await Promise.resolve('Hello');
   console.log(result); // Hello
+
   return 'Done';
 }
 
@@ -173,6 +176,7 @@ Attach a `.catch()` at the end of a promise chain to handle any rejection in the
 fetch('/api/data')
   .then(response => {
     if (!response.ok) throw new Error('HTTP error');
+
     return response.json(); 
   })
   .then(data => console.log(data))
@@ -190,6 +194,7 @@ fetch('/api/data')
   .then(
     response => {
       if (!response.ok) throw new Error('HTTP error');
+
       return response.json();
     },
     error => console.error('Network error:', error)  // Error callback
@@ -429,6 +434,7 @@ getUser(userId, handleUser);
 
 ```javascript
 function fetchData() {
+
   return new Promise((resolve, reject) => {
     setTimeout(() => resolve('Data'), 1000);
   });
@@ -443,6 +449,7 @@ Promise version of the nested callback flow:
 
 ```javascript
 function getUser(userId) {
+
   return fetch('/api/users/' + userId)
     .then(r => r.json())
     .catch(error => {
@@ -452,6 +459,7 @@ function getUser(userId) {
 }
 
 function getPosts(userId) {
+
   return fetch('/api/users/' + userId + '/posts')
     .then(r => r.json())
     .catch(error => {
@@ -461,6 +469,7 @@ function getPosts(userId) {
 }
 
 function getComments(postId) {
+
   return fetch('/api/posts/' + postId + '/comments')
     .then(r => r.json())
     .catch(error => {
@@ -473,9 +482,11 @@ const userId = 42;
 
 getUser(userId)
   .then(user => {
+
     return getPosts(user.id).then(posts => ({ user, posts }));
   })
   .then(({ user, posts }) => {
+
     return getComments(posts[0].id).then(comments => ({ user, posts, comments }));
   })
   .then(({ user, posts, comments }) => {

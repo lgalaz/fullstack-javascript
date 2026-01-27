@@ -17,6 +17,7 @@ The exact syntax depends on whether you are using the newer proposal or legacy d
 function sealed(value, context) {
   if (context.kind === 'class') {
     Object.seal(value);
+
     Object.seal(value.prototype);
   }
 }
@@ -48,6 +49,7 @@ function logCall(value, context) {
   if (context.kind === 'method') {
     return function (...args) {
       console.log(`${context.name} called with`, args);
+
       return value.apply(this, args);
     };
   }

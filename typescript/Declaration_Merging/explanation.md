@@ -28,6 +28,7 @@ You can merge a function with a namespace to add static helpers.
 
 ```typescript
 function parse(input: string) {
+
   return JSON.parse(input);
 }
 

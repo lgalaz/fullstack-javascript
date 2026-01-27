@@ -38,6 +38,7 @@ Since TypeScript treats caught errors as `unknown`, you must narrow before acces
 ```typescript
 class ApiError extends Error {
   status: number;
+
   constructor(message: string, status: number) {
     super(message);
     this.status = status;
@@ -59,6 +60,7 @@ function parseIntSafe(input: string): Result<number> {
   if (Number.isNaN(value)) {
     return { ok: false, error: 'Not a number' };
   }
+
   return { ok: true, value };
 }
 ```

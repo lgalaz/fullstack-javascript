@@ -2,11 +2,11 @@
 
 ## Introduction
 
-Accessibility (a11y) means people can use your UI with keyboards, screen readers, and different abilities. In React, most accessibility work is about correct HTML, focus management, and consistent labeling.
+Accessibility (a11y) means people can use your UI with keyboards, screen readers, and different abilities. In React, most accessibility work is about correct semantic  HTML, focus management, and consistent labeling.
 
 ## Prefer semantic HTML
 
-Use real elements (`button`, `label`, `nav`, `main`, `section`) instead of clickable `div`s. Semantics give you keyboard and screen reader behavior for free.
+Use semantic elements (`button`, `label`, `nav`, `main`, `section`) instead of clickable `div`s. Semantics give you keyboard and screen reader behavior for free.
 
 Bad:
 
@@ -29,6 +29,7 @@ import { useId } from 'react';
 
 function EmailField() {
   const id = useId();
+
   return (
     <>
       <label htmlFor={id}>Email</label>
@@ -75,10 +76,17 @@ function EmailField({ value, onChange, showError }) {
 If a component is interactive, it must be reachable and usable with the keyboard:
 
 - Use native elements when possible.
-- If you must build a custom control, add `tabIndex={0}` and handle `Enter`/`Space`.
+- If you must build a custom control, add `tabIndex={0}` and handle `Enter`/`Space` so keyboard users can focus and activate it like a real button.
+`tabIndex={0}` puts the custom element into the natural tab order so keyboard users can reach it. Without it, a <div> isn’t focusable, so it’s skipped by Tab. tabIndex={0} also lets it receive keyboard events like Enter/Space.
+
+Quick rules:
+
+tabIndex={0}: focusable in normal order (use for custom controls).
+tabIndex={-1}: focusable only via JS (use for programmatic focus).
+tabIndex={1+}: creates confusing tab order; avoid.
 - Visible focus states are required; do not remove outlines without a replacement.
 
-Example:
+Example (custom div behaving like a button). A plain div is not focusable and does not respond to Enter/Space, so we add those behaviors explicitly:
 
 ```jsx
 function CardButton({ onActivate, children }) {

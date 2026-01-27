@@ -50,6 +50,8 @@ Low‑cardinality means a column has few distinct values relative to the number 
 - Use materialized views or rollup tables for heavy aggregates.
 Materialized view: a stored, precomputed result of a query (like a cached table). It’s refreshed on a schedule or on demand.
 Rollup table: a table that stores aggregated data (e.g., daily sales totals) instead of raw rows, to make heavy aggregate queries fast.
+MySQL note: there are no native materialized views; you typically emulate them with summary tables and refresh them via scheduled jobs, triggers, or batch ETL.
+Rollup note: refresh with scheduled jobs (cron, MySQL Event Scheduler, ETL) or incremental/trigger updates when near‑real‑time is needed.
 
 ## Concurrency and Scalability
 

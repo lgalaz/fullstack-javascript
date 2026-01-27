@@ -13,6 +13,7 @@ Use `error.js` and `not-found.js` for route-level handling.
 'use client';
 
 export default function Error({ error, reset }) {
+
   return (
     <div>
       <p>Something went wrong.</p>
@@ -22,12 +23,13 @@ export default function Error({ error, reset }) {
 }
 ```
 
-Note: `reset` is a Next.js-provided function that clears the error state for this segment and re-renders it, so clicking the button retries the render after the failure. A segment is one folder level in `app/` that maps to a route part, so the reset is scoped to that route segment and its children.
+Note: `reset` is a Next.js-provided function that clears the error state for this segment and re-renders it, so clicking the button retries the render after the failure. 
 Note: `error.js` must be a client component.
 
 ```javascript
 // app/profile/not-found.js
 export default function NotFound() {
+
   return <h1>User not found</h1>;
 }
 ```
@@ -40,6 +42,7 @@ import { notFound } from 'next/navigation';
 export default async function UserPage({ params }) {
   const user = await getUser(params.id);
   if (!user) notFound();
+
   return <div>{user.name}</div>;
 }
 ```
@@ -111,6 +114,7 @@ import * as Sentry from '@sentry/nextjs';
 
 export default function GlobalError({ error }) {
   Sentry.captureException(error);
+
   return <p>Something went wrong.</p>;
 }
 ```
@@ -137,13 +141,3 @@ export default function ErrorBoundary({ error, reset }) {
   );
 }
 ```
-
-## Interview Questions and Answers
-
-### 1. Where do you define route-level error UI?
-
-In `error.js` and `not-found.js` within the route segment.
-
-### 2. What is `instrumentation.ts` used for?
-
-Hooking into server startup to set up tracing or monitoring.

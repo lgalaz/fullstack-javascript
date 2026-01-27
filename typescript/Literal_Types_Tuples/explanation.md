@@ -10,6 +10,7 @@ Literal types restrict values to exact strings or numbers. Tuples represent fixe
 type Direction = 'up' | 'down' | 'left' | 'right';
 
 function move(dir: Direction) {
+
   return dir;
 }
 ```
@@ -20,6 +21,7 @@ Literal types restrict values to specific strings or numbers, which is useful fo
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
 function request(method: HttpMethod, url: string) {
+
   return { method, url };
 }
 ```
@@ -83,6 +85,7 @@ const values: AtLeastOne<number> = [1, 2, 3];
 
 ```typescript
 function pair<T, U>(left: T, right: U): [T, U] {
+
   return [left, right];
 }
 
@@ -102,6 +105,7 @@ Example usage (labels improve readability in tooling):
 ```typescript
 function clamp(value: number, range: Range) {
   const [start, end] = range;
+
   return Math.min(Math.max(value, start), end);
 }
 

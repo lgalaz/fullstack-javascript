@@ -123,6 +123,7 @@ fetch('/api/user')
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`);
     }
+
     return response.json();
   })
   .then(data => console.log(data))

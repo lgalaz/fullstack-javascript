@@ -11,6 +11,7 @@ Layouts persist across routes in the same segment.
 ```javascript
 // app/dashboard/layout.js
 export default function DashboardLayout({ children }) {
+
   return (
     <section>
       <nav>Dashboard Nav</nav>
@@ -33,6 +34,7 @@ Example scenario: a multi-step wizard or search filter panel should reset when m
 ```javascript
 // app/dashboard/template.js
 export default function Template({ children }) {
+
   return <div>{children}</div>;
 }
 ```
@@ -46,6 +48,7 @@ import { useState } from 'react';
 
 export default function Template({ children }) {
   const [value, setValue] = useState('');
+
   return (
     <div>
       <input value={value} onChange={e => setValue(e.target.value)} />
@@ -64,6 +67,7 @@ import { useState } from 'react';
 
 export default function DashboardLayout({ children }) {
   const [value, setValue] = useState('');
+
   return (
     <div>
       <input value={value} onChange={e => setValue(e.target.value)} />
@@ -80,6 +84,7 @@ export default function DashboardLayout({ children }) {
 ```javascript
 // app/dashboard/loading.js
 export default function Loading() {
+
   return <p>Loading...</p>;
 }
 ```
@@ -91,6 +96,7 @@ Example:
 ```javascript
 // app/dashboard/loading.js
 export default function Loading() {
+
   return <p>Loading dashboard...</p>;
 }
 ```
@@ -99,6 +105,7 @@ export default function Loading() {
 // app/dashboard/page.js
 export default async function DashboardPage() {
   const data = await fetch('https://api.example.com/dashboard').then(r => r.json());
+
   return <div>{data.title}</div>;
 }
 ```
@@ -110,6 +117,7 @@ export default async function DashboardPage() {
 'use client';
 
 export default function Error({ error, reset }) {
+
   return (
     <div>
       <p>Something went wrong.</p>
@@ -124,6 +132,7 @@ Error boundaries reset only their segment. Place them to isolate failures.
 ```javascript
 // app/not-found.js
 export default function NotFound() {
+
   return <h1>Not Found</h1>;
 }
 ```

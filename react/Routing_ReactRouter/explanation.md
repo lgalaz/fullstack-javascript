@@ -10,6 +10,7 @@ React Router is the most common routing library for React applications. It maps 
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 
 function App() {
+
   return (
     <BrowserRouter>
       <nav>
@@ -53,6 +54,7 @@ import About from './About';
 import User from './User';
 
 export default function AppRoutes() {
+
   return (
     <Routes>
       <Route path="/" element={<Home />} />
@@ -70,6 +72,7 @@ import { Link } from 'react-router-dom';
 import AppRoutes from './routes';
 
 export default function App() {
+
   return (
     <>
       <nav>
@@ -90,6 +93,7 @@ import { useParams } from 'react-router-dom';
 
 function User() {
   const { id } = useParams();
+
   return <div>User {id}</div>;
 }
 ```
@@ -122,6 +126,7 @@ Render children with `Outlet` in the parent route.
 import { Outlet } from 'react-router-dom';
 
 function Settings() {
+
   return (
     <div>
       <h1>Settings</h1>
@@ -138,6 +143,7 @@ Deep nesting with `Outlet` (each parent renders the next level):
 import { Outlet } from 'react-router-dom';
 
 function Dashboard() {
+
   return (
     <div>
       <h1>Dashboard</h1>
@@ -147,6 +153,7 @@ function Dashboard() {
 }
 
 function Teams() {
+
   return (
     <div>
       <h2>Teams</h2>
@@ -156,6 +163,7 @@ function Teams() {
 }
 
 function Team() {
+
   return (
     <div>
       <h3>Team</h3>
@@ -171,6 +179,7 @@ import { useNavigate } from 'react-router-dom';
 
 function SaveButton() {
   const navigate = useNavigate();
+
   return <button onClick={() => navigate('/settings')}>Save</button>;
 }
 ```

@@ -13,6 +13,7 @@ Use bracket syntax in folder names:
 ```javascript
 // app/users/[id]/page.js
 export default function UserPage({ params }) {
+
   return <div>User: {params.id}</div>;
 }
 ```
@@ -25,6 +26,7 @@ import { useParams } from 'next/navigation';
 
 export default function UserPage() {
   const params = useParams();
+
   return <div>User: {params.id}</div>;
 }
 ```
@@ -36,6 +38,7 @@ import { useParams } from 'next/navigation';
 
 export default function UserPage() {
   const params = useParams(); // hooks are not allowed in server components
+
   return <div>User: {params.id}</div>;
 }
 ```
@@ -45,6 +48,7 @@ Good practice: read params from the server component props.
 ```javascript
 // app/users/[id]/page.js
 export default function UserPage({ params }) {
+
   return <div>User: {params.id}</div>;
 }
 ```
@@ -59,6 +63,7 @@ Note: with `[[...slug]]`, the same file handles `/blog` and `/blog/*`; you don't
 
 ```javascript
 export default function Blog({ params }) {
+
   return <div>Slug: {params.slug?.join('/')}</div>;
 }
 ```
@@ -69,6 +74,7 @@ Pre-generate dynamic routes at build time.
 
 ```javascript
 export async function generateStaticParams() {
+
   return [{ id: '1' }, { id: '2' }];
 }
 ```
@@ -78,6 +84,7 @@ Complete example:
 ```javascript
 // app/users/[id]/page.js
   export async function generateStaticParams() {
+
     return [{ id: '1' }, { id: '2' }];
   }
 
@@ -85,6 +92,7 @@ export const revalidate = 60; // refresh at most once per minute
 
 export default function UserPage({ params }) {
   // Next.js will pre-render /users/1 and /users/2 at build time.
+
   return <div>User: {params.id}</div>;
 }
 ```
@@ -101,13 +109,3 @@ export const dynamicParams = false;
 ```
 
 When `dynamicParams = false`, any param not returned by `generateStaticParams` returns a 404. This is a common interview topic for controlling "fallback" behavior in the App Router.
-
-## Interview Questions and Answers
-
-### 1. How do you access route params in the App Router?
-
-They are available on the `params` prop in server components.
-
-### 2. When would you use a catch-all route?
-
-When a route can have a variable number of segments, like nested docs or blog slugs.

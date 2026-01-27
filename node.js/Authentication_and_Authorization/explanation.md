@@ -27,6 +27,7 @@ const jwt = require('jsonwebtoken');
 const SECRET = process.env.JWT_SECRET || 'dev-secret';
 
 function signToken(user) {
+
   return jwt.sign({ sub: user.id, role: user.role }, SECRET, { expiresIn: '1h' });
 }
 

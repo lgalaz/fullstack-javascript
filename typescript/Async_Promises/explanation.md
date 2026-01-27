@@ -9,6 +9,7 @@ TypeScript provides types for async functions and Promises.
 ```typescript
 async function fetchUser(id: number): Promise<{ id: number; name: string }> {
   const res = await fetch(`/api/users/${id}`);
+
   return res.json();
 }
 ```
@@ -19,6 +20,7 @@ The return type tells TypeScript what the promise will resolve to, so anywhere y
 ```typescript
 async function loadName() {
   const user = await fetchUser(1);
+
   return user.name; // string
 }
 ```
@@ -45,6 +47,7 @@ Use `Awaited` when you want to derive the resolved type from a promise-returning
 
 ```typescript
 async function fetchUser() {
+
   return { id: 1, name: 'Ada' };
 }
 
@@ -52,70 +55,8 @@ type User = Awaited<ReturnType<typeof fetchUser>>;
 // User is { id: number; name: string }
 ```
 
-Note: `ReturnType<T>` is a built-in utility type that extracts a function's return type. Here it pulls the return type of `fetchUser`, and `Awaited` then unwraps the promise to get the resolved value.
-
-```typescript
-async function fetchUser() {
-  return { id: 1, name: 'Ada' };
-}
-
-function withLoading<T>(promise: Promise<T>) {
-  return promise.then(value => ({ loading: false, value }));
-}
-
-type Loaded<T> = {
-  loading: boolean;
-  value: Awaited<T>;
-};
-
-type UserLoaded = Loaded<ReturnType<typeof fetchUser>>;
-
-async function loadUser() {
-  const result = await withLoading(fetchUser());
-  return result.value; // result.value is { id: number; name: string }
-}
-```
-
-Why `withLoading`: it is a helper that standardizes async results into a consistent shape for UI or data layers. Instead of passing a raw promise around, you return `{ loading, value }` so consumers can handle state uniformly.
-The `value` type comes from the generic `T` in `withLoading<T>`, which is inferred from the promise you pass in; `Loaded<T>` uses `Awaited<T>` to unwrap that promise's resolved type.
-
-You could also annotate `fetchUser` directly.
-
-```typescript
-async function fetchUser(): Promise<{ id: number; name: string }> {
-  return { id: 1, name: 'Ada' };
-}
-```
-
-The `ReturnType` + `Awaited` pattern is useful when you want to avoid duplicating types, keep derived types in sync as implementations change, or when the function is imported from another module.
-
-`ReturnType` is a built-in TypeScript utility type (not a runtime keyword). It extracts the return type of a function.
-
-```typescript
-type FetchUserReturn = ReturnType<typeof fetchUser>;
-// FetchUserReturn is Promise<{ id: number; name: string }>
-```
-
+Note: `ReturnType<T>` is a built-in utility type that extracts a function's return type. Here it pulls the return type of typeof `fetchUser` (`() => Promise<{ id: number; name: string }>`), and `Awaited` then unwraps the promise to get the resolved value.
 `Awaited<T>` unwraps the resolved type from a promise type, so `Awaited<Promise<X>>` becomes `X`.
-
-```typescript
-type FetchUserValue = Awaited<ReturnType<typeof fetchUser>>;
-// FetchUserValue is { id: number; name: string }
-```
-
-## Promise.all with tuples
-
-When you pass a tuple, TypeScript preserves element types.
-
-```typescript
-const result = await Promise.all([
-  Promise.resolve(1),
-  Promise.resolve('x'),
-] as const);
-// result is readonly [number, string]
-```
-
-`as const` makes the array a readonly tuple, so TypeScript preserves each element's type and order. Without it, the array would widen to `Array<Promise<number | string>>`, and `Promise.all` would infer `(number | string)[]` instead of a tuple.
 
 ## Error Handling
 

@@ -10,6 +10,7 @@ Note: `next-env.d.ts` is an auto-generated TypeScript declaration file that incl
 
 ```javascript
 export default function Page({ params, searchParams }) {
+
   return <pre>{JSON.stringify({ params, searchParams }, null, 2)}</pre>;
 }
 ```
@@ -23,6 +24,7 @@ type PageProps = {
 };
 
 export default function Page({ params }: PageProps) {
+
   return <div>{params.id}</div>;
 }
 ```
@@ -31,6 +33,7 @@ Bad practice: using `any` for page props.
 
 ```typescript
 export default function Page(props: any) {
+
   return <div>{props.params.id}</div>;
 }
 ```
@@ -39,6 +42,7 @@ export default function Page(props: any) {
 
 ```javascript
 export async function GET(request) {
+
   return Response.json({ ok: true });
 }
 ```
@@ -50,6 +54,7 @@ import { NextRequest } from 'next/server';
 
 export async function GET(request: NextRequest) {
   const id = request.nextUrl.searchParams.get('id');
+
   return Response.json({ id });
 }
 ```
@@ -61,6 +66,7 @@ type User = { id: string; name: string };
 
 export async function GET(): Promise<Response> {
   const user: User = { id: '1', name: 'Ada' };
+
   return Response.json(user);
 }
 ```
@@ -93,6 +99,7 @@ export type User = {
 import type { User } from '@/types/user';
 
 async function getUsers(): Promise<User[]> {
+
   return [{ id: '1', name: 'Ada' }];
 }
 
@@ -101,6 +108,7 @@ async function getUsers(): Promise<User[]> {
 import type { User } from '@/types/user';
 
 export default function UserList({ users }: { users: User[] }) {
+
   return users.map(user => <div key={user.id}>{user.name}</div>);
 }
 ```

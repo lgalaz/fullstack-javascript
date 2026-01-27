@@ -146,6 +146,7 @@ class B {
 // const a: A = new B(); // Error: private members from different declarations
 const aOk: A = new A(); // OK: same declaration
 class C extends A {}
+
 const aFromChild: A = new C(); // OK: private members come from A
 ```
 

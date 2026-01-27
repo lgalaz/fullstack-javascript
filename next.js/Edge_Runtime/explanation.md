@@ -35,6 +35,7 @@ export const runtime = 'edge';
 
 export async function GET(request: NextRequest) {
   const country = request.geo?.country ?? 'US';
+
   return Response.json({ country });
 }
 ```
@@ -48,6 +49,7 @@ export const runtime = 'edge';
 
 export async function GET() {
   const data = fs.readFileSync('data.json', 'utf8');
+
   return new Response(data);
 }
 ```

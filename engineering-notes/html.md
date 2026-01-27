@@ -161,3 +161,63 @@ Note: What are your HTML-level security concerns?
 - Use `rel="noopener noreferrer"` on `target="_blank"`: Prevents the new tab from accessing `window.opener`, which mitigates tab-nabbing (a malicious page can call `window.opener.location = ...` to redirect the original tab to a phishing page).
   - noopener prevents the new tab from getting a reference to window.opener.
   - noreferrer prevents the browser from sending the Referer header and also implies noopener in most browsers.
+
+13) Invoker Commands API (HTML invokers)
+
+Note: What is the Invoker Commands API and how do you use it?
+
+The Invoker Commands API lets a `<button>` declaratively invoke built-in behaviors on another element without wiring JS handlers. You add `commandfor` with the target element's id (the id must be in the same tree as the button), and `command` with the action to perform. This is useful for popovers and dialogs because the UI works before JS loads, but you can still enhance with JS. Custom commands are strings prefixed with `--`; they don't perform a built-in action, they just dispatch a `command` event on the target. Browser support is still emerging, so use feature detection and keep a JS fallback where needed.
+
+Built-in commands (current support is focused on `<dialog>` and elements with `popover`):
+- Popover: `show-popover`, `hide-popover`, `toggle-popover`
+- Dialog: `show-modal`, `close`, `request-close` (fires a cancel event that can be prevented)
+
+Basic popover example:
+
+```html
+<button commandfor="help-popover" command="toggle-popover">
+  Help
+</button>
+<div id="help-popover" popover>
+  <p>Popover content</p>
+  <button commandfor="help-popover" command="hide-popover">Close</button>
+</div>
+```
+
+Dialog example:
+
+```html
+<button commandfor="settings" command="show-modal">Open settings</button>
+<dialog id="settings">
+  <p>Settings go here</p>
+  <button commandfor="settings" command="close">Close</button>
+</dialog>
+```
+
+Custom commands are supported by using a `--` prefix and handling the `command` event on the target:
+
+```html
+<button commandfor="photo" command="--rotate-left">Rotate left</button>
+<img id="photo" src="photo.jpg" alt="Product photo" />
+
+<script>
+  const photo = document.getElementById('photo');
+  photo.addEventListener('command', (e) => {
+    if (e.command === '--rotate-left') {
+      photo.style.rotate = '-90deg';
+    }
+  });
+</script>
+```
+
+Available options for invoking:
+- Declarative invoker: `commandfor` + `command` on a `<button>`.
+- Popover-only invoker: `popovertarget` + `popovertargetaction` on `<button>` or `<input type="button">` (older, popovers only).
+- Imperative JS: `showPopover()`, `hidePopover()`, `togglePopover()`, `showModal()`, `close()`, `requestClose()`.
+- Runtime wiring: set `button.commandForElement = target` and `button.command = 'toggle-popover'` from JS.
+
+JavaScript and events:
+- The invocation event is `command`; it fires on the target element (the invokee), not on the button.
+- The event object is `CommandEvent`, so you can read `event.command` and `event.source`.
+- Use `addEventListener('command', ...)` to intercept or implement custom commands.
+- Built-in commands still fire the event, so you can observe invocations without overriding the native behavior.

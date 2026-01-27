@@ -8,6 +8,7 @@ Rendering lists is common in React. Keys help React identify which items change,
 
 ```javascript
 function TodoList({ todos }) {
+
   return (
     <ul>
       {todos.map(todo => (
@@ -37,6 +38,7 @@ Without stable keys, React may reuse DOM nodes incorrectly, leading to bugs like
 
 ```javascript
 function Example({ items }) {
+
   return items.map(item => (
     <input key={item.id} defaultValue={item.label} />
   ));
@@ -46,13 +48,3 @@ function Example({ items }) {
 If `key` changes (or uses index), React may reuse the wrong input element and preserve the wrong value.
 
 Keys are used by React during reconciliation and are not available inside component props.
-
-## Interview Questions and Answers
-
-### 1. Why does React need keys?
-
-Keys let React track list items between renders and update the DOM efficiently and correctly.
-
-### 2. When is it acceptable to use an index as a key?
-
-When the list is static and never reorders, adds, or removes items.

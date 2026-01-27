@@ -56,6 +56,7 @@ Memoize heavy work with `useMemo`.
 // Bad: Heavy compute on every render
 function Totals({ items }) {
   const total = items.reduce((sum, n) => sum + n, 0);
+
   return <div>Total: {total}</div>;
 }
 ```
@@ -64,6 +65,7 @@ function Totals({ items }) {
 // Good: Memoize heavy work
 function Totals({ items }) {
   const total = useMemo(() => items.reduce((sum, n) => sum + n, 0), [items]);
+
   return <div>Total: {total}</div>;
 }
 ```
@@ -98,10 +100,12 @@ How `FixedSizeList` works: it renders a fixed-height scroll container, calculate
 import { FixedSizeList } from 'react-window';
 
 function Row({ index, style, data }) {
+
   return <div style={style}>{data[index].name}</div>;
 }
 
 function BigList({ items }) {
+
   return (
     <FixedSizeList
       height={400}
@@ -148,6 +152,7 @@ const items = Array.from({ length: 5000 }, (_, i) => ({
 
 function Row({ index, style, data }) {
   const item = data[index];
+
   return (
     <div style={style}>
       #{item.id} - {item.name}
@@ -156,6 +161,7 @@ function Row({ index, style, data }) {
 }
 
 export default function VirtualizedList() {
+
   return (
     <FixedSizeList
       height={360}
@@ -226,13 +232,28 @@ Best practice: keep context values stable and scoped; split large contexts by co
 
 ```javascript
 const Item = React.memo(function Item({ value }) {
+
   return <div>{value}</div>;
 });
 ```
 
 ```javascript
+function Parent() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <>
+      <button onClick={() => setCount((c) => c + 1)}>Re-render parent</button>
+      <Item value="static" />
+    </>
+  );
+}
+```
+
+```javascript
 // Bad: Memoizing everything without measuring
 const AlwaysMemo = React.memo(function AlwaysMemo({ value }) {
+
   return <div>{value}</div>;
 });
 ```
@@ -240,6 +261,7 @@ const AlwaysMemo = React.memo(function AlwaysMemo({ value }) {
 ```javascript
 // Good: Memoize components with stable props and heavy renders
 const HeavyItem = React.memo(function HeavyItem({ value }) {
+
   return <ExpensiveChart data={value} />;
 });
 ```
@@ -321,6 +343,7 @@ function onRender(
 }
 
 function App() {
+
   return (
     <Profiler id="List" onRender={onRender}>
       <BigList items={items} />

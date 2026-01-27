@@ -12,6 +12,7 @@ JavaScript does not have built-in type annotations like TypeScript. The closest 
  * @returns {string}
  */
 function greet(name) {
+
   return `Hello ${name}`;
 }
 ```
@@ -22,8 +23,10 @@ JSDoc lets editors infer types and offer autocomplete without changing runtime b
 
 ```javascript
 function route(method, path) {
+
   return function (handler) {
     handler.route = { method, path };
+
     return handler;
   };
 }
@@ -31,6 +34,7 @@ function route(method, path) {
 const get = (path) => route('GET', path);
 
 const showUser = get('/users/{id}')(function (id) {
+
   return { id };
 });
 
@@ -59,13 +63,16 @@ This is a common pattern in frameworks that attach metadata to handlers at runti
 ```javascript
 // Metadata-driven: handlers are decorated, then discovered later.
 function route(method, path) {
+
   return function (handler) {
     handler.route = { method, path };
+
     return handler;
   };
 }
 
 const listUsers = route('GET', '/users')(function listUsersHandler(req) {
+
   return { users: [] };
 });
 
@@ -80,6 +87,7 @@ registerFromMetadata([listUsers]);
 
 // Explicit composition: routes are registered directly and visibly.
 router.get('/users', function listUsersHandler(req) {
+
   return { users: [] };
 });
 ```

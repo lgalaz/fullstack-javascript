@@ -232,6 +232,7 @@ Why use: Prevents bugs from unintended mutations in shared state. For deep freez
 ```javascript
 function addItem(arr, item) {
   arr.push(item); // Mutates original array!
+
   return arr;
 }
 ```
@@ -240,6 +241,7 @@ Better:
 
 ```javascript
 function addItem(arr, item) {
+
   return [...arr, item];
 }
 ```

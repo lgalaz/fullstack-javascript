@@ -228,6 +228,7 @@ class MyClass {
   constructor() {
     this.name = 'Class';
   }
+
   greet() {
     console.log(this.name);
   }

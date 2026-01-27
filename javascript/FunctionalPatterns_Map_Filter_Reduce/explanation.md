@@ -20,6 +20,7 @@ Example using all parameters:
 ```javascript
 const numbers = [10, 20, 30];
 const result = numbers.map((element, index, array) => {
+
   return element + index + array.length;
 });
 // [13, 24, 35]  // 10+0+3=13, 20+1+3=24, 30+2+3=35
@@ -133,6 +134,7 @@ Building objects:
 const fruits = ['apple', 'banana', 'apple', 'orange', 'banana'];
 const count = fruits.reduce((acc, fruit) => {
   acc[fruit] = (acc[fruit] || 0) + 1;
+
   return acc;
 }, {});
 // { apple: 2, banana: 2, orange: 1 }
@@ -189,6 +191,7 @@ Array.prototype.myMap = function(callback) {
   for (let i = 0; i < this.length; i++) {
     result.push(callback(this[i], i, this));
   }
+
   return result;
 };
 ```
@@ -203,6 +206,7 @@ Array.prototype.myFilter = function(callback) {
       result.push(this[i]);
     }
   }
+
   return result;
 };
 ```
@@ -217,6 +221,7 @@ Array.prototype.myReduce = function(callback, initialValue) {
   for (let i = startIndex; i < this.length; i++) {
     accumulator = callback(accumulator, this[i], i, this);
   }
+
   return accumulator;
 };
 ```
@@ -237,8 +242,10 @@ They encourage immutability (no mutation of original arrays), pure functions (sa
 
 ```javascript
 Array.prototype.mapWithReduce = function(callback) {
+
   return this.reduce((acc, curr, index, array) => {
     acc.push(callback(curr, index, array));
+
     return acc;
   }, []);
 };
@@ -272,6 +279,7 @@ const optimizedResult = numbers.reduce((acc, x) => {
   if (x > 2) {
     acc += x * 3;
   }
+
   return acc;
 }, 0);
 ```
@@ -287,6 +295,7 @@ function processLargeArray(arr) {
       result += x * 3;
     }
   }
+
   return result;
 }
 ```

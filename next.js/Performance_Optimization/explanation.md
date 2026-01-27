@@ -38,6 +38,7 @@ const Chart = dynamic(() => import('./Chart'), {
 
 export default function Dashboard() {
   const [show, setShow] = useState(false);
+
   return (
     <div>
       <button onClick={() => setShow(true)}>Show chart</button>
@@ -54,6 +55,7 @@ Bad practice: importing a heavy client-only library at the top level of a page.
 import Chart from './Chart';
 
 export default function Page() {
+
   return <Chart />;
 }
 ```
@@ -70,6 +72,7 @@ const Chart = dynamic(() => import('./Chart'), {
 });
 
 export default function Page() {
+
   return <Chart />;
 }
 ```
@@ -81,93 +84,6 @@ export default function Page() {
 ```javascript
 <Link href="/reports" prefetch={false}>Reports</Link>
 ```
-
-## HTTP Early Hints (103)
-
-Early Hints is an interim 103 response that sends `Link` headers (preload/preconnect) before the final HTML. It works because the browser can start downloading critical assets while the server is still rendering or fetching data.
-
-How to add it in Next.js depends on your hosting runtime:
-- If your platform supports 103 (Vercel, some CDNs/proxies), set `Link` headers and the platform can emit Early Hints.
-- If you run a custom Node server, call `res.writeEarlyHints()` before sending the final response.
-
-Example: add `Link` preload headers via `next.config.js` so your platform can turn them into Early Hints.
-
-```javascript
-// next.config.js
-module.exports = {
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          { key: 'Link', value: '</_next/static/app.css>; rel=preload; as=style' },
-        ],
-      },
-    ];
-  },
-};
-```
-
-Example: custom Node server route handler that sends Early Hints directly.
-
-```javascript
-const http = require('http');
-const next = require('next');
-
-const app = next({ dev: process.env.NODE_ENV !== 'production' });
-const handle = app.getRequestHandler();
-
-app.prepare().then(() => {
-  http.createServer((req, res) => {
-    res.writeEarlyHints({
-      link: [
-        '</_next/static/app.css>; rel=preload; as=style',
-        '</_next/static/app.js>; rel=preload; as=script',
-      ],
-    });
-
-    handle(req, res);
-  }).listen(3000);
-});
-```
-
-Example: one custom server that serves `/api/*` itself and delegates UI routes to Next.
-
-```javascript
-const http = require('http');
-const next = require('next');
-
-const app = next({ dev: process.env.NODE_ENV !== 'production' });
-const handle = app.getRequestHandler();
-
-function apiRouter(req, res) {
-  if (req.url === '/api/health') {
-    handleHealth(req, res);
-    return;
-  }
-
-  res.writeHead(404, { 'Content-Type': 'application/json' });
-  res.end(JSON.stringify({ error: 'Not found' }));
-}
-
-function handleHealth(req, res) {
-  res.writeHead(200, { 'Content-Type': 'application/json' });
-  res.end(JSON.stringify({ ok: true }));
-}
-
-app.prepare().then(() => {
-  http.createServer((req, res) => {
-    if (req.url.startsWith('/api/')) {
-      apiRouter(req, res);
-      return;
-    }
-
-    // All non-API routes are handled by Next.js (pages/app router).
-    handle(req, res);
-  }).listen(3000);
-});
-```
-
 ## Cache Wisely
 
 Use `fetch` caching and revalidation to avoid repeated work.
@@ -186,6 +102,7 @@ Note: the Suspense boundary is the streaming split point. Content outside it can
 import { Suspense } from 'react';
 
 export default function Page() {
+
   return (
     <div>
       <h1>Dashboard</h1>
@@ -198,11 +115,13 @@ export default function Page() {
 }
 
 function Summary() {
+
   return <p>Welcome back! Here is your latest overview.</p>;
 }
 
 async function AnalyticsPanel() {
   const data = await fetch('https://api.example.com/analytics').then(r => r.json());
+
   return <pre>{JSON.stringify(data, null, 2)}</pre>;
 }
 ```
@@ -241,6 +160,7 @@ export async function GET() {
 
   const res = NextResponse.json(data);
   res.headers.set('Server-Timing', `fetch;dur=${ms}`);
+
   return res;
 }
 ```
@@ -261,6 +181,7 @@ export async function GET() {
   // console.timeEnd stops the timer and prints the elapsed time for that label.
   console.timeEnd(`route:${traceId}`);
   console.log('end', { traceId });
+
   return new Response('ok');
 }
 ```
@@ -274,16 +195,7 @@ export async function GET() {
   await fetch('https://api.example.com/slow', {
     headers: { traceparent },
   });
+
   return new Response('ok');
 }
 ```
-
-## Interview Questions and Answers
-
-### 1. How can you reduce client bundle size in Next.js?
-
-Keep components server-side and dynamically import heavy client-only code.
-
-### 2. What is a common cause of slow TTFB?
-
-Uncached server data fetching on every request.

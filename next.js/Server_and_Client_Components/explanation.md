@@ -17,6 +17,7 @@ Server components render on the server and can access server-only resources. Cli
 export default async function Users() {
   // getUsers is a server-side data function (DB or API call).
   const users = await getUsers();
+
   return <pre>{JSON.stringify(users, null, 2)}</pre>;
 }
 ```
@@ -27,6 +28,7 @@ export default async function Users() {
 import { db } from './db';
 
 export async function getUsers() {
+
   return db.users.findMany({ orderBy: { createdAt: 'desc' } });
 }
 ```
@@ -43,6 +45,7 @@ import { useState } from 'react';
 
 export default function Page() {
   const [count, setCount] = useState(0);
+
   return <button onClick={() => setCount(c => c + 1)}>{count}</button>;
 }
 ```
@@ -60,6 +63,7 @@ import { useState } from 'react';
 
 export default function Counter() {
   const [count, setCount] = useState(0);
+
   return <button onClick={() => setCount(c => c + 1)}>{count}</button>;
 }
 ```
@@ -71,6 +75,7 @@ Server + client composition example:
 import Counter from './Counter';
 
 export default function Page() {
+
   return (
     <div>
       <h1>Welcome</h1>
@@ -85,6 +90,7 @@ import { useState } from 'react';
 
 export default function Counter() {
   const [count, setCount] = useState(0);
+
   return <button onClick={() => setCount(c => c + 1)}>{count}</button>;
 }
 ```
@@ -113,12 +119,14 @@ export default async function UsersPage() {
   const users = await getUsers();
   // Only pass the fields the client component needs.
   const publicUsers = users.map(({ id, name }) => ({ id, name }));
+
   return <UserList users={publicUsers} />;
 }
 
 // app/users/UserList.js
 'use client';
 export default function UserList({ users }) {
+
   return users.map(u => <div key={u.id}>{u.name}</div>);
 }
 ```

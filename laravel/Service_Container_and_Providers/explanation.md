@@ -18,6 +18,7 @@ final class BillingServiceProvider extends ServiceProvider
         $this->app->singleton(BillingService::class, function ($app) {
             return new BillingService(
                 $app->make(BillingClient::class)
+
             );
         });
     }

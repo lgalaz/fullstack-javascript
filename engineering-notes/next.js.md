@@ -67,6 +67,7 @@ Example (app/posts/[id]/page.tsx):
 ```tsx
 export async function generateStaticParams() {
   const posts = await fetch('https://example.com/api/posts').then((res) => res.json());
+
   return posts.slice(0, 20).map((post: { id: number }) => ({
     id: post.id.toString(),
   }));
@@ -74,6 +75,7 @@ export async function generateStaticParams() {
 
 export default async function PostPage({ params }: { params: { id: string } }) {
   const post = await fetch(`https://example.com/api/posts/${params.id}`).then((res) => res.json());
+
   return <article>{post.title}</article>;
 }
 ```
@@ -121,6 +123,7 @@ Example:
 'use client';
 
 export default function Error({ error, reset }: { error: Error; reset: () => void }) {
+
   return (
     <div>
       <h2>Something went wrong</h2>

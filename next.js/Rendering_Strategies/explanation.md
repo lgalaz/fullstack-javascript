@@ -16,6 +16,7 @@ Pre-rendered at build time. Fast and cacheable.
 ```javascript
 export default async function Page() {
   const posts = await fetch('https://api.example.com/posts').then(r => r.json());
+
   return <pre>{JSON.stringify(posts, null, 2)}</pre>;
 }
 ```
@@ -27,6 +28,7 @@ export default async function Page() {
   const profile = await fetch('https://api.example.com/me', {
     cache: 'force-cache'
   }).then(r => r.json());
+
   return <div>{profile.name}</div>;
 }
 ```
@@ -52,6 +54,7 @@ export default async function Page() {
   const profile = await fetch('https://api.example.com/me', {
     cache: 'no-store'
   }).then(r => r.json());
+
   return <div>{profile.name}</div>;
 }
 ```
@@ -66,6 +69,7 @@ Note: a server-rendered shell is the initial HTML frame (layout, nav, placeholde
 ```javascript
 // app/layout.js (server-rendered shell)
 export default function RootLayout({ children }) {
+
   return (
     <html>
       <body>
@@ -88,6 +92,7 @@ export default function Page() {
   }, []);
 
   if (!profile) return <p>Loading...</p>;
+
   return <div>{profile.name}</div>;
 }
 ```
@@ -112,14 +117,17 @@ async function LivePrice() {
   const price = await fetch('https://api.example.com/price', {
     cache: 'no-store'
   }).then(r => r.json());
+
   return <span>${price.value}</span>;
 }
 
 function PriceSkeleton() {
+
   return <span>Loading price...</span>;
 }
 
 export default function Page() {
+
   return (
     <main>
       <h1>Product</h1>

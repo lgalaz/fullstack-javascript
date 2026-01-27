@@ -28,6 +28,7 @@ import { ref } from 'vue';
 export function useCounter(initial = 0) {
   const count = ref(initial);
   const inc = () => (count.value += 1);
+
   return { count, inc };
 }
 ```

@@ -2,7 +2,9 @@
 
 ## Introduction
 
-Refs provide a way to access DOM nodes or persist mutable values across renders without causing re-renders. Unlike state, updating a ref does not trigger a render (e.g., focusing an input or reading its value via a ref does not re-render the component).
+Refs provide a way to access DOM nodes or persist mutable values across renders without causing re-renders.
+Refs are a bridge to the underlying DOM or component instance.
+Unlike state, updating a ref does not trigger a render (e.g., focusing an input or reading its value via a ref does not re-render the component).
 
 ## Accessing DOM Nodes
 
@@ -42,11 +44,13 @@ Use `forwardRef` to pass refs to child components.
 
 ```javascript
 const TextInput = React.forwardRef(function TextInput(props, ref) {
+
   return <input ref={ref} {...props} />;
 });
 
 function Form() {
   const inputRef = React.useRef(null);
+
   return (
     <>
       <TextInput ref={inputRef} placeholder="Name" />
@@ -73,6 +77,7 @@ const FancyInput = React.forwardRef(function FancyInput(_props, ref) {
 
 function App() {
   const fancyRef = React.useRef(null);
+
   return (
     <>
       <FancyInput ref={fancyRef} />

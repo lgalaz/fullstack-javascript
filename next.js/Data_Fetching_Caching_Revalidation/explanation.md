@@ -11,6 +11,7 @@ Server `fetch` requests are cached by default when possible, meaning Next.js wil
 ```javascript
 export default async function Page() {
   const users = await fetch('https://api.example.com/users').then(r => r.json());
+
   return <pre>{JSON.stringify(users, null, 2)}</pre>;
 }
 ```
@@ -92,11 +93,13 @@ Within a single request, identical `fetch` calls are deduped. This means two ser
 
 ```javascript
 async function getUsers() {
+
   return fetch('https://api.example.com/users').then(r => r.json());
 }
 
 export default async function Page() {
   const [a, b] = await Promise.all([getUsers(), getUsers()]);
+
   return <pre>{JSON.stringify({ a, b }, null, 2)}</pre>;
 }
 ```
@@ -136,6 +139,7 @@ Note: `'use server'` marks the file as server-only so its exports run on the ser
 import { refreshUsers } from '../actions';
 
 export default function UsersPage() {
+
   return (
     <form action={refreshUsers}>
       <button type="submit">Refresh users</button>
@@ -183,11 +187,13 @@ import { unstable_cache } from 'next/cache';
 
 async function getUsersFromDb() {
   // Replace with real DB call.
+
   return [{ id: 1, name: 'Ada' }];
 }
 
 const getUsersCached = unstable_cache(
   async () => {
+
     return getUsersFromDb();
   },
   ['users-list'],
@@ -196,6 +202,7 @@ const getUsersCached = unstable_cache(
 
 export default async function UsersPage() {
   const users = await getUsersCached();
+
   return <pre>{JSON.stringify(users, null, 2)}</pre>;
 }
 ```
@@ -206,11 +213,13 @@ Example (cache by parameter):
 import { unstable_cache } from 'next/cache';
 
 async function getUserById(id) {
+
   return { id, name: `User ${id}` };
 }
 
 const getUserCached = unstable_cache(
   async (id) => {
+
     return getUserById(id);
   },
   ['user-by-id'],
@@ -219,6 +228,7 @@ const getUserCached = unstable_cache(
 
 export default async function ProfilePage({ params }) {
   const user = await getUserCached(params.id);
+
   return <div>{user.name}</div>;
 }
 ```
@@ -237,6 +247,7 @@ You can use `Suspense` in server components to stream parts of the UI while data
 import { Suspense } from 'react';
 
 export default function Page() {
+
   return (
     <Suspense fallback={<p>Loading users...</p>}>
       <Users />
@@ -246,6 +257,7 @@ export default function Page() {
 
 async function Users() {
   const users = await fetch('https://api.example.com/users').then(r => r.json());
+
   return <pre>{JSON.stringify(users, null, 2)}</pre>;
 }
 ```
@@ -262,6 +274,7 @@ Bad practice: forcing dynamic rendering for content that could be cached and reu
 export const dynamic = 'force-dynamic';
 
 export default function Page() {
+
   return <h1>Static marketing page</h1>;
 }
 ```
@@ -275,6 +288,7 @@ export default async function Dashboard() {
   const profile = await fetch('https://api.example.com/me', {
     cache: 'no-store'
   }).then(r => r.json());
+
   return <div>Welcome, {profile.name}</div>;
 }
 ```
@@ -290,6 +304,7 @@ export default async function MarketingPage() {
   const pricing = await fetch('https://api.example.com/pricing', {
     next: { revalidate: 3600 }
   }).then(r => r.json());
+
   return <div>Plans: {pricing.tier}</div>;
 }
 ```

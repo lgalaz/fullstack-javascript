@@ -6,7 +6,8 @@ Hydration is the process of attaching React's event handlers and internal state 
 
 ## Phases (SSR + Hydration vs Client-Only)
 
-Hydration is a special first mount that reuses server HTML. The render and commit phases are the same high-level phases React always uses: render builds the next virtual tree and decides what should happen, and commit applies those decisions to the host environment (the DOM on web; in React Native, the native UI layer via Fabric/UIManager). The difference is in the commit work: during hydration, React mostly attaches event handlers and refs and "claims" existing DOM nodes instead of creating them. On a client-only first render, React must create all DOM nodes from scratch.
+Hydration is a special first mount that reuses server HTML. The render and commit phases are the same high-level phases 
+- Render builds the next virtual tree and decides what should happen, and commit applies those decisions to the host environment (the DOM on web; in React Native, the native UI layer via Fabric/UIManager). The difference is in the commit work: during hydration, React mostly attaches event handlers and refs and "claims" existing DOM nodes instead of creating them. On a client-only first render, React must create all DOM nodes from scratch.
 
 ### SSR + Hydration (first client render only)
 
@@ -16,7 +17,7 @@ Render phase (hydrating render):
 - React renders components.
 - It reconciles the current fiber tree with new elements and marks effects for the commit.
 
-Note: the "fiber tree" is React's internal data structure for the component tree. Each "fiber" is a unit of work that stores a component's state, props, and links to parent/child/sibling fibers. It is a tree represented by linked nodes (often a linked list of siblings), not a single linear linked list. React uses fibers to schedule work, compare previous output to new output, and decide what changes to commit. On the client, the fiber tree is created during the render phase (including the initial hydration render).
+Note: the "fiber tree" is React's internal data structure for the component tree. Each "fiber" is a unit of work that stores a component's type/key, state, props, hooks, effects, and links to parent/child/sibling fibers. It is a tree represented by linked nodes (often a linked list of siblings), not a single linear linked list. React uses fibers to schedule work, compare previous output to new output, and decide what changes to commit. On the client, the fiber tree is created during the render phase (including the initial hydration render).
 
 Commit phase (hydration commit):
 - Attach event listeners.
@@ -39,16 +40,18 @@ Commit phase:
 - Create DOM nodes.
 - Attach event listeners.
 - Attach refs.
+- At the end of the commit phase. React “swaps” the work‑in‑progress tree to become the current fiber tree once it successfully commits.
 
 Effects run with the same ordering as above.
 
 ### Subsequent Renders (both cases)
 
 Render phase:
-- Recompute the virtual tree and reconcile against current fibers.
+- Recompute the virtual tree, build the work-in-progress fiber tree, and reconcile against current fibers.
 
 Commit phase:
 - Update, create, or remove DOM nodes as needed.
+- At the end of the commit phase, React “swaps” the work‑in‑progress tree to become the current fiber tree once it successfully commits.
 
 Effects run.
 
@@ -61,6 +64,14 @@ Common causes:
 - Third-party scripts mutate the server-rendered DOM before hydration completes.
 - Rendering uses non-deterministic values (dates, random numbers) that differ between server and client.
 - Client-only data (like window size) is used during the initial render.
+  Example (causes mismatch on SSR):
+  
+  ```javascript
+  function Page() {
+  const width = typeof window === 'undefined' ? 0 : window.innerWidth; // server has no window
+  return <div>Width: {width}</div>;
+  }
+  ```
 
 ## Real-World Example (Ads)
 
@@ -94,10 +105,12 @@ function AdSlot() {
   }, []);
 
   if (!mounted) return null;
+
   return <div id="ad-slot" />;
 }
 
 function Page() {
+
   return (
     <main>
       <h1>Article</h1>
@@ -118,12 +131,11 @@ Note: `AdSlot` returns `null` on the server because `mounted` starts as `false` 
 </div>
 ```
 
-Example use case: timestamps or random IDs that intentionally differ between server and client.
-
 - Ensure server and client render the same initial markup.
 
 ```javascript
 function Greeting({ name }) {
+
   return <h1>Hello, {name}</h1>;
 }
 ```

@@ -32,6 +32,7 @@ Useful for stack traces and self-reference.
 
 ```javascript
 const factorial = function fact(n) {
+
   return n <= 1 ? 1 : n * fact(n - 1);
 };
 ```
@@ -95,6 +96,7 @@ function* counter() {
 
 async function fetchData() {
   const res = await fetch('/api');
+
   return res.json();
 }
 ```

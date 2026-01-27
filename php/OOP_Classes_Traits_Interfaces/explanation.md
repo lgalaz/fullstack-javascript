@@ -370,6 +370,7 @@ Bad:
 final class ReportService {
     // Two reasons to change: report logic and email delivery.
     public function generate(): string { return 'report'; }
+
     public function sendEmail(string $to): void { /* sends email */ }
 }
 ```
@@ -429,6 +430,7 @@ final class PriceCalculator {
 
 final class StandardPricing implements Pricing {
     public function supports(string $type): bool { return $type === 'standard'; }
+
     public function price(string $type): int { return 10; }
 }
 
@@ -560,9 +562,11 @@ Strategy: swap behavior via a shared interface.
 
 interface TaxStrategy { public function rate(): float; }
 final class UkTax implements TaxStrategy { public function rate(): float { return 0.2; } }
+
 final class UsTax implements TaxStrategy { public function rate(): float { return 0.07; } }
 
 $strategy = new UkTax();
+
 $total = 100 * (1 + $strategy->rate());
 ```
 
@@ -572,7 +576,9 @@ Observer: notify subscribers when events occur.
 
 final class EventBus {
     private array $listeners = [];
+
     public function on(string $event, callable $listener): void { $this->listeners[$event][] = $listener; }
+
     public function emit(string $event, mixed $payload): void {
         foreach ($this->listeners[$event] ?? [] as $listener) {
             $listener($payload);
@@ -591,12 +597,15 @@ Adapter: wrap incompatible APIs to match your interface.
 
 interface Logger { public function log(string $message): void; }
 final class LegacyLogger { public function write(string $message): void {} }
+
 final class LoggerAdapter implements Logger {
     public function __construct(private LegacyLogger $legacy) {}
+
     public function log(string $message): void { $this->legacy->write($message); }
 }
 
 $logger = new LoggerAdapter(new LegacyLogger());
+
 $logger->log('started');
 ```
 
@@ -606,8 +615,10 @@ Decorator: wrap objects to add behavior without changing them.
 
 interface Notifier { public function send(string $message): void; }
 final class EmailNotifier implements Notifier { public function send(string $message): void {} }
+
 final class LoggingNotifier implements Notifier {
     public function __construct(private Notifier $inner) {}
+
     public function send(string $message): void {
         // log here
         $this->inner->send($message);
@@ -615,5 +626,6 @@ final class LoggingNotifier implements Notifier {
 }
 
 $notifier = new LoggingNotifier(new EmailNotifier());
+
 $notifier->send('hello'); // sends the email and also logs
 ```

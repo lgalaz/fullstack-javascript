@@ -204,6 +204,7 @@ Too many microtasks can starve macrotasks:
 // Creates infinite microtasks
 Promise.resolve().then(() => {
   console.log('microtask');
+
   return Promise.resolve();
 }).then(() => {
   // This creates more microtasks

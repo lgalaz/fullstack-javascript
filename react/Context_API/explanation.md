@@ -12,6 +12,7 @@ import { createContext, useContext } from 'react';
 const ThemeContext = createContext('light');
 
 function App() {
+
   return (
     <ThemeProvider>
       <Button />
@@ -20,6 +21,7 @@ function App() {
 }
 
 function ThemeProvider({ children }) {
+
   return (
     <ThemeContext.Provider value="dark">
       {children}
@@ -29,6 +31,7 @@ function ThemeProvider({ children }) {
 
 function Button() {
   const theme = useContext(ThemeContext);
+
   return <button className={theme}>Click</button>;
 }
 ```
@@ -83,6 +86,7 @@ function ThemeToggleButton() {
 }
 
 function App() {
+
   return (
     <ThemeProvider>
       <ThemeToggleButton />
@@ -116,11 +120,13 @@ function ThemeProvider({ children }) {
 function ThemeStatus() {
   const { theme } = useContext(ThemeContext);
   console.log('ThemeStatus render');
+
   return <p>Theme is {theme}</p>;
 }
 
 function ThemeToggleButton() {
   const { theme, setTheme } = useContext(ThemeContext);
+
   return (
     <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
       Toggle
@@ -129,6 +135,7 @@ function ThemeToggleButton() {
 }
 
 function App() {
+
   return (
     <ThemeProvider>
       <ThemeToggleButton />
@@ -156,6 +163,7 @@ function useUserProfile(userId) {
       .then((data) => {
         if (active) setState({ status: 'ready', data });
       });
+
     return () => {
       active = false;
     };
@@ -166,6 +174,7 @@ function useUserProfile(userId) {
 
 function UserProvider({ userId, children }) {
   const userState = useUserProfile(userId);
+
   return <UserContext.Provider value={userState}>{children}</UserContext.Provider>;
 }
 ```
@@ -185,11 +194,13 @@ const ThemeContext = createContext({ theme: 'light', setTheme: () => {} });
 function ThemeStatus() {
   const theme = useContextSelector(ThemeContext, (value) => value.theme);
   console.log('ThemeStatus render');
+
   return <p>Theme is {theme}</p>;
 }
 
 function ThemeToggleButton() {
   const setTheme = useContextSelector(ThemeContext, (value) => value.setTheme);
+
   return <button onClick={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}>Toggle</button>;
 }
 ```

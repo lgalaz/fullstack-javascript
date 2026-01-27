@@ -46,9 +46,11 @@
   </head>
   <body>
     <div id="root"></div>
-    <script type="module">
-      import React, { useEffect, useState } from 'https://esm.sh/react@18';
-      import { createRoot } from 'https://esm.sh/react-dom@18/client';
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script type="text/babel">
+      const { useEffect, useState } = React;
 
       function App() {
         const [users, setUsers] = useState([]);
@@ -65,42 +67,42 @@
         }, []);
 
         return (
-          React.createElement('div', { className: 'app' },
-            React.createElement('h1', null, 'Users List'),
-            status === 'error'
-              ? React.createElement('p', null, 'Failed to load users.')
-              : React.createElement(
-                  'table',
-                  null,
-                  React.createElement(
-                    'thead',
-                    null,
-                    React.createElement('tr', null,
-                      React.createElement('th', null, 'ID'),
-                      React.createElement('th', null, 'Name')
-                    )
-                  ),
-                  React.createElement(
-                    'tbody',
-                    null,
-                    users.length === 0 && status === 'ready'
-                      ? React.createElement('tr', null,
-                          React.createElement('td', { colSpan: 2, className: 'empty' }, 'No users found.')
-                        )
-                      : users.map((user) =>
-                          React.createElement('tr', { key: user.id },
-                            React.createElement('td', null, user.id),
-                            React.createElement('td', null, user.name)
-                          )
-                        )
-                  )
-                )
-          )
+          <div className="app">
+            <h1>Users List</h1>
+            {status === 'error' ? (
+              <p>Failed to load users.</p>
+            ) : (
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.length === 0 && status === 'ready' ? (
+                    <tr>
+                      <td colSpan="2" className="empty">
+                        No users found.
+                      </td>
+                    </tr>
+                  ) : (
+                    users.map((user) => (
+                      <tr key={user.id}>
+                        <td>{user.id}</td>
+                        <td>{user.name}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            )}
+          </div>
         );
       }
 
-      const root = createRoot(document.getElementById('root'));
-      root.render(React.createElement(App));
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(<App />);
     </script>
   </body>
 </html>

@@ -36,6 +36,7 @@ Note: serverless is attractive for pay-as-you-go pricing and reduced infrastruct
 ```javascript
 // handler.js
 exports.handler = async (event) => {
+
   return { statusCode: 200, body: 'ok' };
 };
 ```
@@ -70,6 +71,7 @@ exports.handler = async () => {
       MessageBody: JSON.stringify({ job: 'build-report' }),
     })
   );
+
   return { ok: true };
 };
 ```
@@ -81,6 +83,7 @@ exports.handler = async (event) => {
     const payload = JSON.parse(record.body);
     // do work with payload
   }
+
   return { ok: true };
 };
 ```

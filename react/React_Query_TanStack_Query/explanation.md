@@ -2,7 +2,7 @@
 
 ## Introduction
 
-TanStack Query (React Query) is a client-side data fetching and caching library. It manages server state: fetching, caching, background updates, retries, and mutations. It does not replace your API or database; it sits in the client to orchestrate requests, keep data fresh, and reduce manual loading/error state code.
+TanStack Query (React Query) is a client-side data fetching and caching library. It manages server state: fetching, caching, background updates, retries, and mutations. It does not replace your API or database; it sits in the client to orchestrate requests, keep data fresh, and reduce manual loading/error state code. Avoiding the need to always pass things down as props (async)
 
 ## Core Concepts
 
@@ -60,6 +60,7 @@ function AddUser() {
 }
 
 function App() {
+
   return (
     <>
       <AddUser />
@@ -90,6 +91,7 @@ async function updateUser(user) {
     method: 'PUT',
     body: JSON.stringify(user)
   });
+
   return res.json();
 }
 
@@ -102,6 +104,7 @@ function UserEditor({ user }) {
       await qc.cancelQueries({ queryKey: ['user', updated.id] });
       const prev = qc.getQueryData(['user', updated.id]);
       qc.setQueryData(['user', updated.id], updated);
+
       return { prev };
     },
     onError: (_err, updated, ctx) => {
@@ -121,6 +124,7 @@ function UserEditor({ user }) {
 
 function App() {
   const user = { id: 1, name: 'Ada' };
+
   return <UserEditor user={user} />;
 }
 ```

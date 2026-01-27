@@ -103,6 +103,7 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
 async function searchByEmail(email) {
   const result = await pool.query('SELECT id, email FROM users WHERE email = $1', [email]);
+
   return result.rows;
 }
 ```

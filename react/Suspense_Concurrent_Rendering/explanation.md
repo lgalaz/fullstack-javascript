@@ -94,6 +94,7 @@ import { Suspense, lazy } from 'react';
 const Settings = lazy(() => import('./Settings'));
 
 function App() {
+
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <Settings />

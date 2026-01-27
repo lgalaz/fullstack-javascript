@@ -13,6 +13,7 @@ See `typescript/Decorators/explanation.md` for metadata-style behavior.
 let count: number = 0;
 
 function greet(name: string): string {
+
   return `Hello ${name}`;
 }
 ```
@@ -41,9 +42,34 @@ const toUpper: (value: string) => string = (value) => value.toUpperCase();
 type Status = 'idle' | 'loading' | 'error';
 
 function setStatus(status: Status) {
+
   return status;
 }
 ```
+
+## The `satisfies` Operator
+
+Use `satisfies` to check a value’s shape while keeping literal types intact.
+
+```typescript
+const config = {
+  env: 'prod',
+  retry: 3,
+} satisfies { env: 'dev' | 'prod'; retry: number };
+```
+
+Example showing literal preservation:
+
+```typescript
+const routes = {
+  home: '/',
+  admin: '/admin',
+} satisfies Record<string, `/${string}`>;
+
+// routes.admin stays as the literal type "/admin"
+```
+
+`satisfies` is for “verify without changing,” while `as` is “trust me, treat it as this.”
 
 ## When Annotations Are a Good Idea
 

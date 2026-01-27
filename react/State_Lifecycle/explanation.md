@@ -63,6 +63,7 @@ The simple `setCount(count + 1)` example works when each update gets its own ren
 ```javascript
 function Counter() {
   const [count, setCount] = useState(0);
+
   return (
     <button onClick={() => setCount(prev => prev + 1)}>
       {count}
@@ -138,6 +139,7 @@ function Timer() {
     const id = setInterval(() => {
       setSeconds(s => s + 1);
     }, 1000);
+
     return () => clearInterval(id);
   }, []);
 
@@ -167,6 +169,7 @@ function Measure() {
 }
 
 function App() {
+
   return (
     <main style={{ padding: 16 }}>
       <h1>Measure Example</h1>
@@ -190,6 +193,7 @@ function Counter() {
     const id = setInterval(() => {
       setCount(c => c + 1);
     }, 1000);
+
     return () => clearInterval(id);
   }, []);
 
@@ -209,6 +213,7 @@ function CounterWithStaleEffect() {
     const id = setInterval(() => {
       setCount(count + 1);
     }, 1000);
+
     return () => clearInterval(id);
   }, []); // Missing `count` dependency: interval always uses the initial value.
 
@@ -236,6 +241,7 @@ function CounterWithDeps() {
 }
 
 function App() {
+
   return (
     <main style={{ padding: 16 }}>
       <h1>Deps Example</h1>
@@ -264,6 +270,7 @@ function CounterWithRef() {
     const id = setInterval(() => {
       console.log('Latest count:', latestCount.current);
     }, 1000);
+
     return () => clearInterval(id);
   }, []);
 
@@ -275,6 +282,7 @@ function CounterWithRef() {
 }
 
 function App() {
+
   return (
     <main style={{ padding: 16 }}>
       <h1>Ref Example</h1>
@@ -287,13 +295,3 @@ export default App;
 ```
 
 Note: this ref is not attached to the DOM. It is a mutable container (`latestCount.current`) used to store a value across renders. In React, refs can be attached to DOM elements, class component instances, or used as plain mutable values. The first effect keeps the ref in sync with `count`, while the second sets up a long-lived interval once so it does not re-register on every update.
-
-## Interview Questions and Answers
-
-### 1. What is state in React?
-
-State is data owned by a component that can change over time and cause the component to re-render.
-
-### 2. When should you use the functional updater in `setState`?
-
-Use the functional updater when the next state depends on the previous one and there may be no render between updates (batched or async updates), to avoid stale values.

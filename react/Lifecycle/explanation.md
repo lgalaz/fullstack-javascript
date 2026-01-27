@@ -11,7 +11,7 @@ This folder explains the full lifecycle of a React app: how you set it up, how i
 - **Render**: React calling a component to get UI output (usually JSX).
 - **JSX**: A syntax that looks like HTML but compiles to JavaScript (for example `<button>Hi</button>` becomes `React.createElement('button', null, 'Hi')` or, with the modern transform, `_jsx('button', { children: 'Hi' })`).
 - **Virtual DOM**: React's in-memory representation of the UI.
-- **Reconciliation**: React's process to compare old and new UI trees and decide what changed.
+- **Reconciliation**: React's process to compare old and new UI trees (current and work‑in‑progress fiber trees) and decide what changed.
 - **Commit**: The phase where React applies changes to the real DOM.
 - **State**: Data owned by a component that can change over time.
 - **Props**: Inputs passed to a component by its parent.
@@ -89,7 +89,7 @@ In production, you serve the built files with a static server or CDN.
 This is the typical lifecycle for a render:
 
 1. **Render phase (reconciliation happens here)**
-   - React calls your components, builds the element tree, and prepares a work-in-progress fiber tree.
+   - React calls your components, builds the element tree, prepares a work-in-progress fiber tree, and reconciles it against the current fiber tree.
 2. **Commit phase (hydration on first render if SSR)**
    - React applies DOM mutations or attaches to existing DOM, and updates the current fiber tree.
 3. **Effects**
@@ -145,3 +145,52 @@ This section lists common options and a simple workflow for debugging issues wit
 3. React renders the app and updates the DOM.
 4. Build the app for production to get optimized assets.
 5. Serve the build and hydrate if SSR is used.
+
+## Plain React SSR (no framework)
+
+What you need:
+- A server entry that renders HTML with `react-dom/server`.
+- An HTML template that injects the rendered markup.
+- A client entry that hydrates with `react-dom/client`.
+
+Server example (Node):
+
+```javascript
+import express from 'express';
+import { renderToString } from 'react-dom/server';
+import App from './App.jsx';
+
+const app = express();
+
+app.get('*', (req, res) => {
+  const appHtml = renderToString(<App />);
+  res.send(`
+    <!doctype html>
+    <html>
+      <head><title>SSR App</title></head>
+      <body>
+        <div id="root">${appHtml}</div>
+        <script type="module" src="/client-entry.js"></script>
+      </body>
+    </html>
+  `);
+});
+
+app.listen(3000);
+```
+
+Client example:
+
+```javascript
+import { hydrateRoot } from 'react-dom/client';
+import App from './App.jsx';
+
+hydrateRoot(document.getElementById('root'), <App />);
+```
+
+Server: handle all routes, render <App /> to HTML, inject into the template.
+Client: hydrateRoot the same container to attach events.
+If you add routing, you also need the router to use the same URL on server/client (e.g., StaticRouter on the server, BrowserRouter on the client).
+Doing SSR “by hand” is a lot of boilerplate, which is why people use frameworks like Next.js, Remix/React Router, or TanStack Start.
+
+Key point: the server renders the initial HTML, then the client hydrates the same markup to attach event handlers.

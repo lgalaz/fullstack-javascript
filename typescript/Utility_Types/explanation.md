@@ -79,6 +79,7 @@ Example use case: typing a wrapper function without repeating the signature.
 ```typescript
 function logCall(fn: Fn, ...args: Parameters<Fn>): ReturnType<Fn> {
   console.log('calling with', args);
+
   return fn(...args);
 }
 
@@ -91,6 +92,7 @@ Without `Parameters`/`ReturnType`, you'd have to repeat the signature:
 ```typescript
 function logCallRepeat(fn: Fn, a: number, b: number): number {
   console.log('calling with', [a, b]);
+
   return fn(a, b);
 }
 

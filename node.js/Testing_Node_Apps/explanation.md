@@ -11,6 +11,7 @@ Unit tests target small, pure functions. This example uses Node's built-in test 
 ```javascript
 // math.js
 function add(a, b) {
+
   return a + b;
 }
 
@@ -43,6 +44,7 @@ Integration tests hit real I/O boundaries. This test starts a server, makes an H
 const http = require('http');
 
 function createServer() {
+
   return http.createServer((_req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end('ok');

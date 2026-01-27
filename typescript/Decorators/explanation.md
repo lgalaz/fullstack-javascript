@@ -43,6 +43,7 @@ function logCall(
   const original = descriptor.value;
   descriptor.value = function (...args: unknown[]) {
     console.log(`${propertyKey} called with`, args);
+
     return original.apply(this, args);
   };
 }

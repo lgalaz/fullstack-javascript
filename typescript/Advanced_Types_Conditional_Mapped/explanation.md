@@ -16,24 +16,25 @@ type B = IsString<number>; // false
 Conditional types can also be distributive over unions by default:
 
 ```typescript
-type ToArray<T> = T extends any ? T[] : never;
+type ToArray<T> = T extends unknown ? T[] : never;
 type Result = ToArray<string | number>; // string[] | number[]
 ```
 
-In this example, `never` is the "no possible values" type, used as the false branch placeholder even though `T extends any` is always true.
+In this example, `never` is the "no possible values" type, used as the false branch placeholder even though `T extends unknown` is always true.
 
-Wrap the type in Tuple `[]` to prevent distribution. Distribution only happens when the checked type is a "naked" type parameter. Tuples are fixed-length array types where each position has a specific type. 
-
+Wrap the type in Tuple `[]` to prevent distribution. 
+Tuples are fixed-length array types where each position has a specific type. 
+Distribution only happens when the checked type is a "naked" type parameter. 
 Here, "naked" means the type parameter appears by itself in the `extends` check, not wrapped in another type. For example, `T extends U` is naked, but `[T] extends [U]`, `T[] extends U`, or `{ value: T } extends U` are non-naked and do not distribute.
 
 ```typescript
 // Distributive (naked type parameter)
-type ToArray<T> = T extends any ? T[] : never;
+type ToArray<T> = T extends unknown ? T[] : never;
 
 type Dist = ToArray<string | number>; // string[] | number[]
 
 // Non-distributive (wrapped in a tuple)
-type ToArrayNoDist<T> = [T] extends [any] ? T[] : never;
+type ToArrayNoDist<T> = [T] extends [unknown] ? T[] : never;
 
 type NonDist = ToArrayNoDist<string | number>; // (string | number)[]
 ```
@@ -42,11 +43,7 @@ Difference: `A` is a union of array types (all strings or all numbers), while `B
 
 ## Using infer
 
-`infer` lets you capture a type from a conditional branch.
-It introduces a placeholder type variable that exists only within the conditional, and TypeScript tries to match the left side to the pattern you write.
-If the match succeeds, the inferred type is bound and you can return it; if it fails, the conditional falls back to the `false` branch.
-In other words, `infer` is pattern matching for types: you describe the shape you want (like `Promise<infer U>` or `(infer U)[]`) and extract the piece you care about.
-Also, A type variable must be declared (as a generic parameter) or introduced via infer inside a conditional. It also needs to appear in a position where TypeScript can infer it. If it’s not declared (like a bare U), it’s an error. If it’s declared but only appears in the extends right side, TS usually won’t infer it automatically, so you must supply it or rewrite the conditional to use infer.
+`infer` lets you pattern‑match types in a conditional and extract a piece (e.g., Promise<infer U>). If the match succeeds you can return U; otherwise the false branch runs. A type variable must be declared or introduced with infer, and it has to appear in a place TypeScript can infer from—otherwise it’s an error or you must supply it manually.
 
 ```typescript
 type UnpackPromise<T> = T extends Promise<infer U> ? U : T;
@@ -72,15 +69,16 @@ type E1 = ElementType<string[]>; // string
 type E2 = ElementType<[1, 2, 3]>; // 1 | 2 | 3
 
 // Extract function return type
-type ReturnTypeOf<T> = T extends (...args: any[]) => infer R ? R : never;
+type ReturnTypeOf<T> = T extends (...args: unknown[]) => infer R ? R : never;
 type R1 = ReturnTypeOf<() => number>; // number
 type R2 = ReturnTypeOf<(x: string) => Promise<boolean>>; // Promise<boolean>
 
 // Extract tuple first element type
-type Head<T> = T extends [infer H, ...any[]] ? H : never;
+type Head<T> = T extends [infer H, ...unknown[]] ? H : never;
 type H1 = Head<[string, number, boolean]>; // string
 
-type FirstTwo<T> = T extends [infer A, infer B, ...any[]] ? A | B : never;
+type FirstTwo<T> = T extends [infer A, infer B, ...unknown[]] ? A | B : never;
+type F1 = FirstTwo<[string, number, boolean]>; // string | number
 ```
 
 Note: a two-parameter version like `type ElementType<T, U> = T extends U[] ? U : never` does not infer `U` from `T`. Callers must supply `U`, so it is mainly useful for checking a relationship (returning `never` when `T` is not an array of `U`) rather than auto-extracting the element type.

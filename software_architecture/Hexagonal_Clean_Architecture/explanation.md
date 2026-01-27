@@ -62,6 +62,7 @@ Example: HTTP adapter calling the same use case:
 ```javascript
 // http-adapter.js
 function createGetUserHandler(getUser) {
+
   return async function handler(req, res) {
     const user = await getUser.execute(req.params.id);
     res.json(user);

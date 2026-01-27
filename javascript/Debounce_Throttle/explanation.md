@@ -13,6 +13,7 @@ Debounce delays the execution of a function until after a specified time has pas
 ```javascript
 function debounce(func, delay) {
   let timeoutId;
+
   return function(...args) {
     const context = this;
     clearTimeout(timeoutId);
@@ -48,6 +49,7 @@ The returned function closes over inThrottle, so every call sees and updates the
 ```javascript
 function throttle(func, limit) {
   let inThrottle;
+
   return function(...args) {
     const context = this;
     if (!inThrottle) {
@@ -123,6 +125,7 @@ Executes immediately, then throttles subsequent calls.
 function throttle(func, limit) {
   let lastFunc;
   let lastRan;
+
   return function(...args) {
     const context = this;
     if (!lastRan) {
@@ -148,6 +151,7 @@ function throttle(func, limit) {
 ```javascript
 function debounce(func, delay, immediate = false) {
   let timeoutId;
+
   return function(...args) {
     const context = this;
     const callNow = immediate && !timeoutId;
@@ -278,6 +282,7 @@ Clear timeouts when components unmount:
 ```javascript
 useEffect(() => {
   const debounced = debounce(handleSearch, 300);
+
   return () => {
     // Cleanup if needed
   };
@@ -343,6 +348,7 @@ Use debounce for search inputs (wait for typing to stop) or window resize (wait 
 ```javascript
 function debounce(func, delay) {
   let timeoutId;
+
   return function(...args) {
     const context = this;
     clearTimeout(timeoutId);

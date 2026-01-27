@@ -15,7 +15,9 @@ const doubled = nums.map(n => n * 2);
 
 ```javascript
 function withPrefix(prefix) {
+
   return function format(value) {
+
     return `${prefix}${value}`;
   };
 }
@@ -30,8 +32,10 @@ Signature: `const Enhanced = withThing(WrappedComponent)`.
 ```javascript
 // withAuth.js
 export function withAuth(WrappedComponent) {
+
   return function WithAuth(props) {
     if (!props.user) return <p>Unauthorized</p>;
+
     return <WrappedComponent {...props} />;
   };
 }
@@ -40,6 +44,7 @@ export function withAuth(WrappedComponent) {
 ```javascript
 // Usage
 function Dashboard({ user }) {
+
   return <h1>Welcome {user.name}</h1>;
 }
 
@@ -54,6 +59,7 @@ Example usage:
 import DashboardWithAuth from './DashboardWithAuth';
 
 export default function App() {
+
   return <DashboardWithAuth user={{ name: 'Ada' }} />;
 }
 ```
@@ -86,6 +92,7 @@ A pure function always returns the same output for the same input and has no sid
 
 ```javascript
 function add(a, b) {
+
   return a + b;
 }
 ```
@@ -96,6 +103,7 @@ Impure function example (side effects):
 let total = 0;
 function addToTotal(x) {
   total += x;
+
   return total;
 }
 ```
@@ -109,6 +117,7 @@ React has helpers that skip re-renders when props are shallowly equal:
 
 ```javascript
 const UserCard = React.memo(function UserCard({ user }) {
+
   return <div>{user.name}</div>;
 });
 ```

@@ -8,6 +8,7 @@ TypeScript lets you type function parameters, returns, and overloads.
 
 ```typescript
 function add(a: number, b: number): number {
+
   return a + b;
 }
 
@@ -20,10 +21,12 @@ Type annotations go on parameters and return types. When omitted, TypeScript tri
 
 ```typescript
 function greet(name: string, title?: string) {
+
   return title ? `${title} ${name}` : name;
 }
 
 function greet2(name: string, title = 'Dr.') {
+
   return `${title} ${name}`;
 }
 ```
@@ -34,6 +37,7 @@ function greet2(name: string, title = 'Dr.') {
 function parse(input: string): string;
 function parse(input: number): number;
 function parse(input: string | number) {
+
   return input;
 }
 ```
@@ -44,6 +48,7 @@ Overloads are useful when behavior truly differs per input type. If behavior is 
 
 ```typescript
 function toArray(input: string | string[]) {
+
   return Array.isArray(input) ? input : [input];
 }
 ```
@@ -62,6 +67,7 @@ function setName(this: { name: string }, name: string) {
 
 ```typescript
 function sum(...nums: number[]) {
+
   return nums.reduce((a, b) => a + b, 0);
 }
 ```

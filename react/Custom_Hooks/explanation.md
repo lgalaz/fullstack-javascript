@@ -14,6 +14,7 @@ import { useState, useEffect } from 'react';
 function useLocalStorage(key, initialValue) {
   const [value, setValue] = useState(() => {
     const stored = localStorage.getItem(key);
+
     return stored ? JSON.parse(stored) : initialValue;
   });
 
@@ -67,6 +68,7 @@ function useEventListener(target, type, handler) {
     target.addEventListener(type, listener);
 
     // Cleanup runs on unmount and before re-running when target/type changes.
+
     return () => target.removeEventListener(type, listener);
   }, [target, type]);
 }

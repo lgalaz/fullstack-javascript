@@ -10,18 +10,21 @@ Next.js supports internationalized routing using either locale segments or the i
 // /en
 // app/[locale]/page.js
 export default function LocaleHome({ params }) {
+
   return <div>Locale: {params.locale}</div>;
 }
 
 // /en/users
 // app/[locale]/users/page.js
 export default function UsersPage({ params }) {
+
   return <div>Locale: {params.locale}</div>;
 }
 
 // /en/users/companies
 // app/[locale]/users/companies/page.js
 export default function CompaniesPage({ params }) {
+
   return <div>Locale: {params.locale}</div>;
 }
 ```
@@ -33,6 +36,7 @@ Load translations per locale and pass them to client components.
 ```javascript
 export default async function Home({ params }) {
   const messages = await import(`../../messages/${params.locale}.json`);
+
   return <div>{messages.default.title}</div>;
 }
 ```
@@ -41,6 +45,7 @@ Bad practice: hard-coding text without a translation layer.
 
 ```javascript
 export default function Home() {
+
   return <h1>Welcome</h1>;
 }
 ```
@@ -51,6 +56,7 @@ Good practice: load translations based on the active route locale.
 // app/[locale]/page.js
 export default async function Home({ params }) {
   const messages = await import(`@/messages/${params.locale}.json`);
+
   return <h1>{messages.default.welcome}</h1>;
 }
 ```
@@ -98,6 +104,7 @@ import { useRouter } from 'next/router';
 
 export default function Home() {
   const router = useRouter();
+
   return (
     <>
       <p>Locale: {router.locale}</p>
@@ -116,10 +123,12 @@ Pages Router: load messages by locale.
 // pages/index.js
 export async function getStaticProps({ locale }) {
   const messages = await import(`../messages/${locale}.json`);
+
   return { props: { messages: messages.default } };
 }
 
 export default function Home({ messages }) {
+
   return <p>{messages.welcome}</p>;
 }
 ```
@@ -139,6 +148,7 @@ export function middleware(request) {
     url.pathname = `/${locale}${url.pathname}`;
     return NextResponse.redirect(url);
   }
+
   return NextResponse.next();
 }
 ```

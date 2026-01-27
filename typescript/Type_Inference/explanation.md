@@ -4,8 +4,6 @@
 
 TypeScript can infer types from values and return statements, reducing the need for annotations.
 
-An annotation is an explicit type you write, like `name: string` or `const id: number = 1`. It is not the same as a type assertion (`value as Type`), which forces a type without checks.
-
 ```typescript
 const id: number = 1; // annotation
 const maybeId = '1' as unknown as number; // assertion (not recommended)
@@ -46,6 +44,7 @@ type Route = (typeof routes)[number]; // "/home" | "/settings"
 
 ```typescript
 function makeUser(name: string) {
+
   return { name, active: true };
 }
 ```
@@ -76,6 +75,7 @@ TypeScript infers generic type arguments from usage.
 
 ```typescript
 function wrap<T>(value: T) {
+
   return { value };
 }
 

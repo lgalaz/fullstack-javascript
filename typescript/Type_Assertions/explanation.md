@@ -17,6 +17,7 @@ Prefer narrowing or validation over assertions when possible.
 
 ```typescript
 function isString(value: unknown): value is string {
+
   return typeof value === 'string';
 }
 
@@ -41,17 +42,6 @@ const input = document.getElementById('name');
 if (input) {
   input.textContent = 'Hello';
 }
-```
-
-## Assertion vs Casting
-
-Assertions do not change runtime behavior; they only affect types.
-
-You can also use assertions with DOM types when you know the element type:
-
-```typescript
-const input = document.getElementById('name') as HTMLInputElement;
-input.value = 'Ada';
 ```
 
 Prefer a guard when you can:
@@ -87,6 +77,7 @@ Safer JSON parsing with a type guard:
 
 ```typescript
 function isObjWithX(value: unknown): value is { x: number } {
+
   return (
     typeof value === 'object' &&
     value !== null &&
@@ -113,28 +104,6 @@ console.log(parsed.x);
 ```
 
 Zod defines schemas that validate data at runtime and automatically infer TypeScript types from those schemas. Use it when you need reliable validation for API responses, config files, or user input.
-
-Use `satisfies` for safer shape checks when you want to keep literal types.
-
-```typescript
-const config = {
-  env: 'prod',
-  retry: 3,
-} satisfies { env: 'dev' | 'prod'; retry: number };
-```
-
-Example showing literal preservation:
-
-```typescript
-const routes = {
-  home: '/',
-  admin: '/admin',
-} satisfies Record<string, `/${string}`>;
-
-// routes.admin stays as the literal type "/admin"
-```
-
-satisfies is for “verify without changing,” while as is “trust me, treat it as this.”
 
 ## Interview Questions and Answers
 

@@ -124,6 +124,7 @@ const { setTimeout: delay } = require('timers/promises');
 
 async function work(signal) {
   await delay(500, null, { signal });
+
   return 'done';
 }
 
@@ -191,6 +192,7 @@ async function queryWithTimeout(queryFn, timeoutMs) {
 // Example usage (pseudo client)
 async function fakeDbQuery({ signal }) {
   await delay(200, null, { signal });
+
   return { rows: [{ id: 1 }] };
 }
 

@@ -74,6 +74,7 @@ const FancyInput = React.forwardRef(function FancyInput(props, ref) {
 
 function App() {
   const fancyRef = React.useRef(null);
+
   return (
     <>
       <FancyInput ref={fancyRef} />
@@ -90,6 +91,7 @@ React warns if an input switches between controlled and uncontrolled. Keep `valu
 ```javascript
 function ControlledInput() {
   const [value, setValue] = useState('');
+
   return (
     <input
       value={value ?? ''}
@@ -100,6 +102,7 @@ function ControlledInput() {
 
 function UncontrolledInput() {
   const inputRef = useRef(null);
+
   return <input ref={inputRef} defaultValue="" />;
 }
 ```

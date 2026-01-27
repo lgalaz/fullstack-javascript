@@ -12,6 +12,7 @@ Node.js does not add an annotation system. In JavaScript, annotations are usuall
  * @returns {Promise<{ id: string }>} 
  */
 async function fetchUser(id) {
+
   return { id };
 }
 ```
@@ -20,8 +21,10 @@ async function fetchUser(id) {
 
 ```javascript
 function route(method, path) {
+
   return function (handler) {
     handler.route = { method, path };
+
     return handler;
   };
 }
@@ -29,6 +32,7 @@ function route(method, path) {
 const get = (path) => route('GET', path);
 
 const showUser = get('/users/{id}')(async function (id) {
+
   return { id };
 });
 ```

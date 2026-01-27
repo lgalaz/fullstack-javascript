@@ -13,6 +13,7 @@ Currying is the process of transforming a function that takes multiple arguments
 ```javascript
 // Regular function
 function add(a, b, c) {
+
   return a + b + c;
 }
 
@@ -61,11 +62,13 @@ const result = add5And3(2); // 10
 
 ```javascript
 const curry = (fn) => {
+
   return function curried(...args) {
     if (args.length >= fn.length) {
       return fn.apply(this, args);
     } else {
       return function(...args2) {
+
         return curried.apply(this, args.concat(args2));
       };
     }
@@ -90,10 +93,12 @@ This `curry` function creates a curried version of any given function `fn`. It w
 
 ```javascript
 function infiniteAdd(a) {
+
   return function(b) {
     if (b !== undefined) {
       return infiniteAdd(a + b);
     }
+
     return a;
   };
 }
@@ -107,10 +112,12 @@ Infinite currying can be useful in e-commerce for calculating running totals, su
 
 ```javascript
 function addToCart(total = 0) {
+
   return function(price) {
     if (price !== undefined) {
       return addToCart(total + price);
     }
+
     return total;
   };
 }
@@ -131,11 +138,13 @@ This pattern allows users to build up a cart total incrementally, and the final 
 
 ```javascript
 const curry = (fn, arity = fn.length) => {
+
   return function curried(...args) {
     const remaining = arity - args.length;
     if (remaining <= 0) {
       return fn.apply(this, args);
     }
+
     return (...moreArgs) => curried(...args, ...moreArgs);
   };
 };
@@ -252,6 +261,7 @@ const validateData = data => {
   if (!data || !data.name) {
     throw new Error('Missing required field: name');
   }
+
   return data;
 };
 
@@ -288,7 +298,9 @@ const result = processData(rawData);
 
 ```javascript
 const curry = (fn) => {
+
   return function curried(...args) {
+
     return args.length >= fn.length ?
       fn.apply(this, args) :
       (...more) => curried(...args, ...more);
@@ -373,10 +385,12 @@ Function composition combines functions to create a new function. For example, `
 
 ```javascript
 const curry = (fn, arity = fn.length) => {
+
   return function curried(...args) {
     if (args.length >= arity) {
       return fn.apply(this, args);
     }
+
     return (...moreArgs) => curried(...args, ...moreArgs);
   };
 };

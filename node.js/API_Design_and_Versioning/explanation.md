@@ -51,6 +51,7 @@ Pagination limits response size and supports large datasets. This simple helper 
 // pagination.js
 function paginate(items, page = 1, pageSize = 10) {
   const start = (page - 1) * pageSize;
+
   return items.slice(start, start + pageSize);
 }
 

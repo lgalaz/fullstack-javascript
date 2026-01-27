@@ -59,6 +59,7 @@ Use a `key` or state to reset after an error.
 ```javascript
 function App() {
   const [resetKey, setResetKey] = React.useState(0);
+
   return (
     <ErrorBoundary key={resetKey}>
       <Profile onRetry={() => setResetKey(k => k + 1)} />

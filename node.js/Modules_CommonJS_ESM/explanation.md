@@ -27,6 +27,7 @@ CommonJS uses `require` to load modules at runtime and `module.exports` to expos
 ```javascript
 // math.cjs
 function add(a, b) {
+
   return a + b;
 }
 
@@ -47,6 +48,7 @@ ESM uses static `import`/`export` statements that can be analyzed by tooling and
 ```javascript
 // math.mjs
 export function add(a, b) {
+
   return a + b;
 }
 ```

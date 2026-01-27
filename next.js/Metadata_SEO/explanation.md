@@ -23,6 +23,7 @@ export const metadata = {
 };
 
 export default function DashboardPage() {
+
   return <h1>Dashboard</h1>;
 }
 ```
@@ -38,6 +39,7 @@ app/users/[id]/page.js
 ```javascript
 // app/users/[id]/page.js
 export async function generateMetadata({ params }) {
+
   return {
     title: `User ${params.id}`,
     description: `Profile page for user ${params.id}`
@@ -45,6 +47,7 @@ export async function generateMetadata({ params }) {
 }
 
 export default function UserPage({ params }) {
+
   return <h1>User {params.id}</h1>;
 }
 ```
@@ -77,6 +80,7 @@ export default function Page() {
   useEffect(() => {
     document.title = 'User 123';
   }, []);
+
   return <div>User</div>;
 }
 ```

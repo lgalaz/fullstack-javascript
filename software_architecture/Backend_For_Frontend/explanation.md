@@ -32,6 +32,7 @@ async function getHomePage(userId) {
     usersService.getProfile(userId),
     feedService.getFeed(userId),
   ]);
+
   return { profile, feed };
 }
 ```

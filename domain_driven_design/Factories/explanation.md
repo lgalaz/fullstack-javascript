@@ -14,6 +14,7 @@ A factory can build an `Order` with required items and compute initial totals.
 final class Order {
     /** @var OrderItem[] */
     private array $items;
+
     private int $totalCents;
 
     public function __construct(array $items, int $totalCents) {

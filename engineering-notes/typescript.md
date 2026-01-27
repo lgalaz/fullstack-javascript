@@ -1,8 +1,5 @@
-1. TypeScript’s value proposition (baseline sanity check)
+## TypeScript’s value proposition (baseline sanity check). What problem does TypeScript actually solve, beyond “types for JavaScript”?
 
-I: What problem does TypeScript actually solve, beyond “types for JavaScript”?
-
-C:
 TypeScript is a static analysis and tooling layer over JavaScript, not a runtime system.
 
 Its real value is:
@@ -15,14 +12,11 @@ Its real value is:
 
 It does not guarantee correctness, performance, or runtime safety—those still require tests and runtime checks (validations that run in production, like input/schema checks, type guards, and defensive error handling).
 
-2. Structural typing vs nominal typing (different axis from strong vs weak typing)
+## Structural typing vs nominal typing (different axis from strong vs weak typing). Explain structural typing. Why does it matter in large systems?
 
-I: Explain structural typing. Why does it matter in large systems?
-
-C:
 TypeScript uses structural typing, meaning compatibility is based on shape, not declared identity.
 
-```
+```typescript
 type A = { x: number };
 type B = { x: number };
 
@@ -38,7 +32,6 @@ Examples:
 
 Never type note: `never` itself is valid, but the compiler errors when you assign a non-`never` value to a `never` variable (this is why the exhaustiveness check works).
 
-
 Why this matters:
 
 Pros
@@ -53,21 +46,18 @@ Cons
 - Harder to enforce domain boundaries
 - In large systems, we often simulate nominal typing using branding:
 
-```
+```typescript
 type UserId = string & { readonly __brand: "UserId" };
 
 function asUserId(id: string): UserId {
+
   return id as UserId;
 }
 ```
 
 This prevents mixing logically distinct but structurally identical types.
 
-3. any vs unknown (this is a senior filter)
-
-I: Compare any and unknown. When should each be used?
-
-C:
+## any vs unknown (this is a senior filter). Compare any and unknown. When should each be used?
 
 Aspect	any	unknown
 Type safety	❌ none	✅ enforced
@@ -84,17 +74,13 @@ if (typeof x === "object" && x !== null) {
   // still need checks
 }
 
-
 Rule of thumb:
 
 - Use unknown at system boundaries (API input, JSON, catch)
 - Avoid any except for legacy interop or incremental migration
 
-4. never: when does it appear and why is it useful?
+## never: when does it appear and why is it useful? When does TypeScript infer never, and how do you use it intentionally?
 
-I: When does TypeScript infer never, and how do you use it intentionally?
-
-C:
 never represents impossible states.
 
 It appears when:
@@ -105,7 +91,7 @@ It appears when:
 
 Exhaustiveness checking:
 
-```
+```typescript
 type Shape =
   | { kind: "circle"; r: number }
   | { kind: "square"; s: number };
@@ -123,11 +109,8 @@ function area(shape: Shape) {
 
 If a new variant is added, the compiler fails—this is deliberate safety.
 
-5. Type narrowing: how does TS actually narrow?
+## Type narrowing: how does TS actually narrow? Explain how TypeScript performs type narrowing.
 
-I: Explain how TypeScript performs type narrowing.
-
-C:
 Type narrowing means refining a broad type (like `unknown` or a union) into a more specific type based on checks in code. TypeScript narrows via control-flow analysis, not runtime logic.
 
 Common narrowing mechanisms:
@@ -139,8 +122,9 @@ Common narrowing mechanisms:
 - user-defined type guards
   - Note: predicates (`x is T`) are a way to tell the compiler how to narrow.
 
-```
+```typescript
 function isUser(x: unknown): x is { id: string } {
+
   return typeof x === "object" && x !== null && "id" in x;
 }
 ```
@@ -153,7 +137,7 @@ Important nuance:
 
 Broader example (union narrowing is scoped to the condition):
 
-```
+```typescript
 type Shape =
   | { kind: "circle"; r: number }
   | { kind: "square"; s: number };
@@ -162,6 +146,7 @@ function area(shape: Shape) {
   if (shape.kind === "circle") {
     return Math.PI * shape.r ** 2; // circle only
   }
+
   return shape.s ** 2; // square only
 }
 
@@ -173,29 +158,27 @@ function printShape(shape: Shape) {
 }
 ```
 
-6. Generics: constraint vs inference
+## Generics: constraint vs inference. When should you constrain generics, and when should you let inference work?
 
-I: When should you constrain generics, and when should you let inference work?
-
-C:
 Constraints limit what a generic can be (e.g., `T extends { id: string }`), while inference lets TypeScript deduce `T` from the values you pass. Prefer inference first, constraints only when needed.
 
 Bad:
 
-```
+```typescript
 function identity<T extends unknown>(x: T): T {
+
   return x;
 }
 ```
 
 Good:
 
-```
+```typescript
 function identity<T>(x: T): T {
+
   return x;
 }
 ```
-
 
 Use constraints when:
 
@@ -203,19 +186,16 @@ Use constraints when:
 - You want better error messages
 - You need key relationships
 
-```
+```typescript
 function getProp<T, K extends keyof T>(obj: T, key: K): T[K] {
+
   return obj[key];
 }
 ```
 
 Senior rule: constraints encode assumptions—don’t add them casually.
 
-7. keyof, indexed access, and mapped types
-
-I: Explain how these three work together.
-
-C:
+## keyof, indexed access, and mapped types. Explain how these three work together.
 
 They form the backbone of advanced TS modeling.
 
@@ -231,7 +211,6 @@ type ReadonlyUser = {
   readonly [K in keyof User]: User[K];
 };
 
-
 This enables:
 
 - DTO transformations
@@ -241,21 +220,17 @@ This enables:
 
 Mapped types are compile-time loops over keys.
 
-8. Conditional types and distributivity
-
-I: What are conditional types, and what does “distributive” mean?
-
-C:
+## Conditional types and distributivity. What are conditional types, and what does “distributive” mean?
 
 Conditional types:
 
-```
+```typescript
 type IsString<T> = T extends string ? true : false;
 ```
 
 Distributive behavior occurs when the checked type is a naked type parameter:
 
-```
+```typescript
 type Result = IsString<string | number>;
 // true | false
 ```
@@ -266,12 +241,11 @@ To disable distribution (wrap in square brackets so the union is treated as a si
 
 type IsString<T> = [T] extends [string] ? true : false;
 
-
 This distinction is critical for utility types like Exclude and Extract, which rely on distribution over unions to filter members correctly.
 
 Example:
 
-```
+```typescript
 type U = "a" | "b" | "c";
 type OnlyB = Extract<U, "b">;   // "b"
 type NoB = Exclude<U, "b">;     // "a" | "c"
@@ -281,7 +255,7 @@ Under the hood, `Extract` and `Exclude` are conditional types that rely on this 
 
 Under-the-hood example (distribution over a union):
 
-```
+```typescript
 type MyExclude<T, U> = T extends U ? never : T;
 type MyExtract<T, U> = T extends U ? T : never;
 
@@ -292,18 +266,14 @@ type OnlyB = MyExtract<U, "b">; // "b"
 
 Non-distributive variant (wrap in square brackets):
 
-```
+```typescript
 type NonDistributiveExtract<T, U> = [T] extends [U] ? T : never;
 
 type U = "a" | "b";
 type A = NonDistributiveExtract<U, "b">; // never
 ```
 
-9. interface vs type (no hand-waving — give concrete differences, not vague “it depends”)
-
-I: When do you prefer interface vs type?
-
-C:
+## interface vs type (no hand-waving — give concrete differences, not vague “it depends”). When do you prefer interface vs type?
 
 interface
 
@@ -321,7 +291,7 @@ type
 
 Example merging:
 
-```
+```typescript
 interface Window {
   myProp: string;
 }
@@ -335,17 +305,13 @@ Senior convention:
 - Libraries → interfaces
 - Internal modeling → types
 
-10. Declaration merging: when is it dangerous?
-
-I: Declaration merging is powerful—but when is it risky?
-
-C:
+## Declaration merging: when is it dangerous? Declaration merging is powerful—but when is it risky?
 
 Declaration merging is when TypeScript combines multiple declarations with the same name (e.g., interfaces, namespaces, modules) into a single type; it does not apply to `type` aliases.
 
 Example:
 
-```
+```typescript
 interface User {
   id: string;
 }
@@ -364,7 +330,7 @@ Risks:
 - Accidental global pollution
 - Version conflicts in dependencies
 - Hidden coupling
-```
+```typescript
 declare global {
   interface Array<T> {
     custom(): void;
@@ -380,11 +346,7 @@ Best practice:
 - Avoid global merging in app code
 - Prefer explicit wrapper types
 
-11. as const: what problem does it solve?
-
-I: Why does as const exist?
-
-C:
+## as const: what problem does it solve? Why does as const exist?
 
 It prevents type widening (where literal values like `"ready"` or `42` are widened to `string` or `number`).
 
@@ -402,7 +364,7 @@ Critical for:
 - Configuration objects
 - Redux-style reducers
 
-```
+```typescript
 const actions = {
   ADD: "add",
   REMOVE: "remove",
@@ -414,7 +376,7 @@ type Action = typeof actions[keyof typeof actions];
 
 Without `as const`:
 
-```
+```typescript
 const actions = {
   ADD: "add",
   REMOVE: "remove",
@@ -424,15 +386,11 @@ type Action = typeof actions[keyof typeof actions];
 // Action is string
 ```
 
-12. TS compile-time vs runtime: common senior pitfall
-
-I: Name a common bug caused by misunderstanding TS’s compile-time nature.
-
-C:
+## TS compile-time vs runtime: common senior pitfall. Name a common bug caused by misunderstanding TS’s compile-time nature.
 
 Assuming types exist at runtime.
 
-```
+```typescript
 type User = { id: string };
 
 if (value instanceof User) { // ❌
@@ -449,7 +407,7 @@ Correct approach:
 
 Example (schema shared by runtime + types):
 
-```
+```typescript
 import { z } from "zod";
 
 const UserSchema = z.object({
@@ -460,17 +418,14 @@ const UserSchema = z.object({
 type User = z.infer<typeof UserSchema>;
 
 function parseUser(input: unknown): User {
+
   return UserSchema.parse(input);
 }
 ```
 
 Senior engineers design runtime validation consciously.
 
-13. Large codebases: how do you keep TS healthy?
-
-I: How do you maintain TypeScript quality at scale?
-
-C:
+## Large codebases: how do you keep TS healthy? How do you maintain TypeScript quality at scale?
 
 Key practices:
 
@@ -483,10 +438,6 @@ Key practices:
 - Version types alongside APIs
 - TypeScript debt compounds silently—discipline matters.
 
-14. Final meta question
-
-I: What’s the most senior TypeScript mindset?
-
-C:
+## Final meta question. What’s the most senior TypeScript mindset?
 
 Types are about making invalid states unrepresentable.

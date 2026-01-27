@@ -16,6 +16,7 @@ Worker threads run JavaScript in parallel. This example computes a slow Fibonacc
 const { parentPort } = require('worker_threads');
 
 function fib(n) {
+
   return n <= 1 ? n : fib(n - 1) + fib(n - 2);
 }
 
@@ -30,6 +31,7 @@ parentPort.on('message', n => {
 const { Worker } = require('worker_threads');
 
 function runFib(n) {
+
   return new Promise((resolve, reject) => {
     const worker = new Worker('./worker.js');
     worker.on('message', resolve);

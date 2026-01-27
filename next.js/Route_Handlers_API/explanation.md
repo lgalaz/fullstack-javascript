@@ -13,6 +13,7 @@ Note: API routes use `route.js`, while UI routes use `page.js` (and `layout.js` 
 ```javascript
 // app/api/users/route.js
 export async function GET() {
+
   return Response.json([{ id: 1, name: 'Ada' }]);
 }
 ```
@@ -24,6 +25,7 @@ export async function POST(request) {
   const body = await request.json();
   const user = { id: crypto.randomUUID(), ...body };
   // Example: persist to DB here (omitted) before responding
+
   return Response.json({ ok: true, user }, { status: 201 });
 }
 ```
@@ -35,11 +37,13 @@ Multiple methods can live in the same route file.
 ```javascript
 // app/api/users/route.js
 export async function GET() {
+
   return Response.json([{ id: 1, name: 'Ada' }]);
 }
 
 export async function POST(request) {
   const body = await request.json();
+
   return Response.json({ ok: true, body }, { status: 201 });
 }
 ```
@@ -50,6 +54,7 @@ Bad practice: trusting client input without validation.
 export async function POST(request) {
   const body = await request.json();
   // missing validation
+
   return Response.json({ ok: true });
 }
 ```
@@ -95,6 +100,7 @@ import { NextRequest } from 'next/server';
 export async function GET(request: NextRequest) {
   const token = request.cookies.get('token')?.value;
   const search = request.nextUrl.searchParams.get('q');
+
   return Response.json({ token, search });
 }
 ```
@@ -104,6 +110,7 @@ You can also parse form data:
 ```javascript
 export async function POST(request) {
   const form = await request.formData();
+
   return Response.json({ name: form.get('name') });
 }
 ```
@@ -112,11 +119,31 @@ export async function POST(request) {
 
 If your API is called cross-origin, add an `OPTIONS` handler for preflight requests and set `Access-Control-*` headers.
 
+```javascript
+// app/api/data/route.js
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
+
+export async function OPTIONS() {
+
+  return new Response(null, { status: 204, headers: corsHeaders });
+}
+
+export async function GET() {
+
+  return Response.json({ ok: true }, { headers: corsHeaders });
+}
+```
+
 ## Dynamic segments and params
 
 ```javascript
 // app/api/users/[id]/route.js
 export async function GET(_request, { params }) {
+
   return Response.json({ id: params.id });
 }
 ```
@@ -128,6 +155,7 @@ Catch-all example:
 ```javascript
 // app/api/docs/[...slug]/route.js
 export async function GET(_request, { params }) {
+
   return Response.json({ path: params.slug }); // e.g. ["guides", "setup"]
 }
 ```
@@ -137,78 +165,27 @@ Optional catch-all example:
 ```javascript
 // app/api/docs/[[...slug]]/route.js
 export async function GET(_request, { params }) {
+
   return Response.json({ path: params.slug ?? [] }); // [] when no segments
 }
 ```
 
 Note: the double brackets make the catch-all optional, so it matches `/api/docs` and `/api/docs/a/b`, with `params.slug` undefined when no segments are present.
 
-Other useful routing syntax: route groups `(group)` (organize without URL changes), parallel routes `@slot`, and intercepting routes `(.)`, `(..)`, `(...)` for rendering one route inside another context.
+Other useful routing syntax: route groups `(group)` (organize without URL changes).
 
-Route groups example (folder name does not affect URL). Use them to organize files or apply a shared layout without changing the path.
-
-```javascript
-// app/(marketing)/pricing/page.js
-// URL: /pricing
-```
+Route groups example for API routes (folder name does not affect URL). Use them to organize files without changing the path.
 
 ```javascript
-// app/(marketing)/layout.js
-export default function MarketingLayout({ children }) {
-  return <section className="marketing">{children}</section>;
+// app/(internal)/api/users/route.js
+// URL: /api/users
+export async function GET() {
+
+  return Response.json({ ok: true });
 }
 ```
+
 Note: parentheses mean the segment is for organization only and does not appear in the URL.
-
-Parallel routes example (named slots):
-
-```javascript
-// app/dashboard/layout.js
-export default function Layout({ children, analytics }) {
-  return (
-    <div>
-      {children}
-      {analytics}
-    </div>
-  );
-}
-
-// app/dashboard/@analytics/page.js
-// renders into the analytics slot
-```
-
-Note: a named slot is a parallel route rendered into a specific prop on the segment's layout (e.g., `@analytics` -> `analytics`). Next.js wires this automatically; you only use the slot prop in that segment's `layout.js`, not in sibling pages.
-
-Intercepting routes examples:
-
-```javascript
-// app/photos/(.)[id]/page.js
-// intercepts /photos/[id] within the same segment
-
-// app/photos/(..)[id]/page.js
-// intercepts a sibling segment one level up
-
-// app/photos/(...)[id]/page.js
-// intercepts from the root segment
-```
-
-Use intercepting routes when you want a route to render inside another route's UI (for example, open a photo detail as a modal on top of the photos list without leaving the list page).
-
-Example: modal over a list in the same segment.
-
-```javascript
-// app/photos/page.js
-export default function Photos() {
-  return <div>Photos grid</div>;
-}
-
-// app/photos/@modal/(.)[id]/page.js
-// Navigating to /photos/123 keeps the /photos UI and renders this inside it.
-export default function PhotoModal({ params }) {
-  return <div className="modal">Photo {params.id}</div>;
-}
-```
-Note: this pattern uses a `@modal` slot in `app/photos/layout.js` (e.g., `export default function Layout({ children, modal }) { ... }`). `(.)` is the convention for "intercept in the same segment," so `/photos/[id]` renders inside `/photos` instead of replacing it.
 
 ## Edge vs Node runtimes
 
@@ -233,14 +210,3 @@ Quick decision guide:
 - HTTP request/response needs → Route Handlers or Server Actions.
 - Simple forms (e.g., signup) → keep UI state in the component, handle validation + persistence in a Route Handler or Server Action (no separate controller unless you already have a backend layer).
 - Complex server concerns (queues, WebSockets, long-running jobs, shared APIs) → separate backend.
-
-## Interview Questions and Answers
-
-### 1. Where do route handlers live in the App Router?
-
-Inside `app/api/.../route.js`.
-Note: `app/api` is the fixed convention for route handlers; you cannot rename it.
-
-### 2. What API does a route handler use?
-
-The standard Web Request/Response APIs.

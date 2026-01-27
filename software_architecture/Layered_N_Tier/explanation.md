@@ -39,6 +39,7 @@ async function getUserHandler(req, res) {
 const userRepo = require('./userRepo');
 
 async function getUser(id) {
+
   return userRepo.findById(id);
 }
 
@@ -48,6 +49,7 @@ module.exports = { getUser };
 ```javascript
 // userRepo.js (data)
 async function findById(id) {
+
   return { id, name: 'Ada' };
 }
 

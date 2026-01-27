@@ -18,6 +18,7 @@ export function middleware(request) {
     url.pathname = '/login';
     return NextResponse.redirect(url);
   }
+
   return NextResponse.next();
 }
 ```
@@ -70,6 +71,7 @@ export function withAuth(request) {
     url.pathname = '/login';
     return NextResponse.redirect(url);
   }
+
   return NextResponse.next();
 }
 ```
@@ -81,6 +83,7 @@ import { NextResponse } from 'next/server';
 export function withHeaders(_request, response) {
   const finalResponse = response ?? NextResponse.next();
   finalResponse.headers.set('X-Frame-Options', 'DENY');
+
   return finalResponse;
 }
 ```
@@ -104,6 +107,7 @@ Bad practice: doing heavy database work in middleware.
 ```javascript
 export async function middleware() {
   const user = await db.users.findFirst(); // example DB call, too slow for edge middleware
+
   return NextResponse.next();
 }
 ```
@@ -117,13 +121,3 @@ export const config = {
 ```
 
 Note: middleware does not run on `_next` assets and static files by default. Use matchers carefully to avoid unnecessary work.
-
-## Interview Questions and Answers
-
-### 1. What is middleware used for?
-
-Auth checks, rewrites, redirects, and adding headers before a route runs.
-
-### 2. Where does middleware run?
-
-On the edge runtime by default (lightweight code running at distributed edge locations close to users). See `next.js/Edge_Runtime/explanation.md` for more detail.

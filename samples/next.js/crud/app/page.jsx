@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import initialUsers from '../data/users.json';
 
 export default function Home() {
@@ -47,6 +48,15 @@ export default function Home() {
       <header>
         <h1>Users CRUD</h1>
         <p>Client-side create, read, update, delete for a local list.</p>
+        <Link className="inline-link" href="/users/1">
+          View sample user
+        </Link>
+        <Link className="inline-link" href="/docs/getting-started/setup">
+          View docs catch-all
+        </Link>
+        <Link className="inline-link" href="/docs">
+          View docs optional catch-all
+        </Link>
       </header>
 
       <section className="form">

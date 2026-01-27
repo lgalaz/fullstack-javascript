@@ -8,6 +8,7 @@ TypeScript uses ES module syntax with type-aware imports and exports.
 
 ```typescript
 export function sum(a: number, b: number) {
+
   return a + b;
 }
 

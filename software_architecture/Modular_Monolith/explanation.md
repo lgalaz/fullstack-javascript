@@ -44,6 +44,7 @@ const users = require('../users');
 async function charge(userId, amount) {
   const user = await users.getUser(userId); // only through public API
   // billing logic here
+
   return { ok: true, userId, amount };
 }
 

@@ -66,6 +66,7 @@ import { Inter } from 'next/font/google';
 const inter = Inter({ subsets: ['latin'] });
 
 export default function Layout({ children }) {
+
   return <body className={inter.className}>{children}</body>;
 }
 ```
@@ -137,13 +138,3 @@ Files in `public/` are served at the root path.
 Public asset optimizations available:
 
 - None by default; files are served as-is. Use `next/image` or other tooling for optimization.
-
-## Interview Questions and Answers
-
-### 1. Why use `next/image`?
-
-It provides optimized images, responsive sizing, and lazy loading by default.
-
-### 2. What is the `public/` folder for?
-
-Hosting static assets at the root URL path.

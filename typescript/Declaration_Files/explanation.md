@@ -46,6 +46,7 @@ Example:
 ```typescript
 namespace Utils {
   export function trim(input: string) {
+
     return input.trim();
   }
   export const version = '1.0';
@@ -61,6 +62,7 @@ You can merge a function with a namespace to attach "static" helpers to the func
 
 ```typescript
 function parse(input: string) {
+
   return JSON.parse(input);
 }
 
@@ -212,6 +214,7 @@ Example:
 ```typescript
 // runtime.js (actual behavior)
 export function parseCount(input) {
+
   return Number.parseInt(input, 10); // can return NaN
 }
 

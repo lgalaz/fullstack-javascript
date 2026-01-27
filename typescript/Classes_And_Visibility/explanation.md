@@ -9,9 +9,11 @@ TypeScript adds type annotations and visibility modifiers to classes.
 ```typescript
 class User {
   name: string;
+
   constructor(name: string) {
     this.name = name;
   }
+
   greet() {
     return `Hi ${this.name}`;
   }
@@ -25,7 +27,9 @@ Class fields are typed, and methods can use `this` safely when called as instanc
 ```typescript
 class Account {
   public id: string;
+
   private balance: number;
+
   protected owner: string;
 
   constructor(id: string, owner: string, balance: number) {
@@ -45,6 +49,7 @@ TypeScript `private` is a compile-time check. If you need runtime privacy, use J
 ```typescript
 class Secret {
   #token = 'abc';
+
   reveal() {
     return this.#token;
   }
@@ -66,7 +71,9 @@ Parameter properties declare and initialize fields in one step, instead of manua
 ```typescript
 class Product {
   public name: string;
+
   private price: number;
+
   constructor(name: string, price: number) {
     this.name = name;
     this.price = price;
@@ -106,6 +113,7 @@ class User extends BaseModel {
   constructor(public id: number, public name: string) {
     super();
   }
+
   toJSON() {
     return JSON.stringify({ id: this.id, name: this.name });
   }
@@ -129,11 +137,13 @@ Example:
 ```typescript
 class Session {
   public token!: string;
+
   private propA: string;
 
   constructor(propA: string) {
     this.propA = propA;
   }
+
   init(token: string) {
     this.token = token;
   }
@@ -174,6 +184,7 @@ class Builder {
 
 class UserBuilder extends Builder {
   private role: 'admin' | 'user' = 'user';
+
   private name = '';
 
   setRole(role: 'admin' | 'user'): this {
@@ -202,6 +213,7 @@ Static members belong to the class, not instances.
 ```typescript
 class Counter {
   static count = 0;
+
   constructor() {
     Counter.count += 1;
   }
@@ -216,9 +228,11 @@ You might define only a setter when a write-only input updates multiple internal
 ```typescript
 class BankAccount {
   private _balance = 0;
+
   get balance() {
     return this._balance;
   }
+
   set balance(value: number) {
     if (value < 0) throw new Error('Negative balance');
     this._balance = value;

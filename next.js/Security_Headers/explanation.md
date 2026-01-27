@@ -30,6 +30,7 @@ module.exports = {
 ```javascript
 // app/api/status/route.js
 export async function GET() {
+
   return new Response('ok', {
     headers: {
       'X-Frame-Options': 'DENY',
@@ -49,6 +50,7 @@ export function middleware(request) {
   const response = NextResponse.next();
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-Content-Type-Options', 'nosniff');
+
   return response;
 }
 ```
@@ -69,14 +71,31 @@ export function middleware(request) {
     `default-src 'self'; script-src 'self' 'nonce-${nonce}'`
   );
   response.headers.set('x-nonce', nonce);
+
   return response;
 }
 ```
 
 Example: use the nonce on inline scripts that must run.
 
-```html
-<script nonce="NONCE_FROM_HEADER">window.__BOOTSTRAP__ = {};</script>
+```javascript
+import { headers } from 'next/headers';
+import Script from 'next/script';
+
+export default function RootLayout({ children }) {
+  const nonce = headers().get('x-nonce') ?? '';
+
+  return (
+    <html>
+      <body>
+        <Script nonce={nonce} id="bootstrap">
+          {`window.__BOOTSTRAP__ = {};`}
+        </Script>
+        {children}
+      </body>
+    </html>
+  );
+}
 ```
 
 Bad practice: using an overly permissive CSP.

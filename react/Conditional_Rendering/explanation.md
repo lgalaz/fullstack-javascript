@@ -11,6 +11,7 @@ function Status({ online }) {
   if (online) {
     return <span>Online</span>;
   }
+
   return <span>Offline</span>;
 }
 ```
@@ -19,6 +20,7 @@ function Status({ online }) {
 
 ```javascript
 function Status({ online }) {
+
   return <span>{online ? 'Online' : 'Offline'}</span>;
 }
 ```
@@ -27,6 +29,7 @@ function Status({ online }) {
 
 ```javascript
 function Banner({ message }) {
+
   return <div>{message && <p>{message}</p>}</div>;
 }
 ```
@@ -60,6 +63,7 @@ const views = {
 };
 
 function Screen({ state }) {
+
   return views[state] ?? null;
 }
 ```
@@ -76,6 +80,7 @@ Rendering `null` removes the element from the tree without errors.
 ```javascript
 function MaybeMessage({ show }) {
   if (!show) return null;
+
   return <p>Hello</p>;
 }
 ```
@@ -84,6 +89,7 @@ Equivalent `&&` version:
 
 ```javascript
 function MaybeMessage2({ show }) {
+
   return show && <p>Hello</p>;
 }
 ```

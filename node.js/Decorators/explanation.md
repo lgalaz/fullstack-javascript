@@ -13,6 +13,7 @@ function time(_target: unknown, name: string, descriptor: PropertyDescriptor) {
     const start = Date.now();
     const result = await original.apply(this, args);
     console.log(`${name} took`, Date.now() - start, 'ms');
+
     return result;
   };
 }

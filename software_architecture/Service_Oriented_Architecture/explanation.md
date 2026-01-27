@@ -61,6 +61,7 @@ async function getCustomer(id) {
   const wsdlUrl = 'https://example.com/customer?wsdl';
   const client = await soap.createClientAsync(wsdlUrl);
   const [result] = await client.GetCustomerAsync({ id });
+
   return result;
 }
 ```

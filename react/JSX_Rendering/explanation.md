@@ -86,6 +86,7 @@ function Profile({ user }) {
   } else {
     message = 'Sign in';
   }
+
   return <h1>{message}</h1>;
 }
 ```
@@ -99,6 +100,7 @@ const element = (
       const hour = new Date().getHours();
       if (hour < 12) return 'Morning';
       if (hour < 18) return 'Afternoon';
+
       return 'Evening';
     })()}
   </div>
@@ -150,6 +152,7 @@ Keyed fragment example (needed when rendering a list of fragments so React can t
 
 ```javascript
 function Rows({ items }) {
+
   return items.map(item => (
     <React.Fragment key={item.id}>
       <dt>{item.label}</dt>
@@ -169,6 +172,7 @@ const condition = true;
 const content = condition ? <span>Yes</span> : <Empty />;
 
 function Panel() {
+
   return <div>{content}</div>;
 }
 ```
@@ -186,13 +190,3 @@ Note: This bypasses React's normal HTML escaping and inserts raw HTML into the D
 ## Virtual DOM (React element tree)
 
 When you render, React builds an in-memory tree of elements (a lightweight description of the UI). On the next render, it builds a new tree, compares it to the previous one (reconciliation), and commits only the minimal DOM changes. This is often called the "virtual DOM."
-
-## Interview Questions and Answers
-
-### 1. What does JSX compile to?
-
-It compiles to `React.createElement` calls.
-
-### 2. Why does JSX use `className`?
-
-Because `class` is a reserved keyword in JavaScript.

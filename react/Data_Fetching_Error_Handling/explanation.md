@@ -24,6 +24,7 @@ function User({ id }) {
     fetch(`/api/users/${id}`, { signal: controller.signal })
       .then(r => {
         if (!r.ok) throw new Error('Request failed');
+
         return r.json();
       })
       .then(data => setUser(data))
@@ -37,6 +38,7 @@ function User({ id }) {
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p role="alert">Failed to load user.</p>;
+
   return <pre>{JSON.stringify(user, null, 2)}</pre>;
 }
 ```

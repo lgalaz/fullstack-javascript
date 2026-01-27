@@ -51,6 +51,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 export default async function Dashboard() {
   const session = await getServerSession(authOptions);
   if (!session) return <p>Unauthorized</p>;
+
   return <div>Welcome, {session.user.name}</div>;
 }
 ```
@@ -62,6 +63,7 @@ Client sign-in/out buttons:
 import { signIn, signOut } from 'next-auth/react';
 
 export function AuthButtons() {
+
   return (
     <div>
       <button onClick={() => signIn('github')}>Sign in with GitHub</button>
@@ -89,6 +91,7 @@ export function middleware(request) {
   if (!isAuthed) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
+
   return NextResponse.next();
 }
 ```
@@ -101,6 +104,7 @@ import { cookies } from 'next/headers';
 export default function Dashboard() {
   const session = cookies().get('session');
   if (!session) return <p>Unauthorized</p>;
+
   return <div>Private</div>;
 }
 ```
@@ -112,6 +116,7 @@ Bad practice: relying only on client state for access control.
 
 export default function Dashboard() {
   const session = localStorage.getItem('session');
+
   return session ? <div>Private</div> : <p>Unauthorized</p>;
 }
 ```
@@ -128,6 +133,7 @@ export default async function Dashboard() {
   const session = cookies().get('session');
   if (!session) return <p>Unauthorized</p>;
   const data = await getDashboardData(session.value);
+
   return <div>{data.title}</div>;
 }
 ```
@@ -143,6 +149,7 @@ A data access layer is the set of server-only functions that read/write your dat
 export async function getAdminData(userId) {
   const user = await db.users.findById(userId);
   if (!user || !user.isAdmin) throw new Error('Forbidden');
+
   return db.adminData.findMany();
 }
 ```
@@ -154,6 +161,7 @@ import { getAdminData } from '@/lib/users';
 
 export async function GET(request) {
   const user = await getSessionUser(request);
+
   return Response.json(await getAdminData(user.id));
 }
 ```
@@ -167,6 +175,7 @@ export async function GET(request) {
     return new Response('Forbidden', { status: 403 });
   }
   // getAdminData returns a protected resource.
+
   return Response.json(await getAdminData());
 }
 ```

@@ -8,7 +8,9 @@ A closure is a function that has access to its own scope, the outer function's s
 
 ```javascript
 function createMultiplier(factor) {
+
   return function(number) {  // Inner function is returned
+
     return number * factor;
   };
 }
@@ -46,8 +48,10 @@ Example:
 ```javascript
 function outer() {
   let count = 0;
+
   return function inner() {
     count++;
+
     return count;
   };
 }
@@ -66,6 +70,7 @@ Here, `inner` has access to `count` even after `outer` has finished executing.
 ```javascript
 function createCounter() {
   let count = 0;
+
   return {
     increment: function() { count++; return count; },
     decrement: function() { count--; return count; },
@@ -84,11 +89,14 @@ console.log(counter.getCount()); // 1
 
 ```javascript
 function multiply(a, b) {
+
   return a * b;
 }
 
 function partialMultiply(a) {
+
   return function(b) {
+
     return multiply(a, b);
   };
 }
@@ -119,6 +127,7 @@ function setupButton(buttonId) {
 ```javascript
 function fetchData(url) {
   let retries = 0;
+
   return function(callback) {
     // Simulate retry logic
     if (retries < 3) {
@@ -141,6 +150,7 @@ Example of a memory leak:
 ```javascript
 function createLeak() {
   const largeObject = { data: new Array(1000000).fill('data') };
+
   return function() {
     console.log(largeObject.data.length);
   };
@@ -202,8 +212,10 @@ Consider this counter example:
 ```javascript
 function createCounter() {
   let count = 0;
+
   return function() {
     count++;
+
     return count;
   };
 }

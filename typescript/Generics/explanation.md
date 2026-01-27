@@ -2,14 +2,13 @@
 
 ## Introduction
 
-Generics let you write reusable, type-safe functions and classes.
-
-They are important because they preserve relationships between inputs and outputs (e.g., "same type in, same type out") without sacrificing reuse, which avoids `any` and reduces manual runtime checks or type assertions (not JS coercion).
+Generics let you write reusable code with type parameters — placeholders for types — so TypeScript can infer or enforce the relationship between inputs and outputs.
 
 ## Generic Functions
 
 ```typescript
 function identity<T>(value: T): T {
+
   return value;
 }
 
@@ -27,6 +26,7 @@ const literal = identity('x'); // T inferred as "x" if context preserves literal
 
 ```typescript
 function getLength<T extends { length: number }>(value: T) {
+
   return value.length;
 }
 ```
@@ -37,6 +37,7 @@ You can constrain based on keys with `keyof`:
 
 ```typescript
 function getProp<T, K extends keyof T>(obj: T, key: K) {
+
   return obj[key];
 }
 
@@ -48,6 +49,7 @@ const name = getProp(user, 'name'); // string
 
 ```typescript
 function first<T>(arr: T[]): T | undefined {
+
   return arr[0];
 }
 ```
@@ -73,6 +75,7 @@ interface Box<T = string> {
 
 ```typescript
 function mapValues<T, U>(values: T[], mapper: (value: T) => U): U[] {
+
   return values.map(mapper);
 }
 

@@ -18,6 +18,7 @@ With unions, you must narrow before using type-specific operations.
 
 ```typescript
 function formatId(id: ID) {
+
   return typeof id === 'string' ? id.toUpperCase() : id.toFixed(0);
 }
 ```
@@ -35,6 +36,7 @@ function handle(result: ApiResult) {
   if (!result.ok) {
     return result.error;
   }
+
   return result.data.id;
 }
 ```

@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Next.js is a meta-framework (a framework over a framework) built on React. It adds routing, data fetching, and rendering strategies. The key rendering modes are CSR, SSR, SSG, and ISR. The first things that jump out are faster initial loads, SEO-friendly pages, and file-based routing. At a senior level, you also value the unified full-stack model (UI + server logic in one codebase for BFF‑style needs: form handlers, lightweight CRUD, auth/session plumbing, and app‑specific endpoints close to the UI), built-in caching and streaming, strong conventions that scale teams, and production-ready tooling that standardizes performance and deployment.
+Next.js is a meta-framework (a framework over a framework) built on React. It adds routing, data fetching, and rendering strategies. The key rendering modes are CSR, SSR, SSG, and ISR. The first things that jump out are faster initial loads, SEO-friendly pages, and file-based routing. Also it has a unified full-stack model (UI + server logic in one codebase for BFF‑style needs: form handlers, lightweight CRUD, auth/session plumbing, and app‑specific endpoints close to the UI), built-in caching and streaming, strong conventions that scale teams, and production-ready tooling that standardizes performance and deployment.
 
 Meta-frameworks add architecture by defining where and when code runs, conventions by enforcing file-based structure and implicit behavior, and runtime capabilities like SSR, streaming, and caching. If you don’t need those capabilities, the added constraints can outweigh the benefits.
 
@@ -24,6 +24,17 @@ What this means in practice:
 - Server Components cannot use browser-only APIs like `window` or `document`, and they cannot attach event handlers.
 - For interactivity (clicks, input), you use Client Components, which run in the browser.
 - A page can mix Server and Client Components; the server renders the non-interactive parts, and the client hydrates the interactive parts.
+
+```javascript
+// Server Component (default)
+import ClientWidget from './ClientWidget';
+
+export default async function Page() {
+  const data = await getServerData(); // DB, filesystem, etc.
+
+  return <ClientWidget data={data} />;
+}
+```
 
 RSC is a React capability, and frameworks like Next.js provide the tooling and defaults that make it practical to use.
 
@@ -64,6 +75,47 @@ Cons: more server load, slower TTFB if data is slow.
 
 SSR still hydrates on the client. The server sends HTML, and the client attaches event handlers during hydration (React matches the server-rendered HTML to its virtual tree and makes it interactive without re-rendering everything).
 
+## Pages Router data fetching (getStaticProps / getServerSideProps)
+
+These APIs are for the legacy Pages Router (`pages/`). They can only be exported from a page file and must return serializable `props`.
+
+Use `getStaticProps` for build-time generation (SSG) and optional revalidation (ISR):
+
+```javascript
+// pages/blog.js
+export async function getStaticProps() {
+  const posts = await fetch('https://api.example.com/posts').then(r => r.json());
+
+  return {
+    props: { posts },
+    revalidate: 60, // ISR: re-generate in the background at most once per minute
+  };
+}
+
+export default function Blog({ posts }) {
+
+  return posts.map(p => <div key={p.id}>{p.title}</div>);
+}
+```
+
+Use `getServerSideProps` for per-request data (auth, headers, geo, A/B, etc.):
+
+```javascript
+// pages/profile.js
+export async function getServerSideProps({ req }) {
+  const profile = await fetch('https://api.example.com/me', {
+    headers: { cookie: req.headers.cookie ?? '' },
+  }).then(r => r.json());
+
+  return { props: { profile } };
+}
+
+export default function Profile({ profile }) {
+
+  return <div>{profile.name}</div>;
+}
+```
+
 ## Streams, Streaming SSR, and Suspense
 
 Streaming means the server sends HTML in chunks as soon as each part is ready, instead of waiting for the full page. In React, streaming SSR is enabled with `renderToPipeableStream` (Node) or `renderToReadableStream` (Web Streams), which progressively flush HTML to the client.
@@ -90,13 +142,3 @@ ISR combines static delivery with background revalidation so you avoid full rebu
 - Use SSR for personalized or frequently changing content.
 - Use SSG/ISR for marketing pages and content-driven sites.
 - Use CSR for highly interactive, user-specific dashboards.
-
-## Interview Questions and Answers
-
-### 1. What is the difference between SSR and CSR?
-
-SSR renders HTML on the server per request, while CSR renders in the browser after JS loads.
-
-### 2. When is SSG a good choice?
-
-For content that changes infrequently and benefits from fast, cached delivery.

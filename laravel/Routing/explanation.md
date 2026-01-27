@@ -57,7 +57,9 @@ Route parameters and model binding:
 
 ```php
 Route::get('/posts/{post}', [PostController::class, 'show'])->whereNumber('post');
+
 Route::get('/users/{user}/posts/{post}', ...)
+
     ->where(['user' => '[0-9]+', 'post' => '[0-9]+']);
 ```
 

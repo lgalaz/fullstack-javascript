@@ -12,6 +12,7 @@ import userEvent from '@testing-library/user-event';
 
 function Counter() {
   const [count, setCount] = React.useState(0);
+
   return (
     <button onClick={() => setCount(c => c + 1)}>
       Count: {count}
