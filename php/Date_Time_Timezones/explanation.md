@@ -2,7 +2,7 @@
 
 ## Use DateTimeImmutable
 
-`DateTimeImmutable` avoids accidental mutation and is safer for shared values.
+`DateTimeImmutable` avoids accidental mutation and is safer for shared values. Immutability makes time handling more predictable (no hidden side effects), more expressive (each transformation returns a new value), and safer in shared contexts (no one can change a date that other code still depends on).
 
 ```php
 <?php
@@ -38,7 +38,7 @@ Avoid ambiguous formats. Prefer ISO 8601 and validate parsing.
 
 declare(strict_types=1);
 
-$input = '2025-02-01T12:30:00+00:00';
+$input = '2025-02-21T12:30:00+00:00';
 $dt = DateTimeImmutable::createFromFormat(DateTimeInterface::ATOM, $input);
 
 if ($dt === false) {

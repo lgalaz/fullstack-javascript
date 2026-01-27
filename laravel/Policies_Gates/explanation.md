@@ -33,11 +33,16 @@ public function update(Request $request, Post $post)
 }
 ```
 
-Gate example:
+Gate example (define in `AuthServiceProvider::boot`, check elsewhere):
 
 ```php
-Gate::define('view-admin', fn (User $user) => $user->is_admin);
+// app/Providers/AuthServiceProvider.php
+public function boot(): void
+{
+    Gate::define('view-admin', fn (User $user) => $user->is_admin);
+}
 
+// anywhere (controller, view, etc.)
 if (Gate::allows('view-admin')) {
     // allowed
 }

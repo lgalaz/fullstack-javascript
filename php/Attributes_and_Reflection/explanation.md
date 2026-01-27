@@ -94,13 +94,14 @@ Auditing: #[Audit], #[LogChange], #[TrackAccess], #[Sensitive] for redaction in 
 Security boundaries: #[RequiresRole('admin')], #[RequiresPermission('invoices:read')].
 Frameworks then read these via reflection and enforce them consistently.
 
+Symfony supports attributes heavily (routing, validation, DI, serializer, security), but they are optional; you can still use YAML/XML/PHP config. In production, Symfony typically caches the resolved metadata into compiled PHP arrays under `var/cache/` so it can `require` those files instead of re-reflecting on every request. It do this by running:
+`php bin/console cache:warmup` (or `php bin/console cache:clear` which also warms in prod). This generates the compiled metadata in var/cache/.
+Cache "warmup" means precomputing those files ahead of time (e.g., during deploy) so the first request doesn't pay the reflection cost.
+
 ## Reflection
 
 Reflection is a way to inspect code structure at runtime.
 Note: reflection is powerful but relatively slow, so frameworks often cache reflection results in production.
-Symfony supports attributes heavily (routing, validation, DI, serializer, security), but they are optional; you can still use YAML/XML/PHP config. In production, Symfony typically caches the resolved metadata into compiled PHP arrays under `var/cache/` so it can `require` those files instead of re-reflecting on every request. It do this by running:
-`php bin/console cache:warmup` (or `php bin/console cache:clear` which also warms in prod). This generates the compiled metadata in var/cache/.
-Cache "warmup" means precomputing those files ahead of time (e.g., during deploy) so the first request doesn't pay the reflection cost.
 
 ```php
 <?php
@@ -129,6 +130,17 @@ echo $route->path;
 ```
 
 ## OpenTelemetry: excluding `/login` from tracing in Laravel
+OpenTelemetry is a vendor‑neutral observability standard (APIs/SDKs + tooling) for emitting traces, metrics, and logs from your app. It lets you instrument code once and send telemetry to different backends. (opentelemetry.io)
+
+In PHP, you usually choose one of two approaches:
+
+- Zero‑code (auto) instrumentation
+  - Install the OpenTelemetry PHP extension + SDK + framework instrumentation packages, then configure env vars/exporter.
+  - Requires PHP 8.0+ for auto‑instrumentation. (opentelemetry.io)
+  - Laravel can be auto‑instrumented via the extension + a Laravel instrumentation package. (opentelemetry.io)
+- Manual instrumentation
+  - Install the OpenTelemetry SDK and add tracing calls in your code.
+  - Works on PHP 7.4+ (no extension required). (opentelemetry.opendocs.io)
 
 If you are manually creating request spans, you can skip creating a span for the login endpoint in middleware.
 This keeps the `/login` request out of your traces without affecting other routes.

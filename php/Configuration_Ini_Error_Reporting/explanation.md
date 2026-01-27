@@ -12,6 +12,26 @@ declare(strict_types=1);
 ini_set('memory_limit', '256M');
 ```
 
+Key details a senior keeps in mind:
+
+- PHP loads multiple ini files: a main `php.ini` plus any `conf.d`/`scan.d` files; order matters. They are normally found in your php installation directory
+- Different SAPIs (CLI, FPM, Apache module) can load different ini paths and values.
+- `ini_set` only works for `PHP_INI_ALL`/`PHP_INI_USER` settings; `PHP_INI_SYSTEM` and `PHP_INI_PERDIR` require server/FPM config.
+- Per-directory overrides exist (`.user.ini` for FPM, `.htaccess`/`php_admin_value` for Apache).
+- Use `php --ini` or `phpinfo()` to see exactly what’s loaded.
+- Production vs dev settings (display_errors, error_reporting, opcache, memory_limit, timeouts, upload limits) should differ.
+  - display_errors: whether PHP shows errors in the HTTP response/CLI output. Usually On in dev, Off in prod.
+  - error_reporting: which error levels are reported (e.g., E_ALL). Controls what errors are captured at all.
+  - opcache: bytecode cache settings (e.g., opcache.enable) that speed up PHP by caching compiled scripts.
+  - memory_limit: max memory a PHP script can use (per request/CLI run).
+timeouts: execution/input limits like max_execution_time and max_input_time.
+  - upload limits: upload_max_filesize and post_max_size (and often max_file_uploads).
+- precedence:
+1) php.ini
+3) scanned .ini files
+4) .user.ini (per‑dir)
+4) ini_set() (runtime, for allowed directives)
+
 ## Error Reporting
 
 Use strict error reporting in development and log errors in production.

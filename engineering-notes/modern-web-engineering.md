@@ -1,3 +1,18 @@
+Most mature stacks can deliver the same product features and scale to typical production needs. Performance differences usually matter far less than team execution, architecture, and operational discipline. So choosing a stack is often about team expertise, hiring pool, time‑to‑market, and ecosystem support, not raw language speed.
+
+Security note: use the OWASP Top 10 as a baseline checklist for common web risks. The current web app list (2021) is:
+
+- A01 Broken Access Control: users can access or modify data/actions they shouldn’t.
+- A02 Cryptographic Failures: weak or missing encryption, key handling, or transport protection.
+- A03 Injection: untrusted input is interpreted as code/query (SQL/NoSQL/command).
+- A04 Insecure Design: missing security controls in the design; insecure patterns by default.
+- A05 Security Misconfiguration: unsafe defaults, exposed services, or improper hardening.
+- A06 Vulnerable and Outdated Components: known-vulnerable dependencies or unpatched software.
+- A07 Identification and Authentication Failures: broken auth, session handling, or identity checks.
+- A08 Software and Data Integrity Failures: untrusted updates, CI/CD, deserialization, or code tampering.
+- A09 Security Logging and Monitoring Failures: insufficient logging/alerting to detect attacks.
+- A10 Server-Side Request Forgery (SSRF): server makes unintended requests to internal/external targets.
+
 ## When is a meta-framework unnecessary?
 
 Meta-frameworks aren’t just about SSR—they also provide scaffolding, conventions, and production-ready tooling (build, bundling, deployment defaults, and performance optimizations) that reduce setup friction and help teams align on a common structure. By standardizing routing, data loading, build configuration, and deployment assumptions, they lower decision fatigue and prevent common mistakes, which can be valuable even when advanced rendering features aren’t required.

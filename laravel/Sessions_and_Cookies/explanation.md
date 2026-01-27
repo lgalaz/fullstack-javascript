@@ -2,6 +2,12 @@
 
 Laravel manages session state for web routes using session drivers (file, database, Redis, etc.).
 
+Key points:
+- Session cookie name is `laravel_session` by default.
+- Sessions are scoped per browser via the session cookie (not per authenticated user).
+- Drivers trade off speed and durability (Redis is common in production).
+- Session data is server-side; the cookie stores only the session ID (and is encrypted/signed).
+
 Read/write session:
 
 ```php

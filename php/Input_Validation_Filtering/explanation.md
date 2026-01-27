@@ -37,4 +37,5 @@ $amount = (int) $amountInput; // normalized integer value for downstream logic
 ## Defensive Defaults
 
 Avoid `$_REQUEST`. Prefer explicit sources (`$_GET`, `$_POST`) and whitelist fields.
-Because $_REQUEST merges GET, POST, and COOKIE. That makes the input source ambiguous and can allow a less‑trusted source (like a cookie or query string) to override intended data. Using $_GET or $_POST keeps intent clear, reduces attack surface, and makes validation more predictable. Whitelisting fields ensures you only accept expected input.
+Because $_REQUEST merges GET, POST, and COOKIE. That makes the input source ambiguous and can allow a less‑trusted source (like a cookie or query string) to override intended data. Precedence order is configurable in php.ini
+Using $_GET or $_POST keeps intent clear, reduces attack surface, and makes validation more predictable. Whitelisting fields ensures you only accept expected input. In Laravel, $fillable (allow‑list) is preferred over $guarded (deny‑list) for safety.

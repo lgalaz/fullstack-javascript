@@ -41,3 +41,20 @@ public function show(Request $request, Post $post)
 ```
 
 Response macros let you add custom response helpers in a service provider.
+
+```php
+use Illuminate\Support\Facades\Response;
+
+public function boot(): void
+{
+    Response::macro('apiSuccess', function ($data = [], int $status = 200) {
+        return response()->json(['ok' => true, 'data' => $data], $status);
+    });
+}
+```
+
+Usage:
+
+```php
+return response()->apiSuccess($user);
+```

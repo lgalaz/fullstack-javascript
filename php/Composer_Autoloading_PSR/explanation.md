@@ -4,6 +4,13 @@
 
 Composer is PHP's dependency manager. It installs packages and generates an autoloader.
 
+## Workflow
+
+- composer install reads your root composer.json + composer.lock, downloads packages into vendor/, and generates autoload files.
+- Each package can define its own autoload rules (PSR‑4/PSR‑0/classmap/files). Composer merges all of these into the project’s autoloader.
+- composer dump-autoload regenerates the autoloader files (not just autoload.php; it writes multiple files in vendor/composer/). autoload.php is just the entry point that wires them together.
+- composer dump-autoload -o (or --optimize) builds a classmap for PSR‑0/PSR‑4 classes to avoid filesystem scanning; it’s faster at runtime but slightly larger to build and can be more work for Composer.
+
 ## Autoloading
 
 Autoloading means classes are loaded automatically when used, instead of manual `require` calls.

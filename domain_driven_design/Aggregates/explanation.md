@@ -2,8 +2,9 @@
 
 ## Introduction
 
-Aggregates are clusters of entities and value objects with a clear consistency boundary. One entity is the aggregate root, and all changes go through it.
+Aggregates are clusters of entities and value objects with a clear consistency boundary (the set of data that must be kept consistent together within a single transaction). One entity is the aggregate root, and all changes go through it.
 You choose the aggregate root based on the consistency boundary and invariants you need to protect.
+A common rule of thumb is “put together what must be consistent in the same transaction.” If two things can be updated independently without breaking invariants, they likely belong in separate aggregates.
 
 Common signals:
 

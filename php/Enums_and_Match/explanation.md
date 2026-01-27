@@ -70,4 +70,12 @@ function labelForStatus(Status $status): string {
 }
 
 echo labelForStatus(Status::Draft); // Draft
+
+$handler = match ($type) {
+    'email' => fn() => sendEmail(),
+    'sms' => fn() => sendSms(),
+    default => fn() => logUnknown(),
+};
+
+$handler(); // invoke the selected callable
 ```

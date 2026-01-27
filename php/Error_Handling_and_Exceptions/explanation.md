@@ -4,6 +4,15 @@
 
 An error is a runtime problem (like a type error). An exception is an object you throw and catch to handle failures.
 Both implement the `Throwable` interface.
+`error_reporting` in php.ini controls which error levels are reported.
+
+## Exception Categories
+
+Common high-level categories:
+
+- User/input exceptions (validation or client errors).
+- Domain/application exceptions (business rule violations).
+- System/infrastructure exceptions (I/O, DB, network, runtime failures).
 
 ## Try/Catch
 
@@ -41,6 +50,9 @@ What happens without exceptions:
 - Some errors are warnings/notices and execution continues.
 - Fatal errors stop the script and return a 500 error in web contexts.
 Where they are logged: PHP writes to the `error_log` file configured in `php.ini`, or to the web server/PHP-FPM logs if `error_log` is not set. In containerized setups, errors often go to stdout/stderr.
+
+Warnings/notices go to PHP’s error_log (as configured in php.ini) or to the SAPI log (PHP‑FPM error log) if error_log isn’t set.
+They won’t automatically go through Laravel/Monolog unless you convert them to exceptions (via set_error_handler) so the framework can handle/log them.
 
 Why error suppression exists:
 - Historically, it allowed legacy code to attempt optional operations (like reading missing files) without noisy warnings.

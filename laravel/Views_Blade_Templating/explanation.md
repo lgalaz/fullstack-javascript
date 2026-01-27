@@ -37,5 +37,10 @@ Child view:
 Blade features:
 - `@if`, `@foreach`, `@isset` directives for control flow.
 - `{{ }}` HTML-escaped output.
+- `{!! !!}` unescaped output (use carefully).
 - `@include` partials.
+- `@extends`, `@section`, `@yield`, `@stack`, `@push` for layouts.
 - Components for reusable UI.
+- `@csrf`, `@method` for forms.
+- `@error` for validation messages.
+- `@auth` / `@guest` for auth-aware rendering.

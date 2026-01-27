@@ -4,7 +4,7 @@
 
 Prefer JSON for data exchange. Use PHP serialization only for internal storage and never on untrusted input.
 `unserialize` on untrusted data is a common security risk (object injection).
-Attackers can craft payloads that instantiate classes and trigger magic methods, leading to SSRF (Server side request forgery), file access, or worse.
+Attackers can craft payloads that instantiate classes and trigger magic methods, it can lead to SSRF (Server side request forgery), file access, or worse.
 
 PHP 8+ favors `__serialize()` and `__unserialize()` over the older `Serializable` interface.
 

@@ -37,6 +37,52 @@ final class UserController {
 }
 ```
 
+Example file paths (typical PSR-4 layout):
+
+```text
+app/Domain/User/UserId.php          => App\Domain\User\UserId
+app/Utils/slugify.php               => function App\Utils\slugify()
+app/Utils/constants.php             => const App\Utils\DEFAULT_PAGE_SIZE
+app/Http/UserController.php         => App\Http\UserController
+```
+
+Example files:
+
+`app/Domain/User/UserId.php`
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Domain\User;
+
+final class UserId {}
+```
+
+`app/Utils/slugify.php`
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Utils;
+
+function slugify(string $value): string {
+    return strtolower(trim(preg_replace('/[^a-z0-9]+/i', '-', $value) ?? '', '-'));
+}
+```
+
+`app/Utils/constants.php`
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Utils;
+
+const DEFAULT_PAGE_SIZE = 25;
+```
+
 You can alias to avoid collisions:
 
 ```php

@@ -4,7 +4,7 @@
 
 Migrations track schema changes in code so environments stay consistent.
 Apply migrations in order and make them idempotent where possible.
-If neede, use a migration for required baseline data; use seeders for non‑essential or environment‑specific data. If you need idempotency, use upserts or “insert if not exists”.
+If needed, use a migration for required baseline data; use seeders for non‑essential or environment‑specific data. If you need idempotency, use upserts or “insert if not exists”.
 
 ## Constraints First
 

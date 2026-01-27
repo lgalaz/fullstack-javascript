@@ -2,17 +2,26 @@
 
 The service container manages dependency injection. Service providers register bindings and boot logic.
 
-Binding a service:
+Binding a service (inside a provider `register()`):
 
 ```php
+namespace App\Providers;
+
+use Illuminate\Support\ServiceProvider;
 use App\Services\BillingService;
 use App\Services\BillingClient;
 
-$this->app->singleton(BillingService::class, function ($app) {
-    return new BillingService(
-        $app->make(BillingClient::class)
-    );
-});
+final class BillingServiceProvider extends ServiceProvider
+{
+    public function register(): void
+    {
+        $this->app->singleton(BillingService::class, function ($app) {
+            return new BillingService(
+                $app->make(BillingClient::class)
+            );
+        });
+    }
+}
 ```
 
 Constructor injection:

@@ -20,4 +20,4 @@ if (auth()->check()) {
 }
 ```
 
-Authorization is usually handled with Gates or Policies (see next topic).
+Authorization is usually handled with Gates or Policies.

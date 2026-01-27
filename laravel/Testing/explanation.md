@@ -34,6 +34,15 @@ public function test_creates_post(): void
 }
 ```
 
+Note: `post()` sends form-encoded data; `postJson()` sends JSON.
+
+```php
+$response = $this->post('/posts', [
+    'title' => 'Hello',
+    'body' => 'World',
+]);
+```
+
 ## Database Helpers
 
 ```php

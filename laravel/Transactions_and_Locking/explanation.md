@@ -51,3 +51,18 @@ DB::transaction(function () {
 ```
 
 This issues `SELECT ... FOR UPDATE` in supported databases.
+
+Eloquent with row locking:
+
+```php
+use Illuminate\Support\Facades\DB;
+use App\Models\Account;
+
+DB::transaction(function () {
+    $account = Account::whereKey(1)
+        ->lockForUpdate()
+        ->firstOrFail();
+
+    $account->decrement('balance', 100);
+});
+```

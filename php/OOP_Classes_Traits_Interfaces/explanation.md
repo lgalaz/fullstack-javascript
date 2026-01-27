@@ -1,7 +1,5 @@
 # OOP: Classes, Traits, and Interfaces
 
-OOP means Object-Oriented Programming.
-
 ## Classes and Objects
 
 A class defines a blueprint. An object is an instance of that class.
@@ -117,8 +115,8 @@ These are type‑system rules, and languages vary in how (or whether) they enfor
 
 In PHP specifically, covariance for return types and contravariance for parameter types are enforced when overriding methods (since PHP 7.4+).
 
-Covariant: you can substitute a more specific type.
-Contravariant: you can substitute a more general type.
+Covariant: you can substitute a more specific type (subtype).
+Contravariant: you can substitute a more general type (supertype).
 
 Return types are usually covariant (subclass can return a subtype).
 Parameter types are usually contravariant (subclass can accept a supertype).
@@ -307,6 +305,22 @@ Composition: Driver creates/controls the Car lifecycle; Car doesn’t meaningful
 Association: Driver uses a Car temporarily (e.g., method parameter), no stored reference.
 
 Prefer composition over inheritance to reduce coupling and make behavior easier to test and swap.
+
+Composition example (owner creates and controls lifecycle):
+
+```php
+<?php
+
+final class Engine {}
+
+final class Car {
+    private Engine $engine;
+
+    public function __construct() {
+        $this->engine = new Engine();
+    }
+}
+```
 
 Example: composition is explicit and local.
 

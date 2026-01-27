@@ -80,8 +80,12 @@ function createChargeWithRetry(array $payload): void {
         $body = curl_exec($ch);
         $status = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
         curl_close($ch);
+
+        if ($body !== false && $status >= 200 && $status < 300) {
+            return;
+        }
     } while ($attempts < $maxAttempts);
 
-    // If the first request succeeded but the response was lost, this can double-charge.
+    // Even with this success check, a lost response can still lead to a retry and double-charge. Use idempotency key
 }
 ```

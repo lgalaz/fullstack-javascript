@@ -40,3 +40,23 @@ Route::resource('posts', PostController::class);
 ```
 
 This creates `index`, `create`, `store`, `show`, `edit`, `update`, `destroy` routes.
+
+Resource controller + API Resource example:
+
+```php
+use App\Http\Resources\PostResource;
+use App\Models\Post;
+
+class PostController extends Controller
+{
+    public function show(Post $post): PostResource
+    {
+        return new PostResource($post);
+    }
+
+    public function index()
+    {
+        return PostResource::collection(Post::latest()->paginate());
+    }
+}
+```

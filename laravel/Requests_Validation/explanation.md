@@ -18,6 +18,9 @@ public function store(Request $request)
 
 Form request classes:
 
+Form request classes are custom request objects that encapsulate validation and authorization logic for a specific endpoint.
+They keep controllers thin and centralize input rules.
+
 ```bash
 php artisan make:request StoreUserRequest
 ```

@@ -8,6 +8,7 @@ PDO stands for PHP Data Objects. It is a consistent API for working with databas
 
 A prepared statement separates SQL from data to prevent SQL injection, which is an attack that injects malicious SQL into a query.
 Note: set `PDO::ATTR_EMULATE_PREPARES` to `false` when possible to use real prepared statements for better type handling and security.
+With emulation off, PDO sends the SQL with placeholders to the database, and then sends the bound values separately; the database prepares and executes the statement. With emulation on, PDO interpolates the values into the SQL string itself and sends a single full query.
 
 DSN means Data Source Name, a connection string that tells PDO how to connect.
 

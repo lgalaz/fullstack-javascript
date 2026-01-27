@@ -34,11 +34,11 @@ Request lifecycle starts at `public/index.php`, which boots the framework and di
 Typically it looks like:
 
 1) `public/index.php`
-2) `bootstrap/app.php` (creates the application container and registers core service providers)
-3) index resolves `App\Http\Kernel` from the app container: `$kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);`
+2) index calls `bootstrap/app.php` (creates the application container and registers core service providers)
+3) app resolves `App\Http\Kernel` from the app container: `$kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);`
    - kernel runs `$bootstrappers`
    - kernel builds the middleware pipeline: runs global + route middleware
    - kernel resolves the router from the container
-4) controller
-5) response
-6) The middleware stack unwinds, so response middleware runs on the way back out (bottom‑to‑top).
+   - controller
+   - response
+   - The middleware stack unwinds, so response middleware runs on the way back out (bottom‑to‑top).

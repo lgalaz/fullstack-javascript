@@ -16,6 +16,30 @@ function add(int $a, int $b): int {
 echo add(2, 3);
 ```
 
+## Scope
+
+Scope is the region where a variable or name is visible and can be accessed. In PHP, globals live at top level, function locals are isolated, methods have access to `$this`/class members, and closures can capture variables from their surrounding scope.
+
+Example (global vs function scope):
+
+```php
+<?php
+
+declare(strict_types=1);
+
+$count = 1;
+
+function bump(): void {
+    $GLOBALS['anothercount'] = 10;
+    global $count;
+    $count++;
+}
+
+bump();
+echo $count + $anothercount; // 12
+echo $count; // 2
+```
+
 ## Closures
 
 A closure is an anonymous function that can capture variables from its surrounding scope.
