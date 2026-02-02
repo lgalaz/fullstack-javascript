@@ -1,16 +1,33 @@
 {
   "name": "next-crud-sample",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "npm run test:unit && npm run test:integration && npm run test:rtl",
+    "test:coverage": "vitest run -c vitest.coverage.config.mjs --coverage",
+    "test:unit": "vitest run -c vitest.unit.config.mjs",
+    "test:integration": "vitest run -c vitest.integration.config.mjs",
+    "test:rtl": "vitest run -c vitest.rtl.config.mjs",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "next": "14.2.5",
     "react": "18.3.1",
-    "react-dom": "18.3.1"
+    "react-dom": "18.3.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.53.2",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.0.1",
+    "@testing-library/user-event": "^14.5.2",
+    "@vitest/coverage-v8": "^2.1.8",
+    "jsdom": "^24.1.1",
+    "vitest": "^2.1.8"
   }
 }

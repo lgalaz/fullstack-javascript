@@ -1,0 +1,16 @@
+services:
+  web:
+    build: .
+    container_name: docker-tutorial-web
+    environment:
+      PORT: "3000"
+      DATA_DIR: /data
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./src:/app/src:ro
+      - app-data:/data
+    command: node --watch /app/src/server.js
+
+volumes:
+  app-data:

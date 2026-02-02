@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Production Node.js apps need predictable builds (reproducible outputs from the same source and lockfile), health checks (simple endpoints or probes that report if the app is alive/ready), and process supervision (tools that restart crashed processes and manage logs). Operational maturity is a key senior-level responsibility.
+Production Node.js apps need predictable builds (reproducible outputs from the same source and lockfile), health checks (simple endpoints or probes that report if the app is alive/ready), and process supervision (tools that restart crashed processes and manage logs). 
 
 ## Example: Minimal Dockerfile
 

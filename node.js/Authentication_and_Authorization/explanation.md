@@ -10,9 +10,9 @@ Authentication answers "who are you?" Authorization answers "what can you do?" N
 - Token-based auth (JWT) for APIs and mobile clients.
 - Role-based or scope-based authorization.
 
-## Example: JWT Authentication
+## Example: Short-Lived Access Token + Refresh Token
 
-This example issues a JWT on `/login` and protects `/admin` with a middleware that validates the token and checks the user's role.
+This example issues a short‑lived access token and a longer‑lived refresh token on `/login`, refreshes access tokens on `/refresh` (rotating the refresh token), and protects `/admin` with middleware that validates the access token and checks the user's role.
 
 Install dependency:
 
@@ -24,11 +24,29 @@ npm install jsonwebtoken
 // auth.js
 const jwt = require('jsonwebtoken');
 
-const SECRET = process.env.JWT_SECRET || 'dev-secret';
+const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET || 'dev-access-secret';
+const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'dev-refresh-secret';
+const refreshStore = new Map(); // refresh token -> { userId, revoked }
 
-function signToken(user) {
+function signAccessToken(user) {
+  return jwt.sign(
+    { sub: user.id, role: user.role },
+    ACCESS_SECRET,
+    { expiresIn: '15m' }
+  );
+}
 
-  return jwt.sign({ sub: user.id, role: user.role }, SECRET, { expiresIn: '1h' });
+function signRefreshToken(user) {
+  const token = jwt.sign({ sub: user.id }, REFRESH_SECRET, { expiresIn: '7d' });
+  refreshStore.set(token, { userId: user.id, revoked: false });
+  return token;
+}
+
+function rotateRefreshToken(oldToken, userId) {
+  const record = refreshStore.get(oldToken);
+  if (!record || record.revoked || record.userId !== userId) return null;
+  refreshStore.set(oldToken, { ...record, revoked: true });
+  return signRefreshToken({ id: userId });
 }
 
 function authMiddleware(req, res, next) {
@@ -41,7 +59,7 @@ function authMiddleware(req, res, next) {
   }
 
   try {
-    const payload = jwt.verify(token, SECRET);
+    const payload = jwt.verify(token, ACCESS_SECRET);
     req.user = payload;
     next();
   } catch (error) {
@@ -50,19 +68,66 @@ function authMiddleware(req, res, next) {
   }
 }
 
-module.exports = { signToken, authMiddleware };
+module.exports = {
+  signAccessToken,
+  signRefreshToken,
+  rotateRefreshToken,
+  authMiddleware,
+  refreshStore,
+  REFRESH_SECRET
+};
 ```
 
 ```javascript
 // server.js
 const http = require('http');
-const { signToken, authMiddleware } = require('./auth');
+const {
+  signAccessToken,
+  signRefreshToken,
+  rotateRefreshToken,
+  authMiddleware,
+  refreshStore,
+  REFRESH_SECRET
+} = require('./auth');
 
 const server = http.createServer((req, res) => {
   if (req.url === '/login') {
-    const token = signToken({ id: 'user-123', role: 'admin' });
+    const user = { id: 'user-123', role: 'admin' };
+    const accessToken = signAccessToken(user);
+    const refreshToken = signRefreshToken(user);
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ token }));
+    res.end(JSON.stringify({ accessToken, refreshToken }));
+    return;
+  }
+
+  if (req.url === '/refresh' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => { body += chunk; });
+    req.on('end', () => {
+      try {
+        const { refreshToken } = JSON.parse(body || '{}');
+        if (!refreshToken) {
+          res.writeHead(401);
+          res.end('Missing refresh token');
+          return;
+        }
+
+        const payload = jwt.verify(refreshToken, REFRESH_SECRET);
+        const nextRefresh = rotateRefreshToken(refreshToken, payload.sub);
+        if (!nextRefresh) {
+          res.writeHead(401);
+          res.end('Invalid refresh token');
+          return;
+        }
+
+        const accessToken = signAccessToken({ id: payload.sub, role: 'admin' });
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ accessToken, refreshToken: nextRefresh }));
+      } catch (error) {
+        res.writeHead(401);
+        res.end('Invalid refresh token');
+      }
+    });
     return;
   }
 
@@ -75,6 +140,22 @@ const server = http.createServer((req, res) => {
       }
       res.writeHead(200);
       res.end('Welcome admin');
+    });
+    return;
+  }
+
+  if (req.url === '/logout' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => { body += chunk; });
+    req.on('end', () => {
+      try {
+        const { refreshToken } = JSON.parse(body || '{}');
+        if (refreshToken && refreshStore.has(refreshToken)) {
+          refreshStore.set(refreshToken, { ...refreshStore.get(refreshToken), revoked: true });
+        }
+      } catch {}
+      res.writeHead(204);
+      res.end();
     });
     return;
   }

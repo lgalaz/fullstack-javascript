@@ -1,0 +1,7 @@
+[
+  { "name": "Avery Patel", "role": "Admin", "status": "Active", "lastSeen": "2 hours ago" },
+  { "name": "Noah Kim", "role": "Analyst", "status": "Active", "lastSeen": "30 min ago" },
+  { "name": "Maya Rivera", "role": "Support", "status": "Invited", "lastSeen": "Invite sent" },
+  { "name": "Zara Okafor", "role": "Manager", "status": "Active", "lastSeen": "Yesterday" },
+  { "name": "Leo Zhang", "role": "Viewer", "status": "Suspended", "lastSeen": "12 days ago" }
+]

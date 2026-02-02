@@ -1,4 +1,26 @@
 [
-  { "name": "Luis" },
-  { "name": "Fernando" }
+  {
+    "id": "usr_1",
+    "name": "Luis Vega",
+    "email": "luis@northwind.example",
+    "role": "manager",
+    "age": 32,
+    "companyId": "comp_1"
+  },
+  {
+    "id": "usr_2",
+    "name": "Mina Park",
+    "email": "mina@northwind.example",
+    "role": "contributor",
+    "age": 29,
+    "companyId": "comp_1"
+  },
+  {
+    "id": "usr_3",
+    "name": "Alex Chen",
+    "email": "alex@blueharbor.example",
+    "role": "admin",
+    "age": 41,
+    "companyId": "comp_2"
+  }
 ]

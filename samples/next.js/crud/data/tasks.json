@@ -1,0 +1,22 @@
+[
+  {
+    "id": "tsk_1",
+    "title": "Build dashboard shell",
+    "projectId": "prj_1",
+    "assigneeUserId": "usr_2",
+    "priority": "high",
+    "status": "in_progress",
+    "estimateHours": 20,
+    "dueDate": "2026-03-01"
+  },
+  {
+    "id": "tsk_2",
+    "title": "Define API contracts",
+    "projectId": "prj_2",
+    "assigneeUserId": "usr_3",
+    "priority": "medium",
+    "status": "todo",
+    "estimateHours": 14,
+    "dueDate": "2026-03-20"
+  }
+]

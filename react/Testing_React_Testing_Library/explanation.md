@@ -73,9 +73,20 @@ test('shows success after loading', async () => {
   expect(screen.getByText('Loading')).toBeInTheDocument();
   const alert = await screen.findByRole('alert');
   expect(alert).toHaveTextContent('Saved');
-  expect(screen.queryByText('Loading')).toBeNull();
+expect(screen.queryByText('Loading')).toBeNull();
 });
 ```
+
+### getBy vs queryBy vs findBy
+
+- `getBy*`: Synchronous. Throws if nothing matches. Use when the element must be there now.
+- `queryBy*`: Synchronous. Returns `null` if nothing matches. Use for “should not exist”.
+- `findBy*`: Async. Returns a promise and waits (with timeout) for the element to appear. Use when UI updates after async work.
+
+Rule of thumb:
+- Initial render → `getBy*`
+- After async state change → `findBy*`
+- Asserting absence → `queryBy*`
 
 ## Async behavior
 
@@ -98,6 +109,37 @@ test('type and submit', async () => {
 Common unit/integration test runners in React projects include Jest, Vitest, Mocha, and Jasmine. React Testing Library is often used alongside them for component testing.
 
 Common end-to-end testing tools include Cypress, Playwright, WebdriverIO, and Selenium.
+
+## Jest basics: spies, mocks, and utilities
+
+Spies observe existing functions, mocks replace them. Both let you assert how code was called without testing internal implementation details.
+
+- `jest.fn()`: create a mock function you control.
+- `jest.spyOn(obj, "method")`: wrap an existing method so you can observe calls.
+- `jest.mock("module")`: replace a module with a mock (manual or auto).
+
+Examples:
+
+```javascript
+const save = jest.fn();
+save("doc");
+expect(save).toHaveBeenCalledWith("doc");
+
+const api = { fetchUser: () => Promise.resolve({ id: 1 }) };
+jest.spyOn(api, "fetchUser").mockResolvedValue({ id: 2 });
+await api.fetchUser();
+expect(api.fetchUser).toHaveBeenCalledTimes(1);
+
+jest.mock("../logger", () => ({ log: jest.fn() }));
+```
+
+Common utilities:
+
+- `mockImplementation`, `mockReturnValue`, `mockResolvedValue`, `mockRejectedValue`
+- `jest.clearAllMocks()`: clear call history (keeps implementations)
+- `jest.resetAllMocks()`: reset mocks to initial state
+- `jest.restoreAllMocks()`: restore original implementations for spies
+- `jest.useFakeTimers()` + `jest.advanceTimersByTime()` for timer-based code
 
 ## Interview Questions and Answers
 

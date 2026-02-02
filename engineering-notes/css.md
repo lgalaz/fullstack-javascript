@@ -28,6 +28,18 @@ Note: How do you make layouts responsive?
 
 Use fluid units (%, vw, vh, rem), modern constraints (clamp), and container queries when appropriate. Media queries are still useful, but container queries reduce coupling to viewport size.
 
+Proportional (relative) vs non‑proportional (absolute) units:
+- **Proportional** units scale with a reference: `em` (current element font size), `rem` (root font size), `%` (relative to parent or to the specific property’s reference), `vw`/`vh` (viewport size).
+- **Non‑proportional** units are fixed: `px`, `cm`, `in`, etc. They don’t scale with user settings or container size.
+
+Common differences:
+- `em`: relative to the **element’s** computed font size → can compound through nesting.
+- `rem`: relative to the **root** (`html`) font size → stable across nesting.
+- `%`: relative to the **property’s reference** (e.g., width vs height vs font-size differ).
+- `vh`/`vw`: relative to viewport height/width → good for full‑screen sections, risky for mobile browser UI changes.
+
+Rule of thumb: use proportional units for layout and type scale, use fixed units only when you need precise, non-scaling values.
+
 6) CSS variables and theming
 
 Note: Why are CSS variables important?
@@ -169,3 +181,13 @@ Note: Which CSS features changed how you build UIs?
 - Core layout primitives like Flexbox, Grid, and position: sticky were also major shifts that eliminated large classes of layout JS. 
 
 These features simplify responsive and stateful styling while keeping performance predictable.
+
+12) Sass: @extend vs mixins vs functions
+
+Note: When do you use @extend, mixins, or functions?
+
+- `@extend` merges selectors so they share the same rule set. Best with `%placeholders` to avoid unintended selector bloat.
+- `@mixin` emits blocks of CSS (properties, nested rules, media queries). Use for repeated rule sets.
+- `@function` returns a value (numbers, colors, strings). Use for calculations you reuse in many declarations.
+
+Rule of thumb: extend for shared selectors, mixins for repeated CSS output, functions for computed values.

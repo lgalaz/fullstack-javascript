@@ -81,7 +81,7 @@ Distributed tracing correlates a request across multiple services. In Node.js, y
 
 ## Common Tooling
 
-- Logging: `pino` (fast JSON logs), `winston` (flexible transports), `bunyan` (older JSON logger).
+- Logging: `pino` (fast JSON logs), `winston` (flexible transports)
 - Metrics: `prom-client` for Prometheus-compatible metrics.
 - Tracing: OpenTelemetry (`@opentelemetry/api` plus SDKs/exporters).
 

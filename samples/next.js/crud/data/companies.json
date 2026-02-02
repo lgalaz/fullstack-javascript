@@ -1,0 +1,14 @@
+[
+  {
+    "id": "comp_1",
+    "name": "Northwind Labs",
+    "domain": "northwind.example",
+    "employeeCap": 250
+  },
+  {
+    "id": "comp_2",
+    "name": "Blue Harbor Systems",
+    "domain": "blueharbor.example",
+    "employeeCap": 120
+  }
+]

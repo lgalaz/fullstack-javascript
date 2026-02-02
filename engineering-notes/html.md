@@ -16,6 +16,45 @@ Note: How do you build accessible, reliable forms?
 
 Every input needs a label (explicit or implicit). Explicit label: `<label for="email">` paired with `id="email"`. Implicit label: wrapping the input inside `<label>...</label>`. I use fieldset/legend for grouped options. I leverage native validation (required, type, minlength, pattern) and add accessible error text via aria-describedby. Validation should be predictable, not only after submit.
 
+Native HTML validation (via JavaScript):
+- Browsers run constraint validation on submit and show built‑in UI for invalid fields.
+- Use `input.validity` and `input.validationMessage` to inspect the current state.
+- `reportValidity()` triggers the browser’s native UI; `checkValidity()` just returns true/false.
+
+How to override native validation:
+- `novalidate` on the `<form>` disables built‑in validation for that form.
+- `formnovalidate` on a submit button disables validation for that submission only.
+- `setCustomValidity("message")` sets a custom error; pass `""` to clear it.
+
+Example (custom message + clear when valid):
+
+```html
+<input id="username" required minlength="3" />
+```
+
+```javascript
+const input = document.getElementById('username');
+
+input.addEventListener('input', () => {
+  if (input.value.length > 0 && input.value.length < 3) {
+    input.setCustomValidity('Username must be at least 3 characters.');
+  } else {
+    input.setCustomValidity('');
+  }
+  input.reportValidity();
+});
+```
+
+Example:
+
+```html
+<form id="signup" novalidate>
+  <label>Email <input type="email" required id="email" /></label>
+  <button type="submit">Submit</button>
+  <button type="submit" formnovalidate>Skip validation</button>
+</form>
+```
+
 4) ARIA: when and when not
 
 Note: What’s your ARIA philosophy?

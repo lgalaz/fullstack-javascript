@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Database connections are expensive. In Node.js, you should use connection pools to reuse connections, control concurrency, and avoid exhausting the database.
+Database connections are expensive. In Node.js, you should use connection pools to reuse connections, control concurrency, and avoid exhausting the database. This is the standard approach across languages and ORMs, and most Node drivers expose pooling directly.
 
 ## Why Pooling Matters
 

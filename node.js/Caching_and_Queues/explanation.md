@@ -87,6 +87,6 @@ queue.onIdle().then(() => {
 
 ## Practical Guidance
 
-- Use external caches for shared state across processes (Redis is an in-memory data store with persistence options and rich data types like lists/sets; Memcached is a simple, fast key/value cache without persistence). Common uses: Redis for sessions, rate limiting, and distributed locks; Memcached for read-heavy data like rendered pages or query results.
+- Use external caches for shared state across processes and requests (Redis is an in-memory data store with persistence options and rich data types like lists/sets; Memcached is a simple, fast key/value cache without persistence). Common uses: Redis for sessions, rate limiting, and distributed locks; Memcached for read-heavy data like rendered pages or query results.
 - Use a durable queue for critical workloads (RabbitMQ is a traditional message broker with routing and acknowledgments; SQS is a fully managed queue from AWS; Kafka is a distributed log optimized for high throughput and replay). Common uses: RabbitMQ for task queues and workflows, SQS for background jobs in AWS apps, Kafka for event streaming and analytics pipelines.
 - Implement retries with backoff and dead-letter handling (backoff reduces load spikes when downstream services are failing; dead-letter queues capture poison messages so they do not block the main queue).

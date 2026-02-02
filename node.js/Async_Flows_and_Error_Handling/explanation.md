@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Node.js is asynchronous by default. Senior-level Node work depends on understanding how asynchronous code schedules, how errors propagate, and how to design reliable flow control.
+Node.js is asynchronous by default. 
 
 ## Core Patterns
 
@@ -40,10 +40,75 @@ readConfig()
 ## Error Boundaries in Async Code
 
 - Use `try/catch` inside `async` functions.
-- At the top-level, handle errors and set `process.exitCode` rather than calling `process.exit()` immediately (this keeps the current event loop turn alive so buffered logs flush, in-flight requests can finish, and `finally` blocks or graceful shutdown logic can run; only set it if it is still `0` so later failures do not get overwritten).
-- Avoid throwing inside `setTimeout` without a try/catch around the callback (errors thrown there are not caught by outer try/catch, become uncaught exceptions, and can crash the process; handle the error in the callback or reject a promise instead).
+- At the top-level, handle errors and set `process.exitCode` rather than calling `process.exit()` immediately (this keeps the current event loop turn alive so buffered logs flush, in-flight requests can finish, and `finally` blocks or graceful shutdown logic can run; only set it if it is still `0` so earlier failures do not get overwritten).
+- Also handle `unhandledRejection` so promise rejections do not go unnoticed.
+```javascript
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled rejection:', reason);
+  if (!process.exitCode || process.exitCode === 0) {
+    process.exitCode = 1;
+  }
+});
+```
+- Also handle `uncaughtException` and termination signals (`SIGINT`, `SIGTERM`) so you can log, set `exitCode`, and shut down cleanly.
+```javascript
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught exception:', err);
+  if (!process.exitCode || process.exitCode === 0) {
+    process.exitCode = 1;
+  }
+});
+
+function handleShutdown(signal) {
+  console.error(`Received ${signal}, shutting down...`);
+  if (!process.exitCode || process.exitCode === 0) {
+    process.exitCode = 1;
+  }
+  // Close servers, flush logs, etc.
+}
+
+process.on('SIGINT', () => handleShutdown('SIGINT'));
+process.on('SIGTERM', () => handleShutdown('SIGTERM'));
+```
+- Avoid throwing inside `setTimeout` without a try/catch around the callback (outer `try/catch` only covers the current call stack; timer callbacks run later on a new turn, so errors there become uncaught exceptions unless you handle them inside the callback or reject a promise).
 
 These patterns are called "error boundaries" because they are the places where errors cross async boundaries. If you miss these boundaries, errors can become unhandled rejections or uncaught exceptions that crash the process.
+
+Example: throwing inside a timer vs handling it safely:
+
+```javascript
+// timer-error-boundary.js
+try {
+  setTimeout(() => {
+    throw new Error('boom'); // Not caught by the outer try/catch.
+  }, 10);
+} catch (error) {
+  // This never runs.
+  console.error('Outer catch:', error.message);
+}
+
+// The callback runs on a later event-loop turn, after the outer try/catch scope has finished.
+
+setTimeout(() => {
+  try {
+    throw new Error('boom');
+  } catch (error) {
+    console.error('Handled in callback:', error.message);
+  }
+}, 20);
+
+function rejectFromTimer() {
+  return new Promise((_, reject) => {
+    setTimeout(() => {
+      reject(new Error('boom'));
+    }, 30);
+  });
+}
+
+rejectFromTimer().catch(error => {
+  console.error('Handled via promise:', error.message);
+});
+```
 
 Example: try/catch inside an async function:
 
@@ -56,13 +121,42 @@ async function loadUser(id) {
     const text = await fs.readFile(`./users/${id}.json`, 'utf8');
     return JSON.parse(text);
   } catch (error) {
-    throw new Error(`Failed to load user ${id}: ${error.message}`);
+    // Preserve the original error as the cause for better debugging.
+    throw new Error(`Failed to load user ${id}: ${error.message}`, { cause: error });
   }
 }
 
 loadUser('123')
   .then(user => console.log(user))
   .catch(error => console.error(error.message));
+```
+
+why add cause:
+
+Adding `cause` preserves the original error while still giving your higher-level message. That keeps the stack trace and root failure intact, which makes debugging much faster, and allows logging tools to show both the high‑level context and the underlying error.
+
+```javascript
+// async-try-catch.js
+const fs = require('fs/promises');
+
+async function loadUser(id) {
+  try {
+    const text = await fs.readFile(`./users/${id}.json`, 'utf8');
+    return JSON.parse(text);
+  } catch (error) {
+    // Preserve the original error for better diagnostics.
+    throw new Error(`Failed to load user ${id}`, { cause: error });
+  }
+}
+```
+
+Example of how it shows up:
+
+```javascript
+loadUser('123').catch(err => {
+  console.error(err.message);       // Failed to load user 123
+  console.error(err.cause);         // Original error (e.g., ENOENT)
+});
 ```
 
 Example: top-level error handling with `process.exitCode`:
@@ -94,13 +188,53 @@ setTimeout(() => {
 
 ## Avoiding Unhandled Rejections
 
+It’s when a promise rejects and there’s no rejection handler attached by the time the current turn of the event loop finishes.
+
+Common cases:
+
+- throw inside an async function with no .catch() on the returned promise.
+- Promise.reject(...) without a handler.
+- A promise chain where a .catch() is missing at the end.
+- Fire‑and‑forget async calls you never await or handle.
+- Rejections inside callbacks where the promise is created but nobody consumes it.
+
+If a handler is attached later, Node will emit rejectionHandled, but it’s still a bug: the rejection was unhandled at the time it occurred.
+
 Unhandled rejections can terminate the process (Node has tightened this behavior over time) and are always a sign of a bug.
 
 ```javascript
+async function syncUser() {
+  throw new Error('sync failed');
+}
+
+function handleRequest(req, res) {
+  syncUser(); // fire-and-forget: no await, no .catch()
+  res.end('ok');
+}
+
 process.on('unhandledRejection', reason => {
   console.error('Unhandled rejection:', reason);
   process.exitCode = 1;
 });
+```
+
+Example: rejectionHandled (handler attached after the rejection fires):
+
+```javascript
+// rejection-handled.js
+process.on('unhandledRejection', reason => {
+  console.error('Unhandled rejection:', reason.message);
+});
+
+process.on('rejectionHandled', promise => {
+  console.error('rejectionHandled: handler attached later');
+});
+
+const p = Promise.reject(new Error('late handler'));
+
+setTimeout(() => {
+  p.catch(() => {}); // Handler added on a later turn.
+}, 0);
 ```
 
 ## Cancellation with AbortController
@@ -124,19 +258,24 @@ const { setTimeout: delay } = require('timers/promises');
 
 async function work(signal) {
   await delay(500, null, { signal });
-
   return 'done';
 }
 
-const controller = new AbortController();
+// Done case: no cancellation.
+const doneController = new AbortController();
+work(doneController.signal)
+  .then(result => console.log('Done:', result))
+  .catch(error => console.error('Done error:', error.name));
 
-work(controller.signal)
-  .then(console.log)
-  .catch(error => {
-    console.error('Canceled:', error.name);
-  });
+// Canceled case: abort before the delay completes.
+const canceledController = new AbortController();
+work(canceledController.signal)
+  .then(result => console.log('Canceled result:', result))
+  .catch(error => console.error('Canceled:', error.name));
 
-controller.abort();
+setTimeout(() => {
+  canceledController.abort();
+}, 100);
 ```
 
 ## Practical Guidance

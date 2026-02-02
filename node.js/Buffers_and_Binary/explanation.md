@@ -18,6 +18,7 @@ Example:
 
 ```javascript
 // read-image.js
+// In Node, fs.promises.readFile(...) returns a Buffer by default (unless you pass an encoding)
 const fs = require('fs/promises');
 
 async function readImage() {
@@ -34,6 +35,7 @@ Example:
 
 ```javascript
 // tcp-bytes.js
+// In Node’s net module, the data event gives you a Buffer by default. If you call socket.setEncoding('utf8'), then the chunk becomes a string instead.
 const net = require('net');
 
 const server = net.createServer(socket => {

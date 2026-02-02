@@ -1,0 +1,22 @@
+[
+  {
+    "id": "prj_1",
+    "name": "Customer Portal Revamp",
+    "companyId": "comp_1",
+    "ownerUserId": "usr_1",
+    "status": "active",
+    "budget": 150000,
+    "startDate": "2026-01-10",
+    "endDate": "2026-04-15"
+  },
+  {
+    "id": "prj_2",
+    "name": "Ops Metrics API",
+    "companyId": "comp_2",
+    "ownerUserId": "usr_3",
+    "status": "planned",
+    "budget": 90000,
+    "startDate": "2026-02-01",
+    "endDate": "2026-05-30"
+  }
+]

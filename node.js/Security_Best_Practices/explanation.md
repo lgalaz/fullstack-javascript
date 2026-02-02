@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Node.js security is not just about code; it is about dependencies, input validation, and safe runtime configuration. Senior engineers design systems assuming malicious input and compromised clients.
+Node.js security is not just about code; it is about dependencies, input validation, and safe runtime configuration.
 
 ## Key Areas
 

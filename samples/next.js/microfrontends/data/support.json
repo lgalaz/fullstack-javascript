@@ -1,0 +1,30 @@
+[
+  {
+    "title": "Checkout latency spike",
+    "channel": "Status page",
+    "owner": "SRE",
+    "priority": "High",
+    "time": "Just now"
+  },
+  {
+    "title": "Refund policy question",
+    "channel": "Email",
+    "owner": "Support",
+    "priority": "Medium",
+    "time": "12 min ago"
+  },
+  {
+    "title": "VIP onboarding",
+    "channel": "CRM",
+    "owner": "CS",
+    "priority": "High",
+    "time": "47 min ago"
+  },
+  {
+    "title": "Feature request: bulk import",
+    "channel": "Intercom",
+    "owner": "PM",
+    "priority": "Low",
+    "time": "2 hours ago"
+  }
+]

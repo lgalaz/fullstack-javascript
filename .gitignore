@@ -1,0 +1,11 @@
+# Generated artifacts for sample apps
+samples/**/node_modules/
+samples/**/.next/
+samples/**/out/
+samples/**/coverage/
+samples/**/test-results/
+samples/**/playwright-report/
+samples/**/.nyc_output/
+
+# Common local noise
+.DS_Store

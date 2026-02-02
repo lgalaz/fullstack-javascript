@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Space+Grotesk:wght@400;500;600&display=swap');
+
+:root {
+  --ink: #1f1b16;
+  --muted: #6b655d;
+  --surface: #fff9f0;
+  --panel: #ffffff;
+  --border: #e6d8c4;
+  --accent: #f08b32;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  color: var(--ink);
+  background: linear-gradient(160deg, #fff6e6 0%, #f2e9dd 60%, #efe6db 100%);
+}
+
+.shell {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.shell-header {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 28px;
+}
+
+.shell-header h1 {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(2rem, 2vw + 1.2rem, 3rem);
+  margin: 0 0 12px;
+}
+
+.shell-header p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.7rem;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
+.shell-meta {
+  display: grid;
+  gap: 16px;
+  background: var(--surface);
+  border-radius: 18px;
+  padding: 18px;
+  border: 1px solid var(--border);
+}
+
+.shell-meta h3 {
+  margin: 0 0 8px;
+}
+
+.shell-meta ul {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 24px;
+  min-height: 240px;
+}
+
+@media (max-width: 720px) {
+  .shell-header {
+    padding: 20px;
+  }
+}

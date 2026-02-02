@@ -37,6 +37,27 @@ Basic workflow:
 - Resolvers fetch/compose data (DBs, services) for each field.
 - Server returns a response matching the requested shape.
 
+Fragments:
+- Reusable field selections you can spread into multiple parts of a query.
+- Reduce duplication and keep query shapes consistent across UI components.
+
+Example (fragment reuse):
+
+```graphql
+fragment UserCardFields on User {
+  id
+  name
+  avatarUrl
+}
+
+query GetUserCard($id: ID!) {
+  user(id: $id) {
+    ...UserCardFields
+    posts(limit: 2) { id title }
+  }
+}
+```
+
 Why use it:
 - Avoids many small requests by fetching related data in one call.
 - Client-driven shape reduces over‑fetching and brittle endpoint churn.

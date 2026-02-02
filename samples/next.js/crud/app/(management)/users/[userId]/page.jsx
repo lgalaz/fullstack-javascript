@@ -1,3 +1,5 @@
+import React from 'react';
+
 export default function UserDetailPage({ params }) {
   return (
     <main className="app">

@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Node.js uses npm (or pnpm/yarn) and semantic versioning (SemVer) to manage dependencies. A senior-level understanding prevents production regressions and supply-chain issues.
+Node.js uses npm (or pnpm/yarn) and semantic versioning (SemVer) to manage dependencies.
 
 ## SemVer Basics
 

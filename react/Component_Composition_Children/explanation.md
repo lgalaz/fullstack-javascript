@@ -266,14 +266,3 @@ Example without a matching provider (ctx is `null`, so `Tab` would throw):
 ```javascript
 <Tab index={0}>Overview</Tab>
 ```
-
-
-## Interview Questions and Answers
-
-### 1. Why does React favor composition over inheritance?
-
-Composition keeps components small, reusable, and easier to reason about.
-
-### 2. What is `props.children` used for?
-
-It allows a component to render nested content passed from its parent.

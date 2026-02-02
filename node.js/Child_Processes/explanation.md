@@ -58,7 +58,11 @@ child.send({ task: 'work' });
 
 ## Practical Guidance
 
+- `spawn` vs `exec` vs `fork`:
+  - `spawn`: launches a new process without a shell by default and streams stdout/stderr. Best for long-running commands or large output.
+  - `exec`: runs a command in a shell and buffers stdout/stderr in memory. Best for short commands with small output.
+  - `fork`: starts a new Node.js process with an IPC channel for messaging. Best for running another JS file that needs to talk to the parent.
 - Use `spawn` for streaming output to avoid memory issues.
-- Sanitize any user input before passing it to a child process.
+- Sanitize any user input before passing it to a child process (especially with `exec`, which uses a shell).
 - Prefer Worker Threads for CPU-bound JS work within the same process.
-- Common use case: calling system tools (image/video processing, PDF generation, git commands) where the heavy work is done by an external binary.
+  - Common use case: calling system tools (image/video processing, PDF generation, git commands) where the heavy work is done by an external binary.
