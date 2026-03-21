@@ -1,25 +1,13 @@
 # Why Node.js
 
-## Summary
+## What matters
 
-Node.js is a JavaScript runtime built for I/O-heavy work. It shines when you need to handle many concurrent connections efficiently and want a single language across the stack.
+- Node.js is strongest for I/O-heavy systems: APIs, BFFs, real-time services, automation, and CLIs.
+- Its advantage is concurrency through non-blocking I/O, not raw CPU throughput. Non-blocking I/O means the process can keep serving other work while waiting on network or disk operations.
+- The big practical benefit is one language across frontend, backend, and tooling.
 
-## Why It’s Popular
+## Senior interview points
 
-- Non-blocking I/O handles lots of network requests with low overhead.
-- Large ecosystem (npm) for web, CLI, tooling, and infrastructure.
-- One language across frontend and backend simplifies teams and code sharing.
-- Good fit for real-time apps (chat, dashboards, streaming).
-- Strong tooling for debugging and profiling.
-
-## When It’s Not Ideal
-
-- CPU-bound workloads can block the event loop (use Worker Threads or another runtime).
-- Ultra-low-latency or hard real-time systems may prefer other platforms.
-
-## Typical Use Cases
-
-- APIs and microservices
-- Real-time systems (WebSockets, notifications)
-- CLIs and automation tools
-- BFF (backend-for-frontend) layers
+- Know the tradeoff: great for network-bound work, weaker for CPU-heavy work unless you offload to Worker Threads or another service.
+- Know why teams choose it: fast iteration, huge ecosystem, operational maturity, and strong observability/debugging support.
+- Know when not to use it: hard real-time systems, heavy compute pipelines, or workloads where the event loop would be a bottleneck.

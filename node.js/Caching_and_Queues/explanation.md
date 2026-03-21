@@ -1,92 +1,30 @@
 # Caching and Queues
 
-## Introduction
+## What matters
 
-Caching improves performance by avoiding repeated work. Queues decouple work from request/response paths, improving reliability and throughput.
+- Caches reduce repeated work.
+- Queues move slow or retryable work out of the request path.
 
-## Example: Simple In-Memory TTL Cache
+## Interview points
 
-This cache stores values with an expiration timestamp. It is per-process and will reset on restart, which is why production apps often use Redis instead.
+- In-memory cache is process-local; Redis or similar is needed for shared state. A queue is a system that stores work so it can be processed later or by another worker.
+- Cache invalidation, TTL choice, and stale data tradeoffs matter more than the basic `Map` implementation.
+- Queues need retries, backoff, idempotency, and dead-letter handling.
 
-```javascript
-// cache.js
-class Cache {
-  constructor() {
-    this.store = new Map();
-  }
+## Senior notes
 
-  set(key, value, ttlMs) {
-    const expiresAt = Date.now() + ttlMs;
-    this.store.set(key, { value, expiresAt });
-  }
+- Use caches to speed up correct systems, not to mask stale data, race conditions, or broken business logic.
+- For critical jobs, reliable persistence and safe replay after failures matter more than maximum messages-per-second throughput.
 
-  get(key) {
-    const entry = this.store.get(key);
-    if (!entry) return null;
-    if (Date.now() > entry.expiresAt) {
-      this.store.delete(key);
-      return null;
-    }
-    return entry.value;
-  }
-}
-
-const cache = new Cache();
-cache.set('user:1', { id: 1, name: 'Ada' }, 5000);
-console.log(cache.get('user:1'));
-```
-
-## Example: In-Process Queue
-
-This queue runs tasks sequentially so you can control concurrency and avoid overloading downstream systems.
+## Example
 
 ```javascript
-// queue.js
-class Queue {
-  constructor() {
-    this.items = [];
-    this.running = false;
-    this.idleResolvers = [];
-  }
+const cache = new Map();
 
-  push(task) {
-    this.items.push(task);
-    if (!this.running) this.run();
-  }
-
-  onIdle() {
-    if (!this.running && this.items.length === 0) {
-      return Promise.resolve();
-    }
-    return new Promise(resolve => this.idleResolvers.push(resolve));
-  }
-
-  async run() {
-    this.running = true;
-    while (this.items.length > 0) {
-      const task = this.items.shift();
-      await task();
-    }
-    this.running = false;
-    this.idleResolvers.splice(0).forEach(resolve => resolve());
-  }
+function getUser(id) {
+  if (cache.has(id)) return cache.get(id);
+  const user = { id, name: 'Ada' };
+  cache.set(id, user);
+  return user;
 }
-
-const queue = new Queue();
-queue.push(async () => {
-  console.log('task 1');
-});
-queue.push(async () => {
-  console.log('task 2');
-});
-
-queue.onIdle().then(() => {
-  console.log('queue drained');
-});
 ```
-
-## Practical Guidance
-
-- Use external caches for shared state across processes and requests (Redis is an in-memory data store with persistence options and rich data types like lists/sets; Memcached is a simple, fast key/value cache without persistence). Common uses: Redis for sessions, rate limiting, and distributed locks; Memcached for read-heavy data like rendered pages or query results.
-- Use a durable queue for critical workloads (RabbitMQ is a traditional message broker with routing and acknowledgments; SQS is a fully managed queue from AWS; Kafka is a distributed log optimized for high throughput and replay). Common uses: RabbitMQ for task queues and workflows, SQS for background jobs in AWS apps, Kafka for event streaming and analytics pipelines.
-- Implement retries with backoff and dead-letter handling (backoff reduces load spikes when downstream services are failing; dead-letter queues capture poison messages so they do not block the main queue).

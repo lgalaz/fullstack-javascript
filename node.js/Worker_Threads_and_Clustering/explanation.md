@@ -1,77 +1,26 @@
 # Worker Threads and Clustering
 
-## Introduction
+## What matters
 
-Node.js runs JavaScript on a single thread. For CPU-bound workloads, you need parallelism. Two common approaches:
+- Worker Threads solve CPU-bound JavaScript work.
+- Clustering runs multiple Node processes on one host. A worker thread is another JS thread inside the same process; a cluster worker is a separate OS process.
 
-- Worker Threads: multiple threads inside one process.
-- Clustering: multiple Node processes that share the same server port.
+## Interview points
 
-## Worker Threads Example
+- Workers are for parallel compute, not for general I/O scaling.
+- Reuse workers via a pool for repeated jobs.
+- In many modern deployments, multiple containers/processes behind a load balancer are simpler than `cluster`.
 
-Worker threads run JavaScript in parallel. This example computes a slow Fibonacci value in a worker so the main thread stays responsive.
+## Senior notes
 
-```javascript
-// worker.js
-const { parentPort } = require('worker_threads');
+- Use workers when CPU work would otherwise block the event loop.
+- Choose separate processes when you want stronger memory isolation or independent failure domains.
 
-function fib(n) {
-
-  return n <= 1 ? n : fib(n - 1) + fib(n - 2);
-}
-
-parentPort.on('message', n => {
-  const result = fib(n);
-  parentPort.postMessage(result);
-});
-```
+## Example
 
 ```javascript
-// main.js
 const { Worker } = require('worker_threads');
 
-function runFib(n) {
-
-  return new Promise((resolve, reject) => {
-    const worker = new Worker('./worker.js');
-    worker.on('message', resolve);
-    worker.on('error', reject);
-    worker.postMessage(n);
-  });
-}
-
-runFib(40).then(result => {
-  console.log('fib(40) =', result);
-});
+const worker = new Worker('./worker.js');
+worker.postMessage(42);
 ```
-
-## Clustering Example
-
-Clustering starts multiple Node processes that share the same server port. The OS load balancer distributes incoming connections across workers.
-
-```javascript
-// cluster.js
-const cluster = require('cluster');
-const http = require('http');
-const os = require('os');
-
-if (cluster.isPrimary) {
-  const cpuCount = os.cpus().length;
-  for (let i = 0; i < cpuCount; i += 1) {
-    cluster.fork();
-  }
-  cluster.on('exit', worker => {
-    console.log(`Worker ${worker.process.pid} died`);
-  });
-} else {
-  http.createServer((_req, res) => {
-    res.end(`Handled by ${process.pid}`);
-  }).listen(3000);
-}
-```
-
-## Practical Guidance
-
-- Use Worker Threads for CPU-heavy JS inside a service.
-- Use clustering when you need multiple processes (e.g., better memory isolation).
-- Prefer an external process manager (systemd, PM2) to supervise workers.

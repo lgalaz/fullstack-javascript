@@ -1,89 +1,48 @@
 # Node.js Runtime Architecture and Event Loop
 
-## Introduction
+## What matters
 
-Node.js runs JavaScript on V8 and uses libuv to provide an event-driven, non-blocking I/O model. Understanding the event loop, task queues, and how native I/O is delegated is essential for performance and correctness.
+- JavaScript runs on one main thread.
+- V8 is the JavaScript engine embedded inside Node.js. It parses, compiles, and executes JavaScript.
+- `libuv` is the C library that gives Node.js its event loop and async I/O plumbing. It handles timers, sockets, some filesystem work, and the thread pool.
+- Node.js is the runtime that combines V8, `libuv`, and Node's built-in APIs like `fs`, `http`, `stream`, `Buffer`, and `process`.
+- The thread pool is a small set of worker threads used for operations that cannot stay entirely on the main thread.
+- Blocking the main thread blocks all requests in that process.
 
-## Libuv in a Nutshell
+## Interview points
 
-libuv is the C library that powers Node's event loop and async I/O. It abstracts OS-specific APIs for networking, files, timers, and DNS, and it provides a thread pool for work that cannot be done asynchronously by the OS (like some filesystem operations). It is the reason Node can handle many concurrent I/O operations without blocking the JavaScript thread.
+- Be able to separate responsibilities clearly:
+- V8 runs JavaScript.
+- `libuv` coordinates the event loop and async I/O work.
+- Node.js exposes the runtime APIs and integrates those lower-level pieces into one server-side platform
 
-## What the Event Loop Does
+- Know the queues: `process.nextTick` runs before promise microtasks; microtasks run before the next event-loop phase.
+- Know why this matters: long microtask chains can starve I/O just like CPU-heavy loops can.
+- Know what uses the thread pool: some filesystem work, DNS, compression, crypto.
+- Know what does not become faster just because you used async syntax: CPU-heavy JavaScript still runs on the main thread unless you move it to Worker Threads.
+- Know the fix for CPU-heavy work: Worker Threads, not “more async/await”.
 
-- JavaScript runs on a single main thread.
-- I/O (network, file system, DNS, timers) is handled by libuv and the OS, then callbacks are scheduled back onto the event loop.
-- The event loop runs in phases (timers, pending callbacks, idle/prepare, poll, check, close callbacks).
-- Microtasks (Promise callbacks) and `process.nextTick` run between phases and can starve the loop if abused.
+## Minimal mental model
 
-## Why It Matters
+- Timers: `setTimeout`, `setInterval`
+- Poll: I/O callbacks
+- Check: `setImmediate`
+- Microtasks: promises, `queueMicrotask`
 
-- Blocking the main thread blocks all requests.
-- Understanding queue order helps prevent race conditions and unexpected timing bugs.
-- Correct use of microtasks vs. macrotasks avoids subtle performance issues (microtasks run immediately after the current call stack, before the next event loop phase; macrotasks are scheduled into event loop phases like timers or I/O).
-
-Microtask examples:
-- `Promise.resolve().then(...)`
-- `queueMicrotask(() => ...)`
-
-Macrotask examples (event loop phases):
-- Timers phase: `setTimeout`, `setInterval`
-- Poll phase (I/O): `fs.readFile`, socket data events
-- Check phase: `setImmediate`
-
-## Example: Event Loop Order
-
-This example schedules work in multiple queues (timers, microtasks, immediates, and I/O). It shows how Node orders those queues so you can reason about timing bugs and "why did this run first?" surprises.
+## Example
 
 ```javascript
-// event-loop.js
 console.log('start');
 
-setTimeout(() => {
-  console.log('setTimeout 0'); // timers phase
-}, 0);
-
-setImmediate(() => {
-  console.log('setImmediate'); // check phase
-});
-
-process.nextTick(() => {
-  console.log('nextTick'); // nextTick queue (runs before microtasks)
-});
-
-Promise.resolve().then(() => {
-  console.log('promise'); // microtask queue
-});
-
-const fs = require('fs');
-fs.readFile(__filename, () => {
-  console.log('readFile'); // poll phase (I/O callbacks)
-});
+setTimeout(() => console.log('timeout'), 0);
+Promise.resolve().then(() => console.log('promise'));
 
 console.log('end');
 ```
 
-Typical output (order can vary slightly by platform):
+Expected output:
 
-```
-start
-end
-nextTick
-promise
-setTimeout 0
-setImmediate
-readFile
-```
-
-### How to Reason About This
-
-- `process.nextTick` runs before Promise microtasks.
-- Promise microtasks run before timers and I/O callbacks.
-- `setImmediate` runs in the check phase, often after I/O callbacks.
-- `fs.readFile` callback runs when the I/O completes and is polled.
-
-## Practical Guidance
-
-- Use async I/O instead of CPU-heavy loops.
-- Offload CPU work to Worker Threads for real parallelism (if the machine has only one CPU core, you will not get true speedup, though it can still keep the main thread responsive).
-- Keep microtask chains short to avoid starving I/O.
-- Measure with `perf_hooks` and profiling tools when performance matters.
+- `start`
+- `end`
+- `promise`
+- `timeout`

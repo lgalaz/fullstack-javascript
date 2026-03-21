@@ -1,72 +1,54 @@
 # Security Best Practices in Node.js
 
-## Introduction
+## What matters
 
-Node.js security is not just about code; it is about dependencies, input validation, and safe runtime configuration.
+- Validate input at the boundary.
+- Protect secrets and dependencies.
+- Put limits on what one request can consume: body size, execution time, upload size, query size, and downstream resource usage should all be bounded so one client cannot monopolize the service.
 
-## Key Areas
+## Interview points
 
-- Input validation and output encoding
-- Dependency auditing
-- Secrets management
-- TLS and secure headers
-- Avoiding prototype pollution and deserialization attacks (prototype pollution happens when untrusted input modifies object prototypes like `__proto__`, leading to unexpected behavior; deserialization attacks occur when you parse untrusted data into objects/classes that can execute code or trigger unintended logic).
+- Know common Node risks: injection, SSRF, path traversal, prototype pollution, unsafe deserialization, and DoS through large bodies or slow requests. SSRF means tricking your server into making attacker-chosen outbound requests.
+- Use secure headers, TLS, rate limiting, body limits, and timeouts.
+- Treat outbound requests as an attack surface too.
 
-## Example: Validate Input and Escape Output
-
-Validation happens at the boundary of your system. This example shows a simple whitelist for usernames to block unexpected input early.
-
-```javascript
-// validate.js
-function isValidUsername(value) {
-
-  return typeof value === 'string' && /^[a-z0-9_]{3,20}$/i.test(value);
-}
-
-function renderUser(username) {
-  if (!isValidUsername(username)) {
-    throw new Error('Invalid username');
-  }
-
-  return `Hello, ${username}`;
-}
-
-console.log(renderUser('alice_01'));
-```
-
-## Example: Using Helmet (HTTP Security Headers)
-
-Helmet is middleware that sets security-related HTTP headers. This example applies it manually in a low-level HTTP server.
-
-Install dependency:
-
-```
-npm install helmet
-```
-
-```javascript
+```js
+const express = require('express');
 const http = require('http');
-const helmet = require('helmet');
 
-const server = http.createServer((req, res) => {
-  const apply = helmet();
-  apply(req, res, () => {
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('secure headers set');
-  });
+const app = express();
+
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '100kb' }));
+
+app.use((req, res, next) => {
+  req.setTimeout(5_000);
+  next();
 });
+
+app.get('/search', (req, res) => {
+  const requestedLimit = Number(req.query.limit) || 20;
+  const limit = Math.min(requestedLimit, 100);
+  res.json({ limit });
+});
+
+const server = http.createServer(app);
+server.headersTimeout = 10_000;
+server.requestTimeout = 15_000;
 
 server.listen(3000);
 ```
 
-## Dependency Hygiene
+- This config limits JSON and form body size, caps request duration, bounds a query parameter, and prevents headers or full requests from hanging forever.
 
-- Run `npm audit` and keep dependencies updated.
-- Pin versions with lockfiles and review transitive updates.
-- Prefer minimal dependencies and audited libraries.
+## Senior notes
 
-## Practical Guidance
-
-- Validate all user input at the boundary.
-- Never store secrets in code; use env or a secrets manager.
-- Terminate TLS at the edge and use HTTPS everywhere.
+- Most security failures are design or operational failures, not just missing regexes.
+- Examples:
+- Design failure: the API checks whether a user is logged in, but does not verify whether that user is allowed to access a specific account or record.
+- Design failure: the server accepts arbitrary URLs for “fetch this image” functionality, which turns into SSRF because internal network targets were never restricted.
+- Operational failure: secrets are stored in `.env` files committed to the repo or exposed in logs, CI output, or crash reports.
+- Operational failure: dependencies are outdated or compromised, and lockfile changes are merged without review.
+- Operational failure: production runs without rate limiting, request size limits, or timeouts, so one client can degrade availability for everyone else.
+- Minimize dependencies and review lockfile changes.
+- Never trust auth alone; enforce authorization and input validation separately.

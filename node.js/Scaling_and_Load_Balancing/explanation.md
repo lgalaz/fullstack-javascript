@@ -1,34 +1,35 @@
 # Scaling and Load Balancing
 
-## Introduction
+## What matters
 
-Node.js scales well with I/O, but real systems need horizontal scaling, stateless services, and externalized state. Scaling is as much architecture as it is code.
+- Node scales best with stateless services and externalized state.
+- `stateless services`: any instance can handle any request because correctness does not depend on per-process memory.
+- `externalized state`: shared state such as sessions, cache, queues, and persistent data lives outside the Node process in systems like Redis, databases, or object storage.
+- This makes load balancing, restarts, autoscaling, and deployments much simpler because requests are not tied to one specific instance.
 
-## Key Concepts
+## Interview points
 
-- Stateless services allow easy horizontal scaling.
-- Load balancers distribute traffic across instances.
-- Sticky sessions should be avoided unless required (sticky sessions mean a user is always routed to the same server instance, which hurts load balancing and can hide stateful bugs).
+- Keep instances replaceable; store sessions and shared state outside the process.
+- Avoid sticky sessions unless there is a hard requirement. A sticky session means the load balancer keeps sending the same client to the same backend instance, usually because session state lives only in that instance's memory.
+- Horizontal scaling is often simpler than trying to make one process do everything. Add more service instances for throughput; use Worker Threads only when one process has CPU-heavy work that should not block the main thread.
 
-## Example: Stateless Service
+## Senior notes
 
-This server returns its process ID so you can see traffic spreading across instances when used behind a load balancer or cluster.
+- Per-instance caches are optional optimizations, not correctness dependencies.
 
-```javascript
-// stateless.js
-const http = require('http');
+```js
+const productCache = new Map();
 
-const server = http.createServer((_req, res) => {
-  res.writeHead(200, { 'Content-Type': 'application/json' });
-  res.end(JSON.stringify({ pid: process.pid }));
-});
+async function getProduct(id) {
+  if (productCache.has(id)) {
+    return productCache.get(id);
+  }
 
-server.listen(3000);
+  const product = await db.products.findById(id);
+  productCache.set(id, product);
+  return product;
+}
 ```
 
-## Practical Guidance
-
-- Store sessions in a shared store (Redis) if you need session state.
-- Use a reverse proxy (NGINX, ELB) for load balancing (ELB is AWS Elastic Load Balancing).
-- Implement health checks and auto-scaling rules.
-- Avoid per-instance caches unless they are strictly optional.
+- Here the database is still the source of truth. If the cache is empty, stale, or lost on restart, the request can still succeed by reading from the database.
+- Health checks and autoscaling only work well when the service is stateless and shutdown is clean.

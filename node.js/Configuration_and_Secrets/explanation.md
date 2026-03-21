@@ -1,51 +1,27 @@
 # Configuration and Secrets
 
-## Introduction
+## What matters
 
-Configuration separates code from environment-specific values (ports, URLs, credentials). Secrets must be handled with care and never committed to source control.
+- Config is environment-specific input such as ports, URLs, feature flags, or credentials.
+- Secrets are sensitive config with stricter handling requirements.
 
-## Example: Loading Environment Variables
+## Interview points
 
-This example validates required environment variables at startup and exposes a typed config object to the rest of the app.
+- Validate config at startup and fail fast.
+- Keep secrets out of source control and logs.
+- Use environment variables or a secrets manager, not hardcoded values.
+
+## Senior notes
+
+- Treat config shape as part of the app contract.
+- Rotating secrets and changing config safely is an operational concern, not just a coding concern.
+
+## Example
 
 ```javascript
-// config.js
-const required = ['PORT', 'DATABASE_URL'];
+const port = Number(process.env.PORT || 3000);
 
-for (const key of required) {
-  if (!process.env[key]) {
-    throw new Error(`Missing env var: ${key}`);
-  }
+if (!process.env.DATABASE_URL) {
+  throw new Error('Missing DATABASE_URL');
 }
-
-const config = {
-  port: Number(process.env.PORT),
-  databaseUrl: process.env.DATABASE_URL,
-};
-
-module.exports = { config };
 ```
-
-## Example: Using dotenv for Local Dev
-
-`dotenv` loads variables from a `.env` file into `process.env`, which is useful for local development. Do not use it to ship secrets in production.
-
-Install dependency:
-
-```
-npm install dotenv
-```
-
-```javascript
-// index.js
-require('dotenv').config();
-const { config } = require('./config');
-
-console.log('Config:', config);
-```
-
-## Practical Guidance
-
-- Validate config at startup and fail fast on missing values.
-- Use a secrets manager in production (a managed system that stores and rotates secrets securely, controls access, and provides audit logs; examples include AWS Secrets Manager, GCP Secret Manager, and HashiCorp Vault).
-- Avoid printing secrets in logs or error messages.

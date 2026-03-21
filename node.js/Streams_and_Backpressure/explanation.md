@@ -1,95 +1,71 @@
 # Streams and Backpressure
 
-## Introduction
+## What matters
 
-Streams are Node.js primitives for processing data incrementally. Think of a stream like a hose instead of a bucket: you handle chunks as they flow rather than waiting for the entire payload. This keeps memory usage stable for large files because you only hold a small buffer at a time. The same pattern applies to downloads: you stream chunks as they arrive and process or forward them on the fly.
+- Streams let Node process large or continuous data without buffering everything in memory.
+- Backpressure is the mechanism that slows producers when consumers cannot keep up.
 
-## Stream Types
+## Interview points
 
-- Readable: a source you can read chunks from (e.g., a file read stream or inbound socket).
-- Writable: a sink you can write chunks to (a “sink” is the destination, like a file write stream or outbound socket).
-- Duplex: both readable and writable at the same time (e.g., a TCP socket where you send and receive data).
-- Transform: a duplex stream that changes data as it passes through (e.g., gzip compression or uppercasing text).
+- Know the stream types: Readable, Writable, Duplex, Transform.
+- `Readable`: you read data from it, like a file read stream or an incoming HTTP request body.
+- `Writable`: you write data into it, like a file write stream or an HTTP response.
+- `Duplex`: it is both readable and writable, like a TCP socket.
+- `Transform`: it is a duplex stream that changes data as it passes through, like gzip compression.
+- Prefer `pipeline()` over manual `.pipe()` chains because a stream chain should fail as one unit: `pipeline()` propagates errors, cleans up the other streams, and gives one completion point for the whole operation.
+- Use streams for uploads, downloads, file processing, compression, and proxying.
 
-## Backpressure
-
-Backpressure is how streams signal that the consumer is slower than the producer. The stream pauses reading until the writable side drains, preventing memory blow-ups.
-
-## Example: File Copy with Pipeline
-
-`pipeline` connects streams and propagates errors correctly. It also manages backpressure automatically so the writable stream is not overwhelmed.
+## Example
 
 ```javascript
-// copy-file.js
 const fs = require('fs');
 const { pipeline } = require('stream');
 
 pipeline(
-  fs.createReadStream('./big-input.bin'),
-  fs.createWriteStream('./big-output.bin'),
-  err => {
-    if (err) {
-      console.error('Copy failed:', err.message);
-    } else {
-      console.log('Copy completed');
-    }
+  fs.createReadStream('./input.txt'),
+  fs.createWriteStream('./output.txt'),
+  error => {
+    if (error) console.error(error);
   }
 );
 ```
 
-## Example: Transform Stream
+## Senior notes
 
-A transform stream lets you modify data as it passes through. Here we convert a text file to uppercase without loading it all into memory.
+- Memory problems in Node often come from buffering when streaming was the right choice.
 
-```javascript
-// upper-case.js
-const { Transform } = require('stream');
-const fs = require('fs');
+```js
+// Buffers the whole file in memory before sending it.
+const data = await fs.promises.readFile('./large-report.csv');
+res.end(data);
 
-const upper = new Transform({
-  transform(chunk, _encoding, callback) {
-    const transformed = chunk.toString().toUpperCase();
-    callback(null, transformed);
-  },
-});
-
-fs.createReadStream('./input.txt')
-  .pipe(upper)
-  .pipe(fs.createWriteStream('./output.txt'));
+// Streams the file chunk by chunk instead.
+fs.createReadStream('./large-report.csv').pipe(res);
 ```
 
-## Practical Guidance
+- Buffering means holding the whole payload, or too much of it, in memory at once. Streaming avoids that by processing data chunk by chunk.
 
-- Prefer `pipeline` over manual `pipe` to handle errors correctly.
-- Use streams for large files or continuous data to avoid buffering everything in memory.
-- Tune `highWaterMark` if you need to balance throughput vs. memory.
+- Tune `highWaterMark` only when measurements justify it.
+- `highWaterMark` is the stream's internal buffering threshold. When buffered data reaches that level, the stream starts applying backpressure to slow producers down.
 
-Example use case: stream a large upload to disk without buffering it all in memory.
-
-```javascript
-// upload-stream.js
-const http = require('http');
+```js
 const fs = require('fs');
-const { pipeline } = require('stream');
 
-const server = http.createServer((req, res) => {
-  if (req.method === 'POST' && req.url === '/upload') {
-    const out = fs.createWriteStream('./upload.bin', { highWaterMark: 64 * 1024 });
-    pipeline(req, out, err => {
-      if (err) {
-        res.writeHead(500);
-        res.end('upload failed');
-        return;
-      }
-      res.writeHead(200);
-      res.end('ok');
-    });
-    return;
-  }
-
-  res.writeHead(404);
-  res.end('not found');
+const writable = fs.createWriteStream('./output.txt', {
+  highWaterMark: 16 * 1024, // 16 KB buffer threshold
 });
 
-server.listen(3000);
+const chunk = Buffer.alloc(8 * 1024); // 8 KB
+
+let canKeepWriting = writable.write(chunk);
+console.log(canKeepWriting); // true: buffer is still under the threshold
+
+canKeepWriting = writable.write(chunk);
+console.log(canKeepWriting); // false: buffer reached the threshold
+
+writable.once('drain', () => {
+  console.log('buffer drained, writes can resume');
+});
 ```
+
+- In this example, the first write stays below `highWaterMark`, so it returns `true`. After the next write fills the internal buffer, `write()` returns `false`, which is the signal to stop pushing more data until `drain` fires.

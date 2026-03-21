@@ -1,15 +1,103 @@
 # HTTP/HTTPS Servers in Node.js
 
-## Introduction
+## What matters
 
-Node.js includes a built-in HTTP server. Understanding request/response streaming, headers, and keep-alive behavior is crucial for building reliable APIs.
+- `req` and `res` are streams: data can arrive or be sent in chunks instead of all at once.
+- Large bodies should be streamed, not buffered blindly into memory.
+- In production, TLS is often terminated at a proxy or load balancer.
 
-## Example: Basic HTTP Server
+## Interview points
 
-This server handles two routes and writes explicit status codes and headers. The request handler runs for every connection, so keep it fast and non-blocking.
+- Set status codes and `Content-Type` explicitly.
+- Configure `requestTimeout`, `headersTimeout`, and `keepAliveTimeout` deliberately.
+- Cancel downstream work when the client disconnects.
+- Know that Node also supports HTTP/2, but many public APIs still sit behind an HTTP/1.1 edge proxy.
+
+### Code examples
+
+Set status codes and `Content-Type` explicitly:
 
 ```javascript
-// server.js
+const http = require('http');
+
+http
+  .createServer((req, res) => {
+    if (req.url === '/users' && req.method === 'GET') {
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify([{ id: 1, name: 'Ada' }]));
+      return;
+    }
+
+    res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end('Not found');
+  })
+  .listen(3000);
+```
+
+Configure `requestTimeout`, `headersTimeout`, and `keepAliveTimeout` deliberately:
+
+```javascript
+const http = require('http');
+
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
+  res.end('ok');
+});
+
+// Limit how long the entire request can take.
+server.requestTimeout = 15_000;
+
+// Limit how long the client has to finish sending headers.
+server.headersTimeout = 10_000;
+
+// Limit how long to keep an idle keep-alive socket open.
+server.keepAliveTimeout = 5_000;
+
+server.listen(3000);
+```
+
+Cancel downstream work when the client disconnects:
+
+```javascript
+const http = require('http');
+
+const server = http.createServer(async (req, res) => {
+  const controller = new AbortController();
+
+  req.on('close', () => {
+    if (!res.writableEnded) controller.abort();
+  });
+
+  try {
+    const response = await fetch('https://api.example.com/report', {
+      signal: controller.signal,
+    });
+
+    const body = await response.text();
+    res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end(body);
+  } catch (error) {
+    if (controller.signal.aborted) {
+      return;
+    }
+
+    res.writeHead(502, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end('Upstream request failed');
+  }
+});
+
+server.listen(3000);
+```
+
+## Senior notes
+
+- Timeouts and body limits are part of security, not just performance.
+- A `/health` endpoint is not enough; readiness and graceful shutdown matter too.
+- Treat server defaults as something to review, not trust blindly.
+
+## Example
+
+```javascript
 const http = require('http');
 
 const server = http.createServer((req, res) => {
@@ -19,84 +107,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  res.writeHead(404, { 'Content-Type': 'text/plain' });
+  res.writeHead(404);
   res.end('Not found');
 });
-
-server.listen(3000, () => {
-  console.log('Server listening on http://localhost:3000');
-});
 ```
-
-## Reading Request Bodies
-
-Incoming request bodies are streams. You need to collect chunks or stream them directly to a destination (file, parser, etc.).
-
-```javascript
-// echo.js
-const http = require('http');
-
-const server = http.createServer((req, res) => {
-  let body = '';
-  req.on('data', chunk => {
-    body += chunk;
-  });
-  req.on('end', () => {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ received: body }));
-  });
-});
-
-server.listen(3001);
-```
-
-## HTTP Early Hints (103)
-
-Early Hints is an interim response that sends `Link` headers (preload/preconnect) before the final response. This lets the browser start fetching critical CSS/JS while your server is still rendering or querying the database, improving perceived load times.
-
-Node supports this in core with `res.writeEarlyHints()`:
-
-```javascript
-const http = require('http');
-
-http.createServer((req, res) => {
-  res.writeEarlyHints({
-    link: [
-      '</assets/app.css>; rel=preload; as=style',
-      '</assets/app.js>; rel=preload; as=script',
-    ],
-  });
-
-  res.writeHead(200, { 'Content-Type': 'text/html' });
-  res.end('<html>...</html>');
-}).listen(3000);
-```
-
-## HTTPS (TLS)
-
-HTTPS wraps HTTP in TLS. In production you usually terminate TLS at a load balancer, but the built-in server is useful for local testing and internal services.
-
-```javascript
-// https-server.js
-const https = require('https');
-const fs = require('fs');
-
-const server = https.createServer(
-  {
-    key: fs.readFileSync('./certs/server.key'),
-    cert: fs.readFileSync('./certs/server.crt'),
-  },
-  (req, res) => {
-    res.writeHead(200);
-    res.end('secure');
-  }
-);
-
-server.listen(3443);
-```
-
-## Practical Guidance
-
-- Set `Content-Type` and status codes explicitly.
-- Treat request and response as streams for large bodies.
-- Use HTTPS in production and terminate TLS at a load balancer if needed.

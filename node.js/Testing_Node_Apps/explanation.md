@@ -1,88 +1,29 @@
 # Testing Node.js Applications
 
-## Introduction
+## What matters
 
-Testing ensures correctness and supports refactoring. Node.js includes a built-in test runner (`node:test`) that is fast and dependency-free.
+- Cover pure logic with unit tests and boundaries with integration tests.
+- Node’s built-in `node:test` runner is enough for many projects. A unit test isolates a small piece of logic; an integration test exercises a real boundary such as HTTP or a database.
 
-## Example: Unit Test with node:test
+## Interview points
 
-Unit tests target small, pure functions. This example uses Node's built-in test runner to verify a simple add function.
+- Test startup, shutdown, auth, database transactions, retries, and failure paths, not just happy-path helpers.
+- Keep tests deterministic: no real internet, no time-based flakiness, no shared global state.
+- Use mocks/stubs carefully; too much mocking can hide integration bugs.
+
+## Senior notes
+
+- Coverage is a floor, not proof of quality.
+- Contract tests are valuable for APIs and queue/event payloads.
+- Treat flaky tests as real defects.
+
+## Example
 
 ```javascript
-// math.js
-function add(a, b) {
-
-  return a + b;
-}
-
-module.exports = { add };
-```
-
-```javascript
-// math.test.js
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { add } = require('./math');
 
-test('add returns the sum', () => {
-  assert.equal(add(2, 3), 5);
+test('adds numbers', () => {
+  assert.equal(2 + 3, 5);
 });
 ```
-
-Run:
-
-```
-node --test
-```
-
-## Example: Integration Test for an HTTP Server
-
-Integration tests hit real I/O boundaries. This test starts a server, makes an HTTP request, and asserts on the response.
-
-```javascript
-// server.js
-const http = require('http');
-
-function createServer() {
-
-  return http.createServer((_req, res) => {
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('ok');
-  });
-}
-
-module.exports = { createServer };
-```
-
-```javascript
-// server.test.js
-const test = require('node:test');
-const assert = require('node:assert/strict');
-const http = require('http');
-const { createServer } = require('./server');
-
-test('server responds with ok', async () => {
-  const server = createServer();
-  await new Promise(resolve => server.listen(0, resolve));
-  const { port } = server.address();
-
-  const body = await new Promise(resolve => {
-    http.get(`http://localhost:${port}`, res => {
-      let data = '';
-      res.on('data', chunk => (data += chunk));
-      res.on('end', () => resolve(data));
-    });
-  });
-
-  server.close();
-  assert.equal(body, 'ok');
-});
-```
-
-## Practical Guidance
-
-- Cover core logic with unit tests and use integration tests for I/O.
-- Keep tests deterministic and avoid real network calls when possible.
-- Use test doubles (stubs/mocks) for external services.
-- see json server: https://www.npmjs.com/package/json-server
-- See StrykerJS for Mutation tests.

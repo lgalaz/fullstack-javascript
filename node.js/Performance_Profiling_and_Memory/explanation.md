@@ -1,54 +1,45 @@
 # Performance, Profiling, and Memory
 
-## Introduction
+## What matters
 
-Performance in Node.js is about avoiding event-loop blocking and controlling memory usage. Profiling helps you find bottlenecks rather than guessing.
+- Measure first.
+- In Node, common bottlenecks are event-loop blocking, hot code paths, memory leaks, and slow dependencies.
 
-## Key Concepts
+### What those mean
 
-- CPU-bound code blocks the event loop.
-- Memory leaks often come from retained references or unbounded caches.
-- The V8 garbage collector can cause latency spikes if memory grows.
+- `event-loop blocking`: a long synchronous task holds the main thread, so other requests, timers, and callbacks wait behind it.
+- `hot code paths`: code that runs very frequently, where small inefficiencies add up into meaningful CPU cost.
+- `memory leaks`: memory that should become collectible stays referenced, so heap or RSS keeps growing over time.
+- `slow dependencies`: databases, APIs, caches, disks, or other external systems that make your app wait even when your own code is fine.
 
-## Example: Measuring Event Loop Delay
+## Interview points
 
-`monitorEventLoopDelay` measures how long the event loop is blocked. Higher numbers mean your code (or GC) is delaying timers and I/O.
+- Watch event-loop delay, CPU usage, heap growth, RSS (Resident Set Size), latency, and GC pauses. RSS is total memory held by the process; GC is garbage collection.
+- Use profiles and heap snapshots instead of guessing. A profile shows where CPU time is spent.
+- Unbounded caches and retained references are common leak sources.
 
-```javascript
-// loop-delay.js
-// Use this in production-like environments to detect event loop stalls.
-// It is useful when requests feel slow, timers drift, or CPU spikes occur.
-// Run it on a server to spot blocking code or heavy GC pauses.
-const { monitorEventLoopDelay } = require('perf_hooks');
+### Useful commands
 
-const histogram = monitorEventLoopDelay();
-histogram.enable();
+CPU profile:
 
-setInterval(() => {
-  const mean = Math.round(histogram.mean / 1e6); // ns to ms
-  console.log('Event loop delay (ms):', mean);
-  histogram.reset();
-}, 1000);
+```bash
+node --cpu-prof app.js
 ```
 
-## Example: Basic Memory Reporting
+Heap snapshot:
 
-This example logs resident set size (RSS) and heap usage so you can detect leaks or unexpected growth.
-
-```javascript
-// memory.js
-setInterval(() => {
-  const mem = process.memoryUsage();
-  console.log({
-    rss: Math.round(mem.rss / 1024 / 1024) + ' MB',
-    heapUsed: Math.round(mem.heapUsed / 1024 / 1024) + ' MB',
-  });
-}, 2000);
+```bash
+node --heapsnapshot-signal=SIGUSR2 app.js
+kill -USR2 <pid>
 ```
 
-## Practical Guidance
+Inspector for DevTools-based profiling:
 
-- Use `node --inspect` and the Chrome DevTools profiler.
-- Look for high event loop delay and long GC pauses.
-- Avoid large in-memory caches without eviction policies.
-- Benchmark with realistic data and concurrency.
+```bash
+node --inspect app.js
+```
+
+## Senior notes
+
+- “High memory” is not automatically a leak; look for memory that grows and does not come back down.
+- Performance work is usually about system behavior under realistic concurrency, not microbenchmarks in isolation.

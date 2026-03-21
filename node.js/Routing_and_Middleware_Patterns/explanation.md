@@ -1,75 +1,90 @@
 # Routing and Middleware Patterns
 
-## Introduction
+## What matters
 
-Node's core `http` module is low-level. A common pattern is to build a router and middleware pipeline to compose request handling cleanly.
+- Middleware is request pipeline composition: logging, auth, parsing, validation, error handling. A pipeline means each step can inspect the request, do work, and pass control onward.
+- The common shape is `(req, res, next)`.
+- Frameworks differ in syntax, but the core pattern is the same.
 
-## What Middleware Does
+## Interview points
 
-- Middleware is a function `(req, res, next)`.
-- It can read/modify the request, end the response, or pass control to the next middleware.
-- This pattern enables logging, auth, parsing, and routing without tight coupling.
+- Keep middleware focused and ordered intentionally.
+- Validate early, authorize before business logic, and centralize error handling.
+- Avoid hidden side effects on `req` and `res` that make flow hard to reason about.
 
-## Example: Minimal Router + Middleware
-
-This minimal example builds a middleware pipeline and a tiny router. It demonstrates the same control flow used by frameworks like Express: middleware runs first, then a route handler is selected.
-
-```javascript
-// mini-framework.js
-const http = require('http');
-
-const middlewares = [];
-const routes = [];
-
-function use(fn) {
-  middlewares.push(fn);
+```js
+function lookupUser(token) {
+  if (token === 'admin-token') return { name: 'Ada', role: 'admin' };
+  return { name: 'Sam', role: 'user' };
 }
 
-function route(method, path, handler) {
-  routes.push({ method, path, handler });
+// Hard to reason about: later handlers depend on req fields that appeared
+// earlier as side effects.
+function loadUser(req, res, next) {
+  req.user = lookupUser(req.headers.authorization);
+  req.isAdmin = req.user.role === 'admin';
+  next();
 }
 
-function runMiddlewares(req, res, done) {
-  let index = 0;
-  function next(err) {
-    if (err) {
-      res.writeHead(500);
-      res.end('Internal Server Error');
-      return;
-    }
-    const mw = middlewares[index++];
-    if (!mw) return done();
-    mw(req, res, next);
+function dashboardHandler(req, res) {
+  if (req.isAdmin) {
+    res.end(`welcome admin ${req.user.name}`);
+    return;
   }
+
+  res.end(`welcome user ${req.user.name}`);
+}
+
+// Request flow:
+// app.use(loadUser)
+// app.get('/dashboard', dashboardHandler)
+
+// Clearer: put auth-related data in one explicit place with one contract.
+function loadAuthContext(req, res, next) {
+  const user = lookupUser(req.headers.authorization);
+  req.auth = {
+    user,
+    isAdmin: user.role === 'admin',
+  };
   next();
 }
 
-const server = http.createServer((req, res) => {
-  runMiddlewares(req, res, () => {
-    const match = routes.find(r => r.method === req.method && r.path === req.url);
-    if (match) {
-      return match.handler(req, res);
-    }
-    res.writeHead(404);
-    res.end('Not found');
-  });
-});
+function dashboardHandlerV2(req, res) {
+  if (req.auth.isAdmin) {
+    res.end(`welcome admin ${req.auth.user.name}`);
+    return;
+  }
 
-use((req, _res, next) => {
-  console.log(`${req.method} ${req.url}`);
-  next();
-});
+  res.end(`welcome user ${req.auth.user.name}`);
+}
 
-route('GET', '/health', (_req, res) => {
-  res.writeHead(200, { 'Content-Type': 'application/json' });
-  res.end(JSON.stringify({ ok: true }));
-});
-
-server.listen(3000);
+// Request flow:
+// app.use(loadAuthContext)
+// app.get('/dashboard', dashboardHandlerV2)
 ```
 
-## Practical Guidance
+## Senior notes
 
-- Prefer established frameworks for production, but understand the pattern.
-- Keep middleware small and focused.
-- Ensure errors propagate in a consistent way.
+- Prefer established frameworks in production.
+- Examples of what frameworks usually get right in production:
+- Execution order and `next()` behavior: one middleware forgets to call `next()`, so some requests hang forever; another calls `next()` after already sending a response, so later middleware runs unexpectedly.
+- Async error propagation: an `await`ed DB call rejects inside middleware and the error never reaches centralized error handling, causing unhandled rejections or stuck requests.
+- Body parsing limits and malformed input handling: a client sends a 50 MB JSON body or broken JSON, and the server burns memory or crashes instead of rejecting the request cleanly with a 4xx error.
+- Route matching edge cases: `/users/:id` accidentally catches `/users/me`, or `/users/` redirects to `/users` because trailing slash handling differs across frameworks, proxies, or environments.
+- Response lifecycle issues like double sends: one middleware sends `401`, but downstream code still tries `res.end()` again, causing `ERR_HTTP_HEADERS_SENT` and noisy logs.
+- Ecosystem support for auth, validation, logging, and security middleware: custom auth misses token expiry checks, custom validation returns inconsistent errors, logging omits request IDs, or basic protections like rate limiting and security headers are forgotten.
+- The value of understanding middleware is debugging execution order, short-circuiting, and error propagation.
+
+## Example
+
+```javascript
+function authMiddleware(req, res, next) {
+  if (!req.headers.authorization) {
+    res.writeHead(401);
+    res.end('Unauthorized');
+    return;
+  }
+
+  next();
+}
+```

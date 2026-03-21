@@ -1,61 +1,27 @@
 # TypeScript with Node.js
 
-## Introduction
+## What matters
 
-TypeScript adds static typing, better tooling, and safer refactors. In Node.js, it is common for production services to be written in TypeScript.
+- TypeScript improves refactoring, tooling, and maintainability.
+- It does not replace runtime validation.
 
-## Minimal Setup
+## Interview points
 
-TypeScript requires a compiler and Node type definitions. `tsconfig.json` controls output module format, target JS version, and strictness.
+- Use strict mode.
+- Align TypeScript module settings with the actual Node runtime, usually `NodeNext` for modern ESM-aware projects.
+- Validate external data: env vars, JSON, HTTP payloads, and database rows.
 
-Install dependencies:
+## Senior notes
 
-```
-npm install typescript @types/node --save-dev
-```
+- Good TypeScript design is about clear boundaries and accurate domain models, not maximal type cleverness.
+- Compile predictable output for production.
 
-Create `tsconfig.json`:
-
-```json
-{
-  "compilerOptions": {
-    "target": "ES2020",
-    "module": "CommonJS",
-    "outDir": "dist",
-    "strict": true,
-    "esModuleInterop": true
-  },
-  "include": ["src"]
-}
-```
-
-## Example: Simple Server
-
-This example is a typed HTTP server. TypeScript checks your code at build time, then you run the compiled JavaScript output.
+## Example
 
 ```typescript
-// src/server.ts
-import http from 'http';
+type User = { id: string; email: string };
 
-const server = http.createServer((_req, res) => {
-  res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.end('ok');
-});
-
-server.listen(3000, () => {
-  console.log('Server running');
-});
+function formatUser(user: User) {
+  return `${user.id}:${user.email}`;
+}
 ```
-
-Build and run:
-
-```
-npx tsc
-node dist/server.js
-```
-
-## Practical Guidance
-
-- Use `@types/node` for accurate Node typings.
-- Keep strict mode on for safer refactors.
-- Align `module` output with your runtime (CJS vs. ESM).

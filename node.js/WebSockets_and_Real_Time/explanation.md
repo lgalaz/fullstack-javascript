@@ -1,67 +1,27 @@
 # WebSockets and Real-Time Communication
 
-## Introduction
+## What matters
 
-HTTP is request/response. Real-time apps need persistent, bidirectional connections. WebSockets provide that with a single TCP connection that stays open.
+- WebSockets are persistent bidirectional connections: one long-lived connection where both client and server can send messages.
+- Use them when polling is too slow or too expensive.
 
-## When to Use
+## Interview points
 
-- Live dashboards, chat, notifications, multiplayer games.
-- Avoid polling when you need low latency or high frequency updates.
+- Choose WebSockets for chat, live dashboards, collaboration, or multiplayer flows.
+- Choose SSE when you only need server-to-client streaming.
+- Define a message protocol, auth model, reconnect strategy, and per-message authorization rules.
 
-## Server-Sent Events (One-Way Updates)
+## Senior notes
 
-If you only need server → client updates (no messages from the client), Server-Sent Events (SSE) can be simpler than WebSockets. SSE uses a single HTTP connection that stays open and streams text events to the browser via `EventSource`. It is primarily a browser feature, but any client that can consume streaming HTTP can use it.
+- Real-time systems usually break because parts of the system cannot keep up with message volume (`backpressure`), too many clients reconnect at the same time after a failure (`reconnect storms`), or one update must be pushed to a large number of clients (`state fan-out`) not because sending a WebSocket message is hard.
+- Deal with `backpressure` using bounded queues, rate limits, batching, and dropping low-value updates when consumers fall behind.
+- Deal with `reconnect storms` using exponential backoff with jitter, lightweight session recovery, and connection throttling during recovery.
+- Deal with `state fan-out` using rooms/topics, selective subscriptions, batching, and compact snapshots or deltas instead of broadcasting everything to everyone.
 
-## Example: WebSocket Server and Client
-
-This uses the `ws` library to upgrade an HTTP connection to a WebSocket. The server accepts connections and echoes messages back to the client.
-
-Install dependency:
-
-```
-npm install ws
-```
+## Example
 
 ```javascript
-// ws-server.js
-const http = require('http');
-const { WebSocketServer } = require('ws');
-
-const server = http.createServer();
-const wss = new WebSocketServer({ server });
-
-wss.on('connection', socket => {
-  socket.send('welcome');
-
-  socket.on('message', data => {
-    const text = data.toString();
-    socket.send(`echo: ${text}`);
-  });
-});
-
-server.listen(3000, () => {
-  console.log('WebSocket server on ws://localhost:3000');
-});
-```
-
-```javascript
-// ws-client.js
-const WebSocket = require('ws');
-
-const socket = new WebSocket('ws://localhost:3000');
-
-socket.on('open', () => {
-  socket.send('hello server');
-});
-
 socket.on('message', data => {
   console.log(data.toString());
 });
 ```
-
-## Practical Guidance
-
-- Design a message protocol (JSON or binary) and version it.
-- Handle reconnects and backpressure on the client.
-- Authenticate the connection and enforce authorization per message.

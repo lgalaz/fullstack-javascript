@@ -1,142 +1,138 @@
 # Logging and Observability
 
-## Introduction
+## What matters
 
-Observability is the ability to understand your system from the outside using logs, metrics, and traces. Node.js apps should produce structured logs and expose metrics for production debugging.
+- Observability is logs, metrics, and traces: the signals you use to understand a running system from the outside.
+- Production logs should be structured JSON, not ad hoc strings.
 
-## Structured Logging Example
+## Interview points
 
-Structured logs emit machine-readable fields so you can filter and aggregate them in log systems (ELK, Datadog, CloudWatch).
+- Emit request IDs / correlation IDs and propagate them across async boundaries.
+- Track latency, throughput, error rate, saturation, and event-loop health.
+- Use tracing for cross-service request flow, especially in distributed systems.
 
-```javascript
-// logger.js
-function log(level, message, context = {}) {
-  const entry = {
-    level,
-    message,
-    time: new Date().toISOString(),
-    ...context,
-  };
-  console.log(JSON.stringify(entry));
-}
-
-log('info', 'server started', { port: 3000 });
-```
-
-## Metrics Example (Throughput + Latency)
-
-Metrics are numeric signals you can graph over time. A useful baseline is request throughput (count) and latency (how long requests take). The example below tracks both and exposes them in a Prometheus-style endpoint.
+### Code example
 
 ```javascript
-// metrics.js
 const http = require('http');
+const {
+  monitorEventLoopDelay,
+  performance,
+} = require('perf_hooks');
+const client = require('prom-client');
 
-let requestCount = 0;
-let errorCount = 0;
-let totalLatencyMs = 0;
+const register = new client.Registry();
+client.collectDefaultMetrics({ register });
 
-function record(durationMs, statusCode) {
-  requestCount += 1;
-  totalLatencyMs += durationMs;
-  if (statusCode >= 500) errorCount += 1;
-}
+const requestDuration = new client.Histogram({
+  name: 'http_request_duration_seconds',
+  help: 'HTTP request latency in seconds',
+  labelNames: ['method', 'route', 'status_code'],
+  buckets: [0.01, 0.05, 0.1, 0.3, 0.5, 1, 2, 5],
+});
 
-const server = http.createServer((req, res) => {
-  const start = Date.now();
+const requestTotal = new client.Counter({
+  name: 'http_requests_total',
+  help: 'Total HTTP requests',
+  labelNames: ['method', 'route', 'status_code'],
+});
 
+const requestErrors = new client.Counter({
+  name: 'http_request_errors_total',
+  help: 'Total HTTP 5xx responses',
+  labelNames: ['method', 'route', 'status_code'],
+});
+
+const activeRequests = new client.Gauge({
+  name: 'http_requests_in_flight',
+  help: 'Requests currently being handled',
+});
+
+const eventLoopLag = new client.Gauge({
+  name: 'nodejs_event_loop_lag_seconds',
+  help: 'Mean event loop lag in seconds',
+});
+
+register.registerMetric(requestDuration);
+register.registerMetric(requestTotal);
+register.registerMetric(requestErrors);
+register.registerMetric(activeRequests);
+register.registerMetric(eventLoopLag);
+
+const histogram = monitorEventLoopDelay({ resolution: 20 });
+histogram.enable();
+
+setInterval(() => {
+  eventLoopLag.set(histogram.mean / 1e9);
+  histogram.reset();
+}, 5000);
+
+const server = http.createServer(async (req, res) => {
   if (req.url === '/metrics') {
-    const avgLatency = requestCount ? totalLatencyMs / requestCount : 0;
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end(
-      [
-        `requests_total ${requestCount}`,
-        `errors_total ${errorCount}`,
-        `latency_avg_ms ${avgLatency.toFixed(2)}`,
-      ].join('\n')
-    );
+    res.writeHead(200, { 'Content-Type': register.contentType });
+    res.end(await register.metrics());
     return;
   }
 
-  // Simulate work
-  setTimeout(() => {
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('ok');
-    const duration = Date.now() - start;
-    record(duration, res.statusCode);
-  }, 50);
+  const route = req.url === '/users' ? '/users' : 'unknown';
+  const start = performance.now();
+  activeRequests.inc();
+
+  try {
+    if (route === '/users') {
+      await new Promise((resolve) => setTimeout(resolve, 120));
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify([{ id: 1, name: 'Ada' }]));
+      return;
+    }
+
+    res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end('Not found');
+  } catch (error) {
+    res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end('Internal server error');
+  } finally {
+    const statusCode = String(res.statusCode);
+    const durationSeconds = (performance.now() - start) / 1000;
+
+    activeRequests.dec();
+    requestTotal.inc({ method: req.method, route, status_code: statusCode });
+    requestDuration.observe(
+      { method: req.method, route, status_code: statusCode },
+      durationSeconds
+    );
+
+    if (res.statusCode >= 500) {
+      requestErrors.inc({ method: req.method, route, status_code: statusCode });
+    }
+  }
 });
 
 server.listen(3000);
 ```
 
-## Tracing (Conceptual)
+This example tracks:
 
-Distributed tracing correlates a request across multiple services. In Node.js, you typically use OpenTelemetry to create spans and export them to a collector.
+- latency with `http_request_duration_seconds`
+- throughput with `http_requests_total`
+- error rate with `http_request_errors_total`
+- saturation with `http_requests_in_flight`
+- event-loop health with `nodejs_event_loop_lag_seconds`
 
-## Practical Guidance
+## Senior notes
 
-- Use structured logs (JSON) in production.
-- Include request IDs to correlate logs across services.
-- Emit key metrics: latency, error rate, throughput.
+- `AsyncLocalStorage` is the standard way to keep request-scoped metadata in Node.
+- `pino` is a common Node logging library for fast structured JSON logs.
+- Use OpenTelemetry for traces and standard instrumentation where possible.
+- Good observability reduces MTTR; it is part of system design, not a later add-on.
 
-## Common Tooling
-
-- Logging: `pino` (fast JSON logs), `winston` (flexible transports)
-- Metrics: `prom-client` for Prometheus-compatible metrics.
-- Tracing: OpenTelemetry (`@opentelemetry/api` plus SDKs/exporters).
-
-Example: `pino` logging:
+## Example
 
 ```javascript
-// pino-log.js
 const pino = require('pino');
 const logger = pino();
 
-logger.info({ userId: 'u1' }, 'user logged in');
-logger.error({ err: new Error('boom') }, 'request failed');
-```
-
-Example: `prom-client` metrics:
-
-```javascript
-// prom-metrics.js
-const http = require('http');
-const client = require('prom-client');
-
-const counter = new client.Counter({
-  name: 'http_requests_total',
-  help: 'Total HTTP requests',
-});
-
-const server = http.createServer((req, res) => {
-  if (req.url === '/metrics') {
-    res.writeHead(200, { 'Content-Type': client.register.contentType });
-    res.end(client.register.metrics());
-    return;
-  }
-
-  counter.inc();
-  res.writeHead(200);
-  res.end('ok');
-});
-
-server.listen(3000);
-```
-
-Example: OpenTelemetry tracing:
-
-```javascript
-// otel-tracing.js
-const { NodeTracerProvider } = require('@opentelemetry/sdk-trace-node');
-const { SimpleSpanProcessor, ConsoleSpanExporter } = require('@opentelemetry/sdk-trace-base');
-const { trace } = require('@opentelemetry/api');
-
-const provider = new NodeTracerProvider();
-provider.addSpanProcessor(new SimpleSpanProcessor(new ConsoleSpanExporter()));
-provider.register();
-
-const tracer = trace.getTracer('app');
-const span = tracer.startSpan('work');
-span.setAttribute('user.id', 'u1');
-span.end();
+logger.info({
+  requestId: 'req-123',
+}, 'server started');
 ```

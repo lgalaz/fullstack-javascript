@@ -1,47 +1,26 @@
 # Package Management and SemVer
 
-## Introduction
+## What matters
 
-Node.js uses npm (or pnpm/yarn) and semantic versioning (SemVer) to manage dependencies.
+- Dependency management is part of production reliability.
 
-## SemVer Basics
+## Interview points
 
-- MAJOR: breaking changes (1.x -> 2.x)
-- MINOR: new features, backward compatible (1.2 -> 1.3)
-- PATCH: bug fixes (1.2.3 -> 1.2.4)
+- SemVer: major breaks compatibility, minor adds backward-compatible features, patch fixes bugs. A lockfile records the exact installed dependency versions.
+- Lockfiles matter for reproducible installs.
+- Wide version ranges reduce manual work but increase surprise.
 
-## Version Ranges
+## Commands
 
-- `^1.2.3` allows compatible minor/patch updates.
-- `~1.2.3` allows patch updates only.
-- `1.2.3` is pinned to a single version.
+- Use `npm install / npm i` to add a dependency or to install dependencies during normal local development.
+- Use `npm ci` in CI, containers, and reproducible builds when a lockfile already exists and you want a clean install of exactly locked versions.
+- Prefer `npm ci` over `npm install` in automation because it is stricter and fails if `package.json` and the lockfile disagree.
+- Use `npm install <package>` to add a runtime dependency and update `package.json` plus the lockfile.
+- Use `npm install -D <package>` for dev-only tools such as test runners, linters, or bundlers.
+- Use `npm audit` to check installed packages against known vulnerability advisories, but do not treat it as a full security review.
 
-These ranges control how your dependencies float when you run `npm install`. Wider ranges reduce manual upgrades but increase the risk of unexpected behavior.
+## Senior notes
 
-## Lockfiles
-
-Lockfiles (`package-lock.json`, `pnpm-lock.yaml`, `yarn.lock`) freeze exact dependency versions for reproducible builds.
-
-## Example: package.json
-
-This minimal `package.json` shows pinned metadata, a dependency with a caret range, and a start script.
-
-```json
-{
-  "name": "node-app",
-  "version": "1.0.0",
-  "type": "commonjs",
-  "dependencies": {
-    "dotenv": "^16.4.0"
-  },
-  "scripts": {
-    "start": "node index.js"
-  }
-}
-```
-
-## Practical Guidance
-
-- Commit lockfiles for every app and service.
-- Review dependency updates and avoid unbounded ranges for critical code.
-- Use `npm audit` and `npm outdated` regularly (`npm audit` reports known security vulnerabilities in your dependency tree; `npm outdated` shows which packages have newer versions available).
+- Review dependency updates, not just direct dependencies.
+- Minimize dependencies in critical paths and security-sensitive code.
+- For teams, commit the lockfile and make CI use `npm ci`.

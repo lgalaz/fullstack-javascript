@@ -1,71 +1,56 @@
 # Process Management and Signals
 
-## Introduction
+## What matters
 
-Node.js runs as a single OS process. Understanding process lifecycle, environment variables, and signals is critical for production reliability.
+- A Node service is an OS process with a lifecycle.
+- Production reliability depends on startup validation, signal handling, and graceful shutdown.
 
-## Key Concepts
+### Lifecycle
 
-- `process.env` holds environment variables.
-- `process.exitCode` sets the exit code without forcing immediate exit.
-- Signals like `SIGTERM` and `SIGINT` let you shut down gracefully (`SIGTERM` is a termination request from the OS or orchestrator, `SIGINT` is an interrupt from the terminal, typically Ctrl+C).
+- `startup`: load config, validate environment, initialize dependencies, and start listening.
+- `running`: handle requests, timers, background jobs, and open resource usage.
+- `shutdown requested`: receive `SIGTERM` or `SIGINT`, stop taking new work, and begin draining.
+- `cleanup`: finish in-flight work where possible and close servers, DB pools, queues, and other resources.
+- `exit`: terminate with an exit code once cleanup is complete or a shutdown deadline is reached.
 
-## Example: Graceful Shutdown
+## Interview points
 
-A graceful shutdown stops accepting new requests, finishes in-flight work, and then exits. This prevents dropped connections and partial writes.
+- Handle `SIGTERM` and `SIGINT`.
+- Use `process.exitCode` instead of forcing `process.exit()` unless you truly must abort immediately. A signal is an OS notification like “terminate” or “interrupt”.
+- Stop accepting new work before shutdown, then drain in-flight work.
 
-```javascript
-// shutdown.js
-const http = require('http');
+## Senior notes
 
-const server = http.createServer((_req, res) => {
-  res.writeHead(200);
-  res.end('ok');
-});
+- Shutdown should be idempotent.
+- Use a deadline so shutdown cannot hang forever.
 
-server.listen(3000, () => {
-  console.log('Server running');
-});
+```js
+let shuttingDown = false;
 
-function shutdown(signal) {
-  console.log(`Received ${signal}, closing...`);
-  server.close(err => {
-    if (err) {
-      console.error('Close error:', err.message);
-      process.exitCode = 1;
-    }
-    process.exit();
-  });
+async function shutdown(signal) {
+  if (shuttingDown) return;
+  shuttingDown = true;
+
+  const deadline = setTimeout(() => {
+    console.error(`Forced exit after ${signal} deadline`);
+    process.exit(1);
+  }, 10_000);
+
+  deadline.unref();
+
+  try {
+    await closeHttpServer();
+    await closeDatabasePool();
+    clearTimeout(deadline);
+    process.exitCode = 0;
+  } catch (err) {
+    clearTimeout(deadline);
+    process.exitCode = 1;
+  }
 }
 
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
 ```
 
-Example: send `SIGTERM` from another terminal:
-
-```
-kill -TERM <pid>
-```
-
-Example: send `SIGINT` (Ctrl+C):
-
-```
-Ctrl+C
-```
-
-## Environment Variables
-
-Environment variables are strings provided by the operating system or container runtime. Convert and validate them before use.
-
-```javascript
-// env.js
-const port = Number(process.env.PORT || 3000);
-console.log('Port:', port);
-```
-
-## Practical Guidance
-
-- Always handle `SIGTERM` in server processes.
-- Use `process.exitCode` instead of `process.exit()` for clean shutdowns.
-- Validate environment variables at startup.
+- Config validation belongs at startup, not halfway through request handling.
