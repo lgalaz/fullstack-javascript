@@ -65,12 +65,12 @@ function dashboardHandlerV2(req, res) {
 
 ## Senior notes
 
-- Prefer established frameworks in production.
+- Prefer established frameworks in production because they already handle many routing, middleware, and error-handling edge cases correctly.
 - Examples of what frameworks usually get right in production:
 - Execution order and `next()` behavior: one middleware forgets to call `next()`, so some requests hang forever; another calls `next()` after already sending a response, so later middleware runs unexpectedly.
 - Async error propagation: an `await`ed DB call rejects inside middleware and the error never reaches centralized error handling, causing unhandled rejections or stuck requests.
 - Body parsing limits and malformed input handling: a client sends a 50 MB JSON body or broken JSON, and the server burns memory or crashes instead of rejecting the request cleanly with a 4xx error.
-- Route matching edge cases: `/users/:id` accidentally catches `/users/me`, or `/users/` redirects to `/users` because trailing slash handling differs across frameworks, proxies, or environments.
+- Route matching edge cases: `/users/:id` accidentally catches `/users/me`, or trailing slash and wildcard behavior differ across routes and create surprising handlers in production.
 - Response lifecycle issues like double sends: one middleware sends `401`, but downstream code still tries `res.end()` again, causing `ERR_HTTP_HEADERS_SENT` and noisy logs.
 - Ecosystem support for auth, validation, logging, and security middleware: custom auth misses token expiry checks, custom validation returns inconsistent errors, logging omits request IDs, or basic protections like rate limiting and security headers are forgotten.
 - The value of understanding middleware is debugging execution order, short-circuiting, and error propagation.

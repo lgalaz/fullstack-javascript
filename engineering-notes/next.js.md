@@ -1,3 +1,10 @@
+Core lenses for Next.js:
+
+- Mental models: think in rendering boundaries, server vs client ownership, cacheability, and route trees rather than "pages plus hooks."
+- Systems thinking: routing, data fetching, caching, invalidation, streaming, and deployment behavior form one system, not separate concerns.
+- Scheduling awareness: server rendering, streaming, hydration, revalidation, and client transitions determine when users see content and when work executes.
+- Trade-off reasoning: static vs dynamic, server vs client, convenience vs cache correctness, and tighter framework coupling vs operational simplicity.
+
 1) App Router mental model
 
 Interviewer: You join a team migrating from Pages Router to App Router. What’s the core mental model change?

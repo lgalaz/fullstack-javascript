@@ -1,3 +1,10 @@
+Core lenses for React:
+
+- Mental models: render vs commit, identity vs instance, derived vs stored state, effects as synchronization rather than lifecycle nostalgia.
+- Systems thinking: state ownership, rerender blast radius, context boundaries, data flow, and where work should live across client/server/store boundaries.
+- Scheduling awareness: lanes, transitions, interruption, batching, and keeping urgent user input ahead of non-urgent UI work.
+- Trade-off reasoning: correctness vs memoization complexity, local state vs global state, client interactivity vs shipped JavaScript, and escape hatches vs predictability.
+
 1) Rendering, reconciliation, and keys
 
 I: Walk me through what happens when React re-renders a component. What does “reconciliation” mean, and why do keys matter?
@@ -502,3 +509,271 @@ I design React systems by focusing on state ownership, data flow, and re-render 
 - design system
 - render components vs ui components vs dumb components
 - zustand vs redux
+
+21) When did you get stuck while using React, and how did you fix it?
+
+I: Give me a real React debugging story. What got you stuck, and how did you get out of it?
+
+C:
+One common failure mode is stale closures around async or event-driven code. Example: a websocket callback or interval reads old state because the handler was created in an earlier render. The UI looks "randomly wrong" because the code is logically correct in isolation but wrong in React's render model.
+
+I fix it by identifying which render created the closure, then deciding whether the right tool is:
+
+- a functional state update
+- a ref holding the latest value
+- resubscribing when dependencies change
+- or moving logic out of the effect entirely
+
+The lesson is that most hard React bugs are not DOM bugs. They are identity, ownership, or lifecycle bugs.
+
+22) Why React.js?
+
+I: Why choose React over plain JavaScript or another UI library?
+
+C:
+I choose React when I want a predictable UI model for complex stateful interfaces. Its strength is not that it "renders components"; every library does that. Its real leverage is declarative state-driven UI, a strong composition model, a mature ecosystem, and enough escape hatches to scale from simple apps to very large systems.
+
+React also pushes good architectural habits:
+
+- UI as a function of state
+- explicit data flow
+- reusable composition patterns
+- strong tooling around profiling, testing, and framework integration
+
+I do not use React because it is fashionable. I use it when the complexity of the product justifies a component model and disciplined state management.
+
+23) What are state and props?
+
+I: Explain state and props simply but correctly.
+
+C:
+Props are inputs passed from a parent to a component. They are read-only from the child’s perspective. State is data owned by a component or store that can change over time and trigger UI updates.
+
+The practical distinction is ownership:
+
+- props are controlled from outside
+- state is controlled from inside the current owner
+
+If a child needs to influence prop values, it does not mutate props. It calls a callback or dispatches an action so the owner can update state and pass new props down.
+
+24) What is a hook?
+
+I: What is a hook in React, beyond just "functions starting with use"?
+
+C:
+A hook is React’s way of attaching state, effects, refs, and other component behavior to a function component while preserving React’s render ordering model. Hooks let function components participate in lifecycle and stateful behavior without classes.
+
+The critical constraint is that hooks rely on call order. That is why they must be called unconditionally at the top level of a component or custom hook. If you break that rule, React can no longer match hook state to the right call site.
+
+25) If we have `var`, `let`, and `const`, why do we need state variables?
+
+I: Why can’t I just use a normal variable?
+
+C:
+Because normal variables are not reactive. React does not track them, persist them across renders in the same way, or schedule UI updates when they change.
+
+Local variables are recalculated every render. State variables are managed by React across renders and tell React that the UI must be recomputed when they change. If you mutate a plain variable, React has no reason to re-render. If you update state, React schedules work.
+
+26) What is re-rendering, and why does it happen?
+
+I: What exactly is a re-render?
+
+C:
+A re-render is React calling a component again to produce the next UI description. It happens when React detects that something relevant changed:
+
+- local state changed
+- parent props changed
+- consumed context changed
+- an external store subscription reported a change
+
+Re-rendering is not the same thing as DOM mutation. React may re-render a component and still decide that little or nothing needs to change in the DOM after reconciliation.
+
+27) How do you pass parent data to the 5th child component?
+
+I: A value from the parent is needed five levels down. What do you do?
+
+C:
+Start with the simplest truth: if only that deep child needs the data, passing props down is fine. Depth alone is not a problem. The problem is when many intermediate components become meaningless pass-through layers.
+
+My decision rule:
+
+- props if the chain is short and ownership is clear
+- composition if I can place the child closer to the owner
+- context if many distant descendants need the same value
+- a store if the state is broadly shared and changes frequently
+
+I do not reach for global state just because the tree is deep once.
+
+28) Problems while passing props deeply
+
+I: What goes wrong when props are passed through many layers?
+
+C:
+The cost is usually architectural, not computational:
+
+- intermediate components become coupled to data they do not use
+- refactors become noisy because the prop chain must be updated everywhere
+- component APIs get polluted with pass-through props
+- ownership becomes less obvious
+
+This makes the tree harder to reason about and often signals that composition, context, or state boundaries need to improve.
+
+29) What is prop drilling?
+
+I: Define prop drilling precisely.
+
+C:
+Prop drilling is passing data through intermediate components that do not need the data themselves, only so deeper descendants can receive it. It is not inherently wrong, but it becomes a smell when the intermediates exist mostly as transport layers instead of meaningful UI boundaries.
+
+30) Difference between Context API and Redux Toolkit
+
+I: Compare Context API and Redux Toolkit. When do you choose each?
+
+C:
+Context is a dependency propagation mechanism. Redux Toolkit is a state management architecture with a store, reducers, actions, middleware, DevTools integration, and predictable update flow.
+
+Context works well for:
+
+- low-frequency shared state like theme, auth, locale, or injected services
+- simple ownership where broad rerenders are acceptable
+
+Redux Toolkit works better when:
+
+- state changes are frequent
+- many distant consumers need granular subscriptions
+- debugging and time-travel tooling matter
+- the team needs consistent conventions and predictable mutation flow
+
+Context is not a Redux replacement. It solves a different layer of the problem.
+
+31) Difference between `useMemo` and `React.memo`
+
+I: Compare them precisely.
+
+C:
+`useMemo` memoizes a value inside a component. `React.memo` memoizes a component’s rendered result by skipping rerender when props are shallow-equal.
+
+Use `useMemo` when:
+
+- computing a value is expensive
+- or you need stable object/array identity for downstream consumers
+
+Use `React.memo` when:
+
+- a child component is expensive
+- and it often receives the same props
+
+They are often used together, because `React.memo` is only helpful if the props passed to the child are stable.
+
+32) What happens if a component wrapped in `memo()` has its own state changes?
+
+I: Does `React.memo` block internal state updates?
+
+C:
+No. `React.memo` only compares incoming props from the parent. If the memoized component updates its own state, it still rerenders. The same is true if consumed context changes. `React.memo` is not a freeze mechanism; it only helps skip parent-driven rerenders when props are equal.
+
+33) What happens if a child uses `memo()` and parent props don’t change?
+
+I: Parent rerenders, child is memoized, props are unchanged. What happens?
+
+C:
+React still evaluates whether the child can be skipped, but the memoized child’s render function is not re-executed if the props are shallow-equal and there is no relevant state/context change inside the child. That is the actual benefit of `React.memo`: preventing unnecessary child rerenders caused by parent rerenders alone.
+
+34) Difference between `useMemo` and `useCallback`
+
+I: How do you explain the difference cleanly?
+
+C:
+`useMemo` memoizes the result of a computation. `useCallback` memoizes the function identity itself. Conceptually, `useCallback(fn, deps)` is just a convenience form of `useMemo(() => fn, deps)`.
+
+I use:
+
+- `useMemo` for expensive derived values or stable object/array references
+- `useCallback` for stable function props, event handlers passed to memoized children, or APIs that depend on stable callback identity
+
+Neither should be added by default. They are tools for measured optimization and API stability.
+
+35) When would you avoid `useMemo` even if it improves performance?
+
+I: If `useMemo` makes something faster, why would you still avoid it?
+
+C:
+Because performance is not the only cost. I avoid `useMemo` when the gain is small, the code becomes harder to reason about, or the dependency logic becomes fragile enough to create stale-value bugs.
+
+Typical cases:
+
+- the computation is cheap and the measured win is negligible
+- the memoized value makes dependencies harder to understand
+- the code becomes more brittle for future refactors
+- the optimization solves a local benchmark but not a user-visible bottleneck
+
+I optimize for total system clarity, not just render micro-metrics. A tiny speedup is not worth a harder-to-maintain component unless that path is actually hot.
+
+36) How does React Fiber actually help rendering?
+
+I: What is Fiber doing under the hood that matters in practice?
+
+C:
+Fiber is React’s internal work model that breaks rendering into units of work so React can pause, resume, reorder, and prioritize updates instead of treating every render as one uninterruptible recursive pass.
+
+What that buys React in practice:
+
+- interruptible rendering for better responsiveness
+- priority-aware scheduling (urgent updates before non-urgent ones)
+- the ability to resume work instead of throwing everything away
+- a structure for tracking effects, state, and update lanes per node
+
+This is what makes features like transitions, concurrent rendering behavior, and more graceful scheduling possible. Fiber is not about making every render magically faster. It is about making rendering more controllable under load.
+
+37) What problems do batched updates solve in real apps?
+
+I: Why does batching matter beyond "fewer renders"?
+
+C:
+Batched updates prevent React from doing intermediate work for every single state change in the same logical interaction. Without batching, a click handler that updates three related pieces of state could trigger multiple renders and brief inconsistent intermediate states.
+
+In real apps, batching helps by:
+
+- reducing unnecessary render/commit work
+- avoiding visible half-updated UI during a single event
+- keeping related state changes atomic from the user’s perspective
+- improving responsiveness when many updates happen together
+
+It is not just a performance optimization. It also improves correctness by making one interaction feel like one coherent update.
+
+38) When does `useRef` make more sense than state?
+
+I: Give me the decision rule for `useRef` vs state.
+
+C:
+`useRef` makes more sense when the value needs to persist across renders but changing it should not trigger a rerender.
+
+Good uses:
+
+- DOM nodes
+- timer IDs, observers, socket instances, third-party objects
+- previous values
+- latest values read by async callbacks or event handlers
+- imperative flags used internally, not for rendering
+
+Use state when the UI should react to the change. Use refs when the value is operational rather than visual. If the user needs to see it, it is probably state. If React only needs to remember it, a ref is often better.
+
+39) How do you optimize a large-scale React application?
+
+I: What changes when optimization is at application scale, not just one component?
+
+C:
+At scale, I optimize architecture first and components second. Most large React performance problems come from poor state boundaries, broad subscriptions, oversized bundles, and too much main-thread work, not from one missing `useMemo`.
+
+My playbook:
+
+- measure with RUM, React Profiler, and browser traces before changing code
+- keep state local by default and isolate shared state behind granular subscriptions
+- split context by concern and update frequency
+- virtualize large lists and large tables
+- reduce bundle size with route/code splitting and by challenging unnecessary dependencies
+- move expensive compute off the main thread when needed
+- use transitions and deferred rendering for non-urgent work
+- design for stable identities where memoization actually pays off
+
+At senior level, optimization is about system shape: data flow, ownership, rendering boundaries, and observability. Local component tweaks help, but architecture determines whether the app stays fast as the team and feature set grow.

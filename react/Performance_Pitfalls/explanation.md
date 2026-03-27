@@ -272,6 +272,8 @@ Best practice: use `React.memo` for components with stable props and expensive r
 
 Use the React Profiler to identify actual hotspots before optimizing.
 
+`react-scan` is also useful here. It is a lightweight development tool that visually highlights re-renders in the running app, which makes it good for quickly spotting noisy components before doing deeper analysis in the React DevTools Profiler.
+
 Note: `React.Profiler` is a built-in component provided by React. You do not implement it yourself.
 You can also send `onRender` timings to an observability tool (e.g., OpenTelemetry) for production profiling.
 
@@ -365,6 +367,7 @@ How to use it:
 - Wrap only the subtree you want to measure to keep logs focused.
 - Compare `actualDuration` before and after an optimization.
 - Look for components that re-render frequently with high `actualDuration`.
+- Use `react-scan` during development to quickly see which components are re-rendering as you interact with the page, then use the Profiler to quantify the cost and confirm whether the re-renders are actually expensive.
 
 DevTools: React DevTools has a Profiler tab that visualizes these timings and shows which components rendered.
 
@@ -374,6 +377,7 @@ Caveats:
 - If you're using `React.Profiler`, remove those components (or guard them by environment) to disable callback logging.
 - DevTools profiling is toggled in the React DevTools UI, independent of `React.Profiler`.
 - Memoization can reduce `actualDuration` but may increase complexity; verify gains.
+- `react-scan` is a debugging aid, not proof by itself. A highlighted re-render is only a problem if it is frequent or expensive enough to matter.
 
 ## Interview Questions and Answers
 

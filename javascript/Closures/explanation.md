@@ -2,7 +2,11 @@
 
 ## Introduction
 
-A closure is a function that has access to its own scope, the outer function's scope, and the global scope. It's created when a function is defined inside another function and the inner function is returned or passed as a value.
+JavaScript uses lexical scope, which means variable lookup is determined by where functions are defined in the source code, not by where they are called.
+
+A closure is a function together with the variables from its lexical environment that it continues to access. In practice, a closure lets a function "remember" variables from the scope where it was created, even after that outer scope has finished executing.
+
+Closures are especially noticeable when an inner function is returned or passed as a value, because the function continues to run later while still accessing variables from its original scope. However, returning or passing a function is not required for a closure to exist.
 
 ### Example of returning the inner function:
 
@@ -40,8 +44,10 @@ outer(); // After 1 second: "Count: 1"
 
 ## How Closures Work
 
-When a function is created, it creates a closure that captures the variables from its lexical environment.
-A lexical environment is the set of variables and bindings that are in scope where the function is defined (its local scope plus any outer scopes), fixed by the code’s structure rather than by how the function is called.
+When a function is created, it is linked to its lexical environment.
+A lexical environment is the set of variables and bindings that are in scope where the function is defined: its own local variables plus any variables from outer scopes that are available there.
+
+If the function later uses variables from that outer scope, the closure allows those variables to remain accessible for as long as the function needs them.
 
 Example:
 
@@ -203,7 +209,7 @@ Using an IIFE to capture the current value.
 
 ### 1. What is a closure?
 
-A closure is a function that has access to variables in its outer (enclosing) lexical scope, even after the outer function has finished executing. It's created whenever a function is defined inside another function and the inner function references variables from the outer scope.
+A closure is a function that continues to access variables from its enclosing lexical scope, even after the outer function has finished executing. It is a consequence of JavaScript's lexical scoping rules.
 
 ### 2. Explain with an example.
 

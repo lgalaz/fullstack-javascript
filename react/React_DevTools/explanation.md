@@ -4,6 +4,8 @@
 
 React DevTools is a browser extension that lets you inspect the component tree, props, state, and hooks in a running React app. It also includes a Profiler to measure render performance.
 
+For render-performance debugging, React DevTools pairs well with `react-scan`. React DevTools is stronger for inspecting the tree and recording profiler commits; `react-scan` is useful when you want an always-visible overlay that highlights re-renders in the running app while you interact with it.
+
 ## Components Tab (Inspecting UI State)
 
 Use the Components tab to:
@@ -30,15 +32,19 @@ What to look for:
 - High commit durations or long render times.
 - Unexpected renders after small state updates.
 
+`react-scan` can help you catch this faster during development because it makes noisy re-renders visible as you use the app, before you even open a flame graph.
+
 ## Browser DevTools (Supporting Tools)
 
 React DevTools works best alongside browser DevTools:
 - **Console**: runtime errors and warnings.
 - **Network**: API request timing, payload sizes, and failures.
 - **Performance**: long tasks, scripting time, and frame drops (missed frames that cause visible stutter during animations or scrolling).
+- **`react-scan`**: live re-render visualization for spotting components that update too often during normal interaction.
 
 ## Quick Tips
 
 - Start with the Profiler when you suspect performance issues.
+- Use `react-scan` early when you want a quick visual pass over re-render behavior while clicking through the app.
 - Use React DevTools to confirm memoization is helping.
 - Compare before/after when you add `useMemo` or `useCallback`.

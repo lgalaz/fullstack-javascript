@@ -190,8 +190,6 @@ const composed = compose(multiply, add);
 console.log(composed(3)); // 8 ( (3+1)*2 )
 ```
 
-### Right-to-Left Composition
-
 ```javascript
 const pipe = (f, g) => x => g(f(x)); // Left-to-right
 const piped = pipe(add, multiply);

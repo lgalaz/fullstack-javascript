@@ -1,3 +1,10 @@
+Core lenses for JavaScript:
+
+- Mental models: call stack, event loop, tasks vs microtasks, closures, and scope explain most "mysterious" behavior better than memorizing APIs.
+- Systems thinking: JavaScript runs inside host environments with queues, browser APIs, module systems, and memory constraints that shape architecture.
+- Scheduling awareness: when work runs matters as much as what it does, especially for promises, rendering, I/O, cancellation, and main-thread contention.
+- Trade-off reasoning: abstraction vs control, classes vs factories, promises vs callbacks, and convenience vs correctness or observability.
+
 ## What is JavaScript’s execution model at a high level?
 
 JavaScript is single-threaded for user code, but it runs on top of an event loop that coordinates asynchronous work. The runtime (browser or Node.js) provides task queues for macrotasks (timers, I/O, user events) and microtasks (promise reactions, queueMicrotask). The call stack runs until empty, then the engine drains microtasks, then processes the next macrotask. This model allows concurrency through non-blocking APIs while preserving deterministic single-threaded execution of your code.
@@ -204,3 +211,129 @@ Use gradual adoption: codemods for mechanical changes, lint rules to prevent reg
 ## How do you evaluate when to use Node.js on the server?
 
 Node is excellent for I/O-heavy workloads, real-time systems, and services that benefit from sharing JS code with the front end. It is less ideal for CPU-heavy work unless you offload to worker threads or external services. The decision depends on workload profile, team expertise, and operational constraints; the main risk is blocking the event loop with CPU or synchronous I/O.
+
+## What is the call stack?
+
+The call stack is the runtime structure that tracks which function is currently executing and who called it. Each function call pushes a new frame onto the stack; returning pops that frame off. JavaScript runs one stack frame at a time, which is why synchronous code is single-threaded from your perspective.
+
+If the stack grows without unwinding, you get a stack overflow. In practice, the call stack matters because no other JS runs until the current stack clears.
+
+## What is a Web API in the browser?
+
+Web APIs are browser-provided capabilities exposed to JavaScript outside the language itself: `setTimeout`, `fetch`, DOM events, `localStorage`, `IntersectionObserver`, and so on. They are not part of the ECMAScript language spec; they are provided by the host environment.
+
+This distinction matters because JavaScript itself does not know how to do I/O, timers, or DOM work. The browser does that work and later schedules callbacks back into the JS event loop.
+
+## What is the callback queue?
+
+The callback queue usually refers to the task queue (often called the macrotask queue) where callbacks from timers, DOM events, and other host APIs wait until the call stack is empty and the engine is ready to process the next task.
+
+Example sources:
+
+- `setTimeout`
+- `setInterval`
+- user input events
+- message events
+
+The engine does not interrupt the running stack to execute them. They wait their turn.
+
+## What is the microtask queue?
+
+The microtask queue holds higher-priority follow-up work that runs after the current call stack completes but before the next task is taken from the callback/task queue. Promise reactions and `queueMicrotask` use this queue.
+
+That is why Promises often appear to run "before" timers even when both were scheduled earlier in the same tick.
+
+## What is a callback function?
+
+A callback is a function passed to another function so it can be called later, either synchronously or asynchronously.
+
+Examples:
+
+- array methods like `map` and `forEach`
+- event listeners
+- timer handlers
+- Node-style APIs like `(err, result) => {}`
+
+Callbacks are fundamental because much of JavaScript control flow is built on them, even when higher-level abstractions like Promises or `async/await` hide them.
+
+## What is a Promise?
+
+A Promise is an object representing the eventual result of an asynchronous operation. It gives you a standard way to attach success and failure handlers and to compose async work without deeply nested callbacks.
+
+Promises do not make work asynchronous by themselves; they model async results and schedule their reactions as microtasks when they settle.
+
+## What are the different states of a Promise, and when do they occur?
+
+A Promise has three states:
+
+- `pending`: initial state, before the operation finishes
+- `fulfilled`: the operation completed successfully and produced a value
+- `rejected`: the operation failed and produced a reason/error
+
+Once a Promise becomes fulfilled or rejected, it is settled and cannot change again. Handlers attached later still run, because the Promise remembers its settled result.
+
+## What are `async` and `await`?
+
+`async` marks a function as returning a Promise. `await` pauses the function logically until a Promise settles, then resumes execution with the resolved value or throws the rejection as an error.
+
+This does not block the whole thread. It only suspends that async function’s execution and lets the event loop continue processing other work.
+
+## What is scope, block scope, and function scope?
+
+Scope is the region of code where a variable name is accessible.
+
+- Function scope: variables declared with `var` are visible throughout the containing function
+- Block scope: variables declared with `let` and `const` are visible only inside the nearest block (`{}`)
+
+This is why `var` inside an `if` or `for` can leak outside that block, while `let` and `const` do not.
+
+## Why do we get `ReferenceError: Cannot access 'x' before initialization`?
+
+Because `let` and `const` declarations exist from the start of the scope but are uninitialized until execution reaches their declaration line. Accessing them before that point is illegal, so JavaScript throws a `ReferenceError`.
+
+This is different from `var`, which is hoisted and initialized to `undefined`.
+
+## What is the Temporal Dead Zone (TDZ)?
+
+The TDZ is the period between entering a scope and executing the `let` or `const` declaration inside that scope. During that window, the variable exists conceptually but cannot be accessed.
+
+Example:
+
+```javascript
+{
+  console.log(x); // ReferenceError
+  let x = 1;
+}
+```
+
+The TDZ exists to prevent use-before-initialization bugs and make variable behavior more predictable.
+
+## What is the difference between `map`, `filter`, and `forEach`?
+
+They all iterate, but they serve different purposes:
+
+- `map` transforms each item and returns a new array of the same length
+- `filter` keeps only items matching a condition and returns a new array that may be shorter
+- `forEach` runs side effects for each item and returns `undefined`
+
+I use:
+
+- `map` for data transformation
+- `filter` for selection
+- `forEach` for side effects like logging or mutation of external state
+
+If I need a derived value rather than side effects, `forEach` is usually the wrong tool.
+
+## What is the difference between `undefined` and `not defined`?
+
+`undefined` is an actual JavaScript value. A variable can exist and currently hold `undefined`, either because it was explicitly assigned or because it has been declared but not given a value.
+
+"Not defined" means the identifier does not exist in the current scope at all, which causes a `ReferenceError` when you try to access it.
+
+Example:
+
+```javascript
+let a;
+console.log(a); // undefined
+console.log(b); // ReferenceError: b is not defined
+```

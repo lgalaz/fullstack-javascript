@@ -1,3 +1,10 @@
+Core lenses for TypeScript:
+
+- Mental models: TypeScript is a static modeling layer over JavaScript, not a runtime guarantee system.
+- Systems thinking: types define boundaries between modules, teams, and data flows, so they shape refactors, API design, and invalid-state prevention across the codebase.
+- Scheduling awareness: TypeScript catches problems before runtime in the build/editor pipeline, which changes when feedback arrives even though it does not change runtime scheduling.
+- Trade-off reasoning: safety vs friction, inference vs explicitness, structural flexibility vs accidental compatibility, and compile-time guarantees vs runtime validation.
+
 ## TypeScript’s value proposition (baseline sanity check). What problem does TypeScript actually solve, beyond “types for JavaScript”?
 
 TypeScript is a static analysis and tooling layer over JavaScript, not a runtime system.

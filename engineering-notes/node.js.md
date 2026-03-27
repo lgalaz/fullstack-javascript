@@ -1,3 +1,10 @@
+Core lenses for Node.js:
+
+- Mental models: Node is an event-driven runtime coordinating I/O, not a magic parallel execution engine for JavaScript.
+- Systems thinking: throughput, latency, backpressure, memory, worker boundaries, and dependency behavior all interact at service scale.
+- Scheduling awareness: event-loop phases, microtasks, thread-pool usage, and blocking work determine whether the system stays responsive under load.
+- Trade-off reasoning: simplicity vs concurrency control, sync convenience vs latency cost, in-process work vs offloading, and framework speed vs operational clarity.
+
 1. Node.js runtime & execution model
 Interviewer
 

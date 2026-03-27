@@ -2,14 +2,15 @@
 
 ## Introduction
 
-JavaScript has a decorators proposal (stage 3) that allows you to wrap or modify classes and class members. As of today, decorators are not universally available in runtimes, so you typically use a transpiler (Babel or TypeScript) to enable them.
+JavaScript has a decorators proposal (Stage 3) that allows you to wrap or modify classes and class members. Decorators are increasingly supported in modern tooling, but support still depends on your runtime and build setup, so many projects use TypeScript or Babel to compile them.
 
 ## Enabling Decorators
 
-- Babel: use the decorators plugin.
-- TypeScript: set `experimentalDecorators` and compile to JavaScript.
+- TypeScript 5.0+ supports the current Stage 3 decorators model.
+- TypeScript's `experimentalDecorators` flag enables the older legacy decorator model, which behaves differently.
+- Babel supports decorators through its decorators plugin, but you must configure which decorator version/proposal mode you want.
 
-The exact syntax depends on whether you are using the newer proposal or legacy decorators, so follow your toolchain's docs.
+The exact behavior depends on whether you are using the current standard-style decorators or legacy decorators. They are not interchangeable, so check your toolchain docs before copying examples.
 
 ## Class Decorator Example (Proposal Style)
 
@@ -83,11 +84,11 @@ class Account {
 
 ### 1. Are decorators part of JavaScript today?
 
-They are a proposal and not universally supported in runtimes, so you usually need a transpiler.
+They are still a Stage 3 proposal. Modern toolchains support them, but runtime support is not universal, so many projects still rely on TypeScript or Babel.
 
 ### 2. How do decorators differ between toolchains?
 
-Some toolchains use legacy decorator semantics while others use the newer proposal, which changes the function signature.
+Some toolchains use legacy decorator semantics while others use the current Stage 3 proposal. The APIs and behavior differ, not just the syntax.
 
 ### 3. What is a risk of decorators?
 

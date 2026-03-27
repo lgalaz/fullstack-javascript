@@ -1,3 +1,10 @@
+Core lenses for CSS:
+
+- Mental models: think in formatting contexts, cascade, layout systems, and paint/compositing rules rather than isolated declarations.
+- Systems thinking: selectors, tokens, layers, and layout choices interact across the whole UI, so local CSS decisions can create global maintenance cost.
+- Scheduling awareness: some CSS changes trigger style recalculation, layout, paint, or compositing, so performance depends on where work lands in the rendering pipeline.
+- Trade-off reasoning: Flexbox vs Grid, utility layers vs component styling, runtime theming vs simplicity, and expressive selectors vs long-term predictability.
+
 1) Cascade and specificity
 
 Note: Explain how the cascade works and how you avoid specificity wars.
@@ -191,3 +198,59 @@ Note: When do you use @extend, mixins, or functions?
 - `@function` returns a value (numbers, colors, strings). Use for calculations you reuse in many declarations.
 
 Rule of thumb: extend for shared selectors, mixins for repeated CSS output, functions for computed values.
+
+13) What is a pseudo-class in CSS?
+
+Note: Explain pseudo-classes clearly and give real examples.
+
+A pseudo-class targets an element based on state, structure, or interaction without adding extra classes in the HTML. Examples:
+
+- `:hover` when the pointer is over an element
+- `:focus` and `:focus-visible` for keyboard or focus state
+- `:first-child` based on document structure
+- `:disabled` for disabled form controls
+- `:has()` for parent-aware matching
+
+They are different from pseudo-elements like `::before`, which create a stylable generated box rather than matching an element state.
+
+14) How do you center an element horizontally?
+
+Note: What are the main ways, and when do you use each?
+
+It depends on the layout model:
+
+- Block element with known width: `margin-inline: auto`
+- Flex container: `display: flex; justify-content: center`
+- Grid container: `display: grid; justify-content: center` or `place-items: center`
+- Inline content or text: `text-align: center` on the parent
+
+I choose based on the layout context rather than memorizing one centering trick. Most centering confusion comes from using a technique meant for a different formatting context.
+
+15) Difference between `position: relative` and `position: absolute`
+
+Note: What changes semantically and in layout?
+
+`position: relative` keeps the element in normal document flow, but lets you offset it visually with `top/right/bottom/left`. It also establishes a containing block for absolutely positioned descendants.
+
+`position: absolute` removes the element from normal flow and positions it relative to its nearest positioned ancestor (or the initial containing block if none exists). That means surrounding layout no longer reserves space for it.
+
+Rule of thumb:
+
+- `relative` when you want a local positioning context or a small visual offset
+- `absolute` when you want an overlay, badge, tooltip, or other element that should not participate in normal flow
+
+16) What is Flexbox?
+
+Note: Explain Flexbox at the right level.
+
+Flexbox is a one-dimensional layout system for distributing space and aligning items along a main axis and a cross axis. It is ideal when the primary problem is arranging items in a row or column and controlling spacing, wrapping, and alignment.
+
+Core concepts:
+
+- `display: flex` creates a flex formatting context
+- `flex-direction` defines the main axis
+- `justify-content` aligns along the main axis
+- `align-items` aligns along the cross axis
+- `flex-grow`, `flex-shrink`, and `flex-basis` control how items size
+
+I use Flexbox for nav bars, button groups, toolbars, card rows, and vertical stacks. If I need two-dimensional placement with both rows and columns controlled together, I switch to Grid.

@@ -1,24 +1,9 @@
 # Async Communication Strategies (Polling, SSE, WebSockets)
 
-## Introduction
-
-This topic explains how browsers keep data updated without full page reloads. It focuses on the common strategies: polling, long polling, Server-Sent Events (SSE), streaming responses via fetch, and WebSockets, plus older request mechanisms like XMLHttpRequest (XHR).
-
 ## Core Terms (Quick Definitions)
 
 - **HTTP request**: A message the browser sends to a server to ask for data.
 - **Response**: The server's reply to a request.
-- **Polling**: The client repeatedly asks the server for updates.
-- **Long polling**: The server holds the request open until new data is available.
-- **SSE (Server-Sent Events)**: A one-way, server-to-client stream over HTTP.
-- **Fetch streaming (ReadableStream)**: Reading a single HTTP response incrementally as chunks arrive.
-- **WebSocket**: A two-way, persistent connection between client and server.
-- **XHR (XMLHttpRequest)**: A legacy but still widely used browser API for making HTTP requests; many libraries wrap it even though `fetch` is the modern standard.
-- **Fetch**: The modern browser API for making HTTP requests.
-
-## Why This Is JavaScript (Not HTML)
-
-HTML defines the structure of a page. These strategies are about network requests and event handling, which are controlled by JavaScript running in the browser or in a server environment.
 
 ## Short Polling (Basic Polling)
 
@@ -233,7 +218,7 @@ app.listen(3000, () => console.log('Streaming server on :3000'));
 - Works over plain HTTP and supports incremental updates.
 - More flexible than SSE when you need custom framing or binary data.
   - Custom framing means you define how each message is delimited and parsed (for example, NDJSON lines, length-prefixed blobs, or your own protocol markers).
-  - Binary data is useful for non-text payloads like images, audio chunks, protobuf messages, or compressed buffers to reduce overhead.
+  - Binary data is useful for non-text payloads like images, audio chunks, protobuf messages (“structured binary messages defined by a schema.”), or compressed buffers to reduce overhead.
 
 **Cons**:
 

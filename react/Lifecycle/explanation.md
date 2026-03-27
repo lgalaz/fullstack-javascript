@@ -117,6 +117,7 @@ This section lists common options and a simple workflow for debugging issues wit
 
 - **React DevTools**: Inspect component tree, props, and state.
 - **React DevTools Profiler**: Measure render time and re-render frequency.
+- **`react-scan`**: Visualize re-renders directly in the running app to spot noisy components quickly.
 - **Browser DevTools**: Network, Performance, and Console panels.
 - **Console logs**: `console.log` in render and effects for quick tracing.
 
@@ -125,7 +126,7 @@ This section lists common options and a simple workflow for debugging issues wit
 1. **Decide if the slowness is network or rendering**
    - Check Network timings and JS bundle size in DevTools.
 2. **Check render cost**
-   - Use React DevTools Profiler to find expensive components.
+   - Use `react-scan` for a fast visual pass, then React DevTools Profiler to find expensive components and confirm the cost.
 3. **Reduce unnecessary renders**
    - Memoize expensive components or stabilize props and callbacks.
 4. **Confirm the fix**

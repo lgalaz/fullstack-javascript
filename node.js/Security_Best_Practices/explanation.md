@@ -50,5 +50,6 @@ server.listen(3000);
 - Operational failure: secrets are stored in `.env` files committed to the repo or exposed in logs, CI output, or crash reports.
 - Operational failure: dependencies are outdated or compromised, and lockfile changes are merged without review.
 - Operational failure: production runs without rate limiting, request size limits, or timeouts, so one client can degrade availability for everyone else.
+
 - Minimize dependencies and review lockfile changes.
 - Never trust auth alone; enforce authorization and input validation separately.

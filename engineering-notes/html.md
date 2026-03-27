@@ -1,3 +1,10 @@
+Core lenses for HTML:
+
+- Mental models: HTML is document structure and semantics first, not just something CSS and JavaScript decorate later.
+- Systems thinking: markup affects accessibility, SEO, form behavior, browser defaults, and how other layers can safely build on top of it.
+- Scheduling awareness: script loading, parser blocking, native form behavior, and progressive enhancement all affect when the browser can render and respond.
+- Trade-off reasoning: native elements vs custom widgets, semantics vs over-ARIA, declarative behavior vs JavaScript control, and resilience vs visual freedom.
+
 1) Semantic HTML and accessibility
 
 Note: Explain why semantic elements matter and how they affect accessibility and SEO.
